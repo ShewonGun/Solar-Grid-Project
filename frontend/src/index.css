@@ -1,0 +1,19 @@
+@import "tailwindcss";
+
+@theme {
+  /* Outfit is the single typeface for the whole website. */
+  --font-sans: "Outfit", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  /* Corner radii kept tight; nothing in the UI is pill-shaped. */
+  --radius-xs: 2px;
+  --radius-sm: 3px;
+  --radius-md: 4px;
+  --radius-lg: 5px;
+}
+
+/* Smooths the Outfit rendering and keeps long forms from shifting on scroll. */
+body {
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  scrollbar-gutter: stable;
+}

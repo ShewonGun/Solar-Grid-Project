@@ -103,8 +103,28 @@ Write-Host "  connection string and JWT key resolved" -ForegroundColor Green
 Write-Host "`n[4/7] Publishing to $SitePath" -ForegroundColor Cyan
 
 if (Test-Path $SitePath) {
-    # Stop the site first, otherwise the running app locks its own DLLs.
+    # Stop the site AND its application pool, otherwise the running app locks its
+    # own DLLs. Stopping the site alone is not enough: the worker process belongs
+    # to the pool and keeps running, holding SmartMicrogrid.Api.dll open, which
+    # makes the publish below fail with MSB3027. startMode is AlwaysRunning, so
+    # the pool has to be stopped explicitly.
     if (Get-Website -Name $SiteName -ErrorAction SilentlyContinue) { Stop-Website -Name $SiteName -ErrorAction SilentlyContinue }
+
+    if (Test-Path "IIS:\AppPools\$SiteName") {
+        Stop-WebAppPool -Name $SiteName -ErrorAction SilentlyContinue
+
+        # Wait for the worker process to actually exit; the file stays locked
+        # until it does, and that takes a moment after the stop is requested.
+        $deadline = (Get-Date).AddSeconds(30)
+        while ((Get-Date) -lt $deadline) {
+            $workers = @(Get-ChildItem "IIS:\AppPools\$SiteName\WorkerProcesses" -ErrorAction SilentlyContinue)
+            if ($workers.Count -eq 0) { break }
+            Start-Sleep -Milliseconds 500
+        }
+        if ($workers.Count -gt 0) {
+            Write-Host "  worker process still running after 30s; publish may fail" -ForegroundColor Yellow
+        }
+    }
     Start-Sleep -Seconds 2
 }
 New-Item -ItemType Directory -Force -Path $SitePath | Out-Null

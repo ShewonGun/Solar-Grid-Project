@@ -13,3 +13,6 @@ publish/
 
 # Local configuration overrides that may hold secrets
 appsettings.*.local.json
+
+# Local run logs
+*.log

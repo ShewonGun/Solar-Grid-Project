@@ -1,0 +1,233 @@
+# Smart Solar Microgrid Web Service - sample requests
+#
+# Run the API first (F5, or: dotnet run). Send "Login as Backoffice" once and the
+# @token variable below picks up the JWT for every request that follows.
+# Swap in the prosumer or operator login to exercise the role rules.
+
+@host = http://localhost:5199
+
+### Health - does the service reach MongoDB? (no token needed)
+GET {{host}}/api/database/ping
+
+### Login as Backoffice - sets @token for the requests below
+# @name login
+POST {{host}}/api/auth/login
+Content-Type: application/json
+
+{
+  "identifier": "199000000001",
+  "password": "<the Seed:AdminPassword you configured>"
+}
+
+@token = {{login.response.body.token}}
+
+### Who am I?
+GET {{host}}/api/auth/me
+Authorization: Bearer {{token}}
+
+###
+# --------------------------------------------------------------------------
+# Users  (NIC is the primary key)
+# --------------------------------------------------------------------------
+
+### Prosumer self-registration - account waits for Backoffice activation (no token)
+POST {{host}}/api/auth/register
+Content-Type: application/json
+
+{
+  "nic": "200012345678",
+  "fullName": "Nimal Perera",
+  "email": "nimal@example.com",
+  "phone": "0771234567",
+  "address": "12 Galle Road, Colombo",
+  "solarCapacityKW": 5.5,
+  "password": "Password123"
+}
+
+### Accounts waiting for activation (Backoffice only)
+GET {{host}}/api/users/pending-activations
+Authorization: Bearer {{token}}
+
+### Activate or reactivate an account (Backoffice only)
+POST {{host}}/api/users/200012345678/activate
+Authorization: Bearer {{token}}
+
+### Create a Grid Operator (Backoffice only; active immediately)
+POST {{host}}/api/users
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "nic": "199512345678",
+  "fullName": "Kamal Silva",
+  "email": "kamal@example.com",
+  "phone": "0712345678",
+  "address": "45 Kandy Road, Kadawatha",
+  "role": "GridOperator",
+  "password": "Password123"
+}
+
+### List users, filtered (Backoffice only)
+GET {{host}}/api/users?role=Prosumer&status=Active
+Authorization: Bearer {{token}}
+
+### Prosumer asks for their own account to be deactivated (send with a PROSUMER token)
+POST {{host}}/api/users/me/deactivation-request
+Authorization: Bearer {{token}}
+
+### Deactivate an account (Backoffice only) - also cancels that prosumer's open bookings
+POST {{host}}/api/users/200012345678/deactivate
+Authorization: Bearer {{token}}
+
+###
+# --------------------------------------------------------------------------
+# Solar stations  (Backoffice manages; everyone can read)
+# --------------------------------------------------------------------------
+
+### Create a station (Backoffice only)
+# @name createStation
+POST {{host}}/api/stations
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "stationName": "Colombo Fort Hub",
+  "latitude": 6.9271,
+  "longitude": 79.8612,
+  "capacityKWh": 250,
+  "totalBatterySlots": 8,
+  "operatingSchedule": "Mon-Sun 06:00-22:00"
+}
+
+@stationId = {{createStation.response.body.id}}
+
+### All stations
+GET {{host}}/api/stations
+Authorization: Bearer {{token}}
+
+### Nearby stations for the map, nearest first
+GET {{host}}/api/stations/nearby?latitude=6.9271&longitude=79.8612&radiusKm=25
+Authorization: Bearer {{token}}
+
+### Deactivate a station - refused while it has active reservations
+PATCH {{host}}/api/stations/{{stationId}}/active
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "isActive": false
+}
+
+###
+# --------------------------------------------------------------------------
+# Booking slots  (Backoffice and Grid Operators)
+# --------------------------------------------------------------------------
+
+### Create a slot - times are UTC and must be in the future
+# @name createSlot
+POST {{host}}/api/slots
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "stationId": "{{stationId}}",
+  "batterySlotNumber": 1,
+  "startTime": "2026-09-22T03:00:00Z",
+  "endTime": "2026-09-22T05:00:00Z",
+  "capacityKWh": 30,
+  "isAvailable": true
+}
+
+@slotId = {{createSlot.response.body.id}}
+
+### Slots a prosumer can book now (available, active station, within 7 days)
+GET {{host}}/api/slots/bookable
+Authorization: Bearer {{token}}
+
+### Every slot at one station (Backoffice or Grid Operator)
+GET {{host}}/api/stations/{{stationId}}/slots
+Authorization: Bearer {{token}}
+
+### Take a slot out of service - refused once it is reserved
+PATCH {{host}}/api/slots/{{slotId}}/availability
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "isAvailable": false
+}
+
+###
+# --------------------------------------------------------------------------
+# Reservations  (the 7-day window and 12-hour notice rules live here)
+# --------------------------------------------------------------------------
+
+### Book a slot - as a prosumer, omit prosumerNic; as staff, name the prosumer
+# @name createReservation
+POST {{host}}/api/reservations
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "prosumerNic": "200012345678",
+  "slotId": "{{slotId}}",
+  "type": "DropOff",
+  "energyKWh": 12.5
+}
+
+@reservationId = {{createReservation.response.body.id}}
+
+### The prosumer's current and pending bookings
+GET {{host}}/api/reservations/upcoming?prosumerNic=200012345678
+Authorization: Bearer {{token}}
+
+### Booking history
+GET {{host}}/api/reservations/history?prosumerNic=200012345678
+Authorization: Bearer {{token}}
+
+### Dashboard counts
+GET {{host}}/api/reservations/dashboard
+Authorization: Bearer {{token}}
+
+### Change a booking - needs 12 hours' notice, and the new slot must also be 12 hours away
+PUT {{host}}/api/reservations/{{reservationId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "energyKWh": 15
+}
+
+### Approve a booking and issue its QR token (Backoffice or Grid Operator)
+# @name approve
+POST {{host}}/api/reservations/{{reservationId}}/approve
+Authorization: Bearer {{token}}
+
+### Verify a scanned QR code before finalising (Backoffice or Grid Operator)
+# The prosumer's app shows this token in its QR code; read it from the approving
+# prosumer's own GET /api/reservations/{id}, which is the only place it is returned.
+POST {{host}}/api/reservations/verify-qr
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "qrToken": "<token from the scanned QR code>"
+}
+
+### Finalise the energy transfer (Backoffice or Grid Operator)
+POST {{host}}/api/reservations/complete
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "qrToken": "<token from the scanned QR code>"
+}
+
+### Cancel a booking - needs 12 hours' notice
+POST {{host}}/api/reservations/{{reservationId}}/cancel
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "reason": "Panels offline for maintenance"
+}

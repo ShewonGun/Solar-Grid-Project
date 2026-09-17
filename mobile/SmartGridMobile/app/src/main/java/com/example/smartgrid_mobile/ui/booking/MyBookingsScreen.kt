@@ -22,7 +22,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -65,8 +64,8 @@ import com.example.smartgrid_mobile.ui.common.reservationTypeLabel
 @Composable
 fun MyBookingsScreen(
     viewModel: MyBookingsViewModel,
-    onBack: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    bottomBar: @Composable () -> Unit = {}
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
@@ -75,18 +74,14 @@ fun MyBookingsScreen(
         topBar = {
             CenterAlignedTopAppBar(
                 title = { Text("My bookings", fontWeight = FontWeight.SemiBold) },
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
-                    }
-                },
                 actions = {
                     IconButton(onClick = viewModel::load, enabled = !state.loading) {
                         Icon(Icons.Default.Refresh, contentDescription = "Refresh")
                     }
                 }
             )
-        }
+        },
+        bottomBar = bottomBar
     ) { padding ->
         Column(
             modifier = Modifier

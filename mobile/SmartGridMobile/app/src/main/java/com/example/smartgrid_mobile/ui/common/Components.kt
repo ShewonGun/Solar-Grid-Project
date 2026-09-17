@@ -49,6 +49,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.text.KeyboardOptions
+import com.example.smartgrid_mobile.ui.theme.successColors
 
 /** Severity of a [MessageBanner]; drives its colour only. */
 enum class BannerTone { INFO, SUCCESS, ERROR }
@@ -76,8 +77,10 @@ fun MessageBanner(
             icon = Icons.Default.Error
         }
         BannerTone.SUCCESS -> {
-            container = colors.primaryContainer
-            content = colors.onPrimaryContainer
+            // Success keeps its own green so it does not read as a brand banner.
+            val success = successColors()
+            container = success.container
+            content = success.onContainer
             icon = Icons.Default.CheckCircle
         }
         BannerTone.INFO -> {

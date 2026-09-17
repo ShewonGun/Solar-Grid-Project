@@ -16,18 +16,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
 private val LightColors = lightColorScheme(
-    primary = GridGreen,
+    primary = SolarOrange,
     onPrimary = Color.White,
-    primaryContainer = GridGreenContainer,
-    onPrimaryContainer = GridOnGreenContainer,
-    secondary = GridMuted,
+    primaryContainer = SolarContainer,
+    onPrimaryContainer = OnSolarContainer,
+    secondary = SolarOrangeDark,
     onSecondary = Color.White,
-    secondaryContainer = GridSurfaceVariant,
-    onSecondaryContainer = GridInk,
-    tertiary = GridAmber,
+    secondaryContainer = SolarContainerSoft,
+    onSecondaryContainer = OnSolarContainer,
+    tertiary = GridTeal,
     onTertiary = Color.White,
-    tertiaryContainer = GridAmberContainer,
-    onTertiaryContainer = Color(0xFF4A2B00),
+    tertiaryContainer = GridTealContainer,
+    onTertiaryContainer = OnGridTealContainer,
     background = GridBackground,
     onBackground = GridInk,
     surface = GridSurface,
@@ -43,18 +43,18 @@ private val LightColors = lightColorScheme(
 )
 
 private val DarkColors = darkColorScheme(
-    primary = GridGreenLight,
-    onPrimary = Color(0xFF00391F),
-    primaryContainer = GridGreenContainerDark,
-    onPrimaryContainer = GridGreenContainer,
-    secondary = GridMutedDark,
-    onSecondary = Color(0xFF1B211F),
-    secondaryContainer = GridSurfaceVariantDark,
-    onSecondaryContainer = GridInkDark,
-    tertiary = Color(0xFFE8B972),
-    onTertiary = Color(0xFF3F2A00),
-    tertiaryContainer = Color(0xFF4F3400),
-    onTertiaryContainer = GridAmberContainer,
+    primary = SolarOrangeLight,
+    onPrimary = OnSolarOrangeDark,
+    primaryContainer = SolarContainerDark,
+    onPrimaryContainer = SolarContainer,
+    secondary = SolarGlow,
+    onSecondary = OnSolarOrangeDark,
+    secondaryContainer = SolarContainerSoftDark,
+    onSecondaryContainer = SolarContainer,
+    tertiary = GridTealLight,
+    onTertiary = Color(0xFF00363F),
+    tertiaryContainer = GridTealContainerDark,
+    onTertiaryContainer = GridTealContainer,
     background = GridBackgroundDark,
     onBackground = GridInkDark,
     surface = GridSurfaceDark,
@@ -68,6 +68,17 @@ private val DarkColors = darkColorScheme(
     errorContainer = Color(0xFF8C1D18),
     onErrorContainer = Color(0xFFF9DEDC)
 )
+
+/** Success colours, which sit outside the Material scheme so the brand can be orange. */
+data class SuccessColors(val container: Color, val onContainer: Color, val accent: Color)
+
+/** Returns the success pair that matches the active light or dark scheme. */
+@Composable
+fun successColors(darkTheme: Boolean = isSystemInDarkTheme()): SuccessColors = if (darkTheme) {
+    SuccessColors(GridSuccessContainerDark, GridSuccessLight, GridSuccessLight)
+} else {
+    SuccessColors(GridSuccessContainer, OnGridSuccessContainer, GridSuccess)
+}
 
 @Composable
 fun SmartGridMobileTheme(

@@ -11,6 +11,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import com.example.smartgrid_mobile.data.remote.AccountStatus
+import com.example.smartgrid_mobile.ui.theme.successColors
 
 /** Display label plus chip colours for one account status. */
 data class StatusVisuals(
@@ -23,9 +24,11 @@ data class StatusVisuals(
 @Composable
 fun statusVisuals(status: String?): StatusVisuals {
     val colors = MaterialTheme.colorScheme
+    val success = successColors()
     return when (status) {
+        // Green rather than the brand orange, so "active" still reads as a good state.
         AccountStatus.ACTIVE ->
-            StatusVisuals("Active", colors.primaryContainer, colors.onPrimaryContainer)
+            StatusVisuals("Active", success.container, success.onContainer)
 
         AccountStatus.PENDING_ACTIVATION ->
             StatusVisuals("Pending activation", colors.tertiaryContainer, colors.onTertiaryContainer)

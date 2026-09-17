@@ -1,8 +1,9 @@
 /* ============================================================================
  * File        : SmartGridNavHost.kt
  * Purpose     : Navigation graph for the SmartGrid mobile client. Decides the
- *               start destination from the SQLite-cached session and routes a
- *               fresh login to the home screen that matches the user's role.
+ *               start destination from the SQLite-cached session, routes a
+ *               fresh login to the home screen that matches the user's role,
+ *               and drives the prosumer bottom navigation bar.
  * Author      : SmartGrid Mobile Team
  * Created     : 2026-09-17
  * ==========================================================================*/
@@ -19,6 +20,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import com.example.smartgrid_mobile.core.AppViewModelFactory
@@ -79,6 +81,25 @@ fun SmartGridNavHost(navController: NavHostController = rememberNavController())
         }
     }
 
+    // The route on screen right now, used to light up the matching bottom tab.
+    val currentEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = currentEntry?.destination?.route
+
+    // Switches tabs without stacking them, so back always returns to Home rather
+    // than walking the tab history. State is deliberately not saved: the slot and
+    // booking lists reload from the API on every visit instead of going stale.
+    val selectTab: (String) -> Unit = { route ->
+        navController.navigate(route) {
+            popUpTo(Routes.PROSUMER_HOME)
+            launchSingleTop = true
+        }
+    }
+
+    // Handed to every tab destination so they all render the same bar.
+    val prosumerBottomBar: @Composable () -> Unit = {
+        ProsumerBottomBar(currentRoute = currentRoute, onSelect = selectTab)
+    }
+
     NavHost(navController = navController, startDestination = startDestination) {
 
         composable(Routes.LOGIN) {
@@ -127,17 +148,18 @@ fun SmartGridNavHost(navController: NavHostController = rememberNavController())
                 val viewModel = prosumerViewModel(navController, entry)
                 ProsumerHomeScreen(
                     viewModel = viewModel,
+                    bottomBar = prosumerBottomBar,
                     onEditProfile = {
                         viewModel.clearMessages()
-                        navController.navigate(Routes.PROSUMER_PROFILE)
+                        selectTab(Routes.PROSUMER_PROFILE)
                     },
                     onMyBookings = {
                         viewModel.clearMessages()
-                        navController.navigate(Routes.PROSUMER_BOOKINGS)
+                        selectTab(Routes.PROSUMER_BOOKINGS)
                     },
                     onBookSlot = {
                         viewModel.clearMessages()
-                        navController.navigate(Routes.PROSUMER_BOOK_SLOT)
+                        selectTab(Routes.PROSUMER_BOOK_SLOT)
                     },
                     onChangePassword = {
                         viewModel.clearMessages()
@@ -149,8 +171,9 @@ fun SmartGridNavHost(navController: NavHostController = rememberNavController())
             composable(Routes.PROSUMER_PROFILE) { entry ->
                 EditProfileScreen(
                     viewModel = prosumerViewModel(navController, entry),
-                    onSaved = { navController.popBackStack() },
-                    onBack = { navController.popBackStack() }
+                    bottomBar = prosumerBottomBar,
+                    // A saved profile drops the user back on the Home tab.
+                    onSaved = { selectTab(Routes.PROSUMER_HOME) }
                 )
             }
 
@@ -160,7 +183,7 @@ fun SmartGridNavHost(navController: NavHostController = rememberNavController())
                 val bookingViewModel: BookingViewModel = viewModel(factory = AppViewModelFactory)
                 BookSlotScreen(
                     viewModel = bookingViewModel,
-                    onBack = { navController.popBackStack() }
+                    bottomBar = prosumerBottomBar
                 )
             }
 
@@ -170,7 +193,7 @@ fun SmartGridNavHost(navController: NavHostController = rememberNavController())
                     viewModel(factory = AppViewModelFactory)
                 MyBookingsScreen(
                     viewModel = bookingsViewModel,
-                    onBack = { navController.popBackStack() }
+                    bottomBar = prosumerBottomBar
                 )
             }
 

@@ -14,6 +14,7 @@ import com.example.smartgrid_mobile.ui.auth.RegisterViewModel
 import com.example.smartgrid_mobile.ui.booking.BookingViewModel
 import com.example.smartgrid_mobile.ui.booking.MyBookingsViewModel
 import com.example.smartgrid_mobile.ui.prosumer.ProsumerViewModel
+import com.example.smartgrid_mobile.ui.qr.TransactionQrViewModel
 
 object AppViewModelFactory : ViewModelProvider.Factory {
 
@@ -33,6 +34,9 @@ object AppViewModelFactory : ViewModelProvider.Factory {
 
             modelClass.isAssignableFrom(MyBookingsViewModel::class.java) ->
                 MyBookingsViewModel(ServiceLocator.reservationRepository) as T
+
+            modelClass.isAssignableFrom(TransactionQrViewModel::class.java) ->
+                TransactionQrViewModel(ServiceLocator.reservationRepository) as T
 
             modelClass.isAssignableFrom(ProsumerViewModel::class.java) ->
                 ProsumerViewModel(repository) as T

@@ -18,11 +18,13 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.smartgrid_mobile.core.AppViewModelFactory
 import com.example.smartgrid_mobile.core.ServiceLocator
 import com.example.smartgrid_mobile.data.remote.Roles
@@ -40,6 +42,8 @@ import com.example.smartgrid_mobile.ui.prosumer.ChangePasswordScreen
 import com.example.smartgrid_mobile.ui.prosumer.EditProfileScreen
 import com.example.smartgrid_mobile.ui.prosumer.ProsumerHomeScreen
 import com.example.smartgrid_mobile.ui.prosumer.ProsumerViewModel
+import com.example.smartgrid_mobile.ui.qr.TransactionQrScreen
+import com.example.smartgrid_mobile.ui.qr.TransactionQrViewModel
 
 /** Route names for every destination in the graph. */
 object Routes {
@@ -51,7 +55,15 @@ object Routes {
     const val PROSUMER_PASSWORD = "prosumer/password"
     const val PROSUMER_BOOK_SLOT = "prosumer/book-slot"
     const val PROSUMER_BOOKINGS = "prosumer/bookings"
+    const val PROSUMER_QR = "prosumer/qr"
     const val OPERATOR_HOME = "operator/home"
+
+    /** Optional argument naming the booking the QR screen should open on. */
+    const val ARG_RESERVATION_ID = "reservationId"
+
+    /** Route for the QR screen, optionally pointed at one booking. */
+    fun prosumerQr(reservationId: String? = null): String =
+        if (reservationId.isNullOrBlank()) PROSUMER_QR else "$PROSUMER_QR?$ARG_RESERVATION_ID=$reservationId"
 }
 
 @Composable
@@ -161,6 +173,10 @@ fun SmartGridNavHost(navController: NavHostController = rememberNavController())
                         viewModel.clearMessages()
                         selectTab(Routes.PROSUMER_BOOK_SLOT)
                     },
+                    onTransactionQr = {
+                        viewModel.clearMessages()
+                        navController.navigate(Routes.prosumerQr())
+                    },
                     onChangePassword = {
                         viewModel.clearMessages()
                         navController.navigate(Routes.PROSUMER_PASSWORD)
@@ -193,7 +209,29 @@ fun SmartGridNavHost(navController: NavHostController = rememberNavController())
                     viewModel(factory = AppViewModelFactory)
                 MyBookingsScreen(
                     viewModel = bookingsViewModel,
-                    bottomBar = prosumerBottomBar
+                    bottomBar = prosumerBottomBar,
+                    onShowQr = { reservationId ->
+                        navController.navigate(Routes.prosumerQr(reservationId))
+                    }
+                )
+            }
+
+            composable(
+                route = "${Routes.PROSUMER_QR}?${Routes.ARG_RESERVATION_ID}={${Routes.ARG_RESERVATION_ID}}",
+                arguments = listOf(
+                    navArgument(Routes.ARG_RESERVATION_ID) {
+                        type = NavType.StringType
+                        nullable = true
+                        defaultValue = null
+                    }
+                )
+            ) { entry ->
+                // Scoped to this destination so the approved list reloads on each visit.
+                val qrViewModel: TransactionQrViewModel = viewModel(factory = AppViewModelFactory)
+                TransactionQrScreen(
+                    viewModel = qrViewModel,
+                    reservationId = entry.arguments?.getString(Routes.ARG_RESERVATION_ID),
+                    onBack = { navController.popBackStack() }
                 )
             }
 

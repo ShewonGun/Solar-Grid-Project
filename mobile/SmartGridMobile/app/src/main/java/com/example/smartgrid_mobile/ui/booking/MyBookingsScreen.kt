@@ -81,7 +81,8 @@ import com.example.smartgrid_mobile.ui.common.reservationTypeLabel
 fun MyBookingsScreen(
     viewModel: MyBookingsViewModel,
     modifier: Modifier = Modifier,
-    bottomBar: @Composable () -> Unit = {}
+    bottomBar: @Composable () -> Unit = {},
+    onShowQr: (String) -> Unit = {}
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val upcoming = state.tab == BookingsTab.UPCOMING
@@ -181,7 +182,8 @@ fun MyBookingsScreen(
                             lockedNote = viewModel.lockedNote(reservation),
                             working = state.working,
                             onEdit = { viewModel.onEditRequested(reservation) },
-                            onCancel = { viewModel.onCancelRequested(reservation) }
+                            onCancel = { viewModel.onCancelRequested(reservation) },
+                            onShowQr = { onShowQr(reservation.id) }
                         )
                     }
                 }
@@ -390,7 +392,8 @@ private fun BookingCard(
     lockedNote: String?,
     working: Boolean,
     onEdit: () -> Unit,
-    onCancel: () -> Unit
+    onCancel: () -> Unit,
+    onShowQr: () -> Unit
 ) {
     val colors = MaterialTheme.colorScheme
     val visuals = reservationStatusVisuals(reservation.status)
@@ -448,22 +451,22 @@ private fun BookingCard(
                 MetaPill(icon = Icons.Default.Bolt, text = formatKWh(reservation.energyKWh))
             }
 
-            // The token itself belongs on the QR screen; here it is only a signal
-            // that the booking is ready to be shown to an operator.
+            // The code itself lives on the QR screen; this card only opens it.
             if (approved && !reservation.qrToken.isNullOrBlank()) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                OutlinedButton(
+                    onClick = onShowQr,
+                    shape = RoundedCornerShape(10.dp),
+                    border = BorderStroke(1.dp, colors.primary),
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = colors.primary),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
                     Icon(
                         Icons.Default.QrCode2,
                         contentDescription = null,
-                        tint = colors.primary,
-                        modifier = Modifier.size(16.dp)
+                        modifier = Modifier.size(18.dp)
                     )
                     Spacer(Modifier.width(8.dp))
-                    Text(
-                        text = "Your QR code is ready for the grid operator.",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = colors.primary
-                    )
+                    Text("Show transaction QR", fontWeight = FontWeight.SemiBold)
                 }
             }
 

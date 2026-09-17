@@ -78,6 +78,7 @@ fun ProsumerHomeScreen(
     onEditProfile: () -> Unit,
     onBookSlot: () -> Unit,
     onMyBookings: () -> Unit,
+    onTransactionQr: () -> Unit,
     onChangePassword: () -> Unit,
     modifier: Modifier = Modifier,
     bottomBar: @Composable () -> Unit = {}
@@ -169,8 +170,8 @@ fun ProsumerHomeScreen(
                             icon = Icons.Default.QrCode2,
                             title = "Transaction QR",
                             subtitle = "Shown to the operator",
-                            enabled = false,
-                            onClick = {},
+                            enabled = active,
+                            onClick = onTransactionQr,
                             modifier = Modifier.weight(1f)
                         )
                         ActionTile(

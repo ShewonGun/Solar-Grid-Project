@@ -47,6 +47,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -76,9 +77,17 @@ import com.example.smartgrid_mobile.ui.common.formatWindow
 fun BookSlotScreen(
     viewModel: BookingViewModel,
     modifier: Modifier = Modifier,
-    bottomBar: @Composable () -> Unit = {}
+    bottomBar: @Composable () -> Unit = {},
+    onBooked: (String) -> Unit = {}
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+
+    // A successful booking ends on the summary screen.
+    LaunchedEffect(state.bookedReservationId) {
+        val id = state.bookedReservationId ?: return@LaunchedEffect
+        viewModel.onSummaryShown()
+        onBooked(id)
+    }
 
     Scaffold(
         modifier = modifier.fillMaxSize(),

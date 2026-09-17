@@ -33,6 +33,15 @@ data class MyBookingsUiState(
     val upcoming: List<ReservationDto> = emptyList(),
     val history: List<ReservationDto> = emptyList(),
     val stations: List<StationDto> = emptyList(),
+    /** True when the lists came from SQLite because the service was unreachable. */
+    val showingCached: Boolean = false,
+    /** Free-text search over node name, status, direction and booking reference. */
+    val query: String = "",
+    /** Null means every status; otherwise only bookings in that status. */
+    val statusFilter: String? = null,
+    /** Booking the last completed action applies to, handed to the summary screen. */
+    val completedActionId: String? = null,
+    val completedAction: String? = null,
     /** The booking the cancel dialog is open for, or null when it is closed. */
     val cancelling: ReservationDto? = null,
     val cancelReason: String = "",
@@ -44,9 +53,30 @@ data class MyBookingsUiState(
     val errorMessage: String? = null,
     val successMessage: String? = null
 ) {
-    /** The list belonging to the selected tab. */
-    val visible: List<ReservationDto>
+    /** Every booking on the selected tab, before the search and status filters. */
+    val tabBookings: List<ReservationDto>
         get() = if (tab == BookingsTab.UPCOMING) upcoming else history
+
+    /** The bookings actually listed: the tab, narrowed by status and search text. */
+    val visible: List<ReservationDto>
+        get() {
+            val needle = query.trim().lowercase()
+            return tabBookings.filter { reservation ->
+                val matchesStatus = statusFilter == null || reservation.status == statusFilter
+                matchesStatus && (needle.isEmpty() || reservation.matches(needle))
+            }
+        }
+
+    /** True when a filter is hiding bookings that the tab does hold. */
+    val filtered: Boolean
+        get() = query.isNotBlank() || statusFilter != null
+
+    /** Matches the search text against the fields a prosumer would search by. */
+    private fun ReservationDto.matches(needle: String): Boolean {
+        val stationName = stations.firstOrNull { it.id == stationId }?.stationName
+        return listOfNotNull(stationName, stationId, status, type, id)
+            .any { it.lowercase().contains(needle) }
+    }
 }
 
 class MyBookingsViewModel(private val repository: ReservationRepository) : ViewModel() {
@@ -83,6 +113,9 @@ class MyBookingsViewModel(private val repository: ReservationRepository) : ViewM
                     loading = false,
                     upcoming = (upcoming as? ApiResult.Success)?.data ?: current.upcoming,
                     history = (history as? ApiResult.Success)?.data ?: current.history,
+                    // Either list falling back to SQLite means the screen is stale.
+                    showingCached = (upcoming as? ApiResult.Success)?.fromCache == true ||
+                        (history as? ApiResult.Success)?.fromCache == true,
                     errorMessage = (upcoming as? ApiResult.Failure)?.message
                         ?: (history as? ApiResult.Failure)?.message
                 )
@@ -90,9 +123,38 @@ class MyBookingsViewModel(private val repository: ReservationRepository) : ViewM
         }
     }
 
-    /** Switches between the upcoming and history lists. */
+    /** Switches between the upcoming and history lists, clearing the status filter. */
     fun onTabChange(tab: BookingsTab) {
-        _state.update { it.copy(tab = tab, errorMessage = null, successMessage = null) }
+        _state.update {
+            it.copy(
+                tab = tab,
+                // The two tabs hold different statuses, so keeping one would
+                // silently empty the list.
+                statusFilter = null,
+                errorMessage = null,
+                successMessage = null
+            )
+        }
+    }
+
+    /** Updates the free-text search over the listed bookings. */
+    fun onQueryChange(value: String) {
+        _state.update { it.copy(query = value) }
+    }
+
+    /** Narrows the list to one status, or clears the filter when given null. */
+    fun onStatusFilterChange(status: String?) {
+        _state.update { it.copy(statusFilter = status) }
+    }
+
+    /** Clears both the search text and the status filter. */
+    fun clearFilters() {
+        _state.update { it.copy(query = "", statusFilter = null) }
+    }
+
+    /** Clears the pending summary hand-off once the screen has navigated. */
+    fun onSummaryShown() {
+        _state.update { it.copy(completedActionId = null, completedAction = null) }
     }
 
     /** Clears the banners once the screen has shown them. */
@@ -132,7 +194,8 @@ class MyBookingsViewModel(private val repository: ReservationRepository) : ViewM
                             working = false,
                             cancelling = null,
                             cancelReason = "",
-                            successMessage = "Booking cancelled and the slot released."
+                            completedActionId = result.data.id,
+                            completedAction = BookingAction.CANCELLED.name
                         )
                     }
                     load()
@@ -191,14 +254,14 @@ class MyBookingsViewModel(private val repository: ReservationRepository) : ViewM
 
             when (val result = repository.updateReservation(reservation.id, current.editType, amount)) {
                 is ApiResult.Success -> {
-                    // The API sends a changed booking back to Pending and revokes its
-                    // QR code, so the prosumer is told rather than left guessing.
+                    // The summary screen explains that a changed booking goes back
+                    // to Pending and loses its QR code.
                     _state.update {
                         it.copy(
                             working = false,
                             editing = null,
-                            successMessage = "Booking updated. It goes back to pending, so a " +
-                                "grid operator has to approve it again."
+                            completedActionId = result.data.id,
+                            completedAction = BookingAction.UPDATED.name
                         )
                     }
                     load()

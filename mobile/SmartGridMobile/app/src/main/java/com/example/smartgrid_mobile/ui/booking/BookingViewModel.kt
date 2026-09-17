@@ -35,6 +35,8 @@ data class BookingUiState(
     val type: String = ReservationTypes.DROP_OFF,
     val energyKWh: String = "",
     val energyError: String? = null,
+    /** Booking just created, handed to the summary screen and then cleared. */
+    val bookedReservationId: String? = null,
     val errorMessage: String? = null,
     val successMessage: String? = null
 )
@@ -113,6 +115,11 @@ class BookingViewModel(private val repository: ReservationRepository) : ViewMode
         _state.update { it.copy(errorMessage = null, successMessage = null) }
     }
 
+    /** Clears the pending summary hand-off once the screen has navigated. */
+    fun onSummaryShown() {
+        _state.update { it.copy(bookedReservationId = null) }
+    }
+
     /** Validates the amount, books the slot and refreshes the list on success. */
     fun submit() {
         val current = _state.value
@@ -129,12 +136,13 @@ class BookingViewModel(private val repository: ReservationRepository) : ViewMode
 
             when (val result = repository.createReservation(slot.id, current.type, amount)) {
                 is ApiResult.Success -> {
+                    // The summary screen confirms what was booked; a banner alone
+                    // is not the confirmation the workflow calls for.
                     _state.update {
                         it.copy(
                             submitting = false,
                             selectedSlot = null,
-                            successMessage = "Slot booked. It stays pending until a grid " +
-                                "operator approves it, and the QR code appears then."
+                            bookedReservationId = result.data.id
                         )
                     }
                     // The slot is now Reserved, so pull a fresh list.

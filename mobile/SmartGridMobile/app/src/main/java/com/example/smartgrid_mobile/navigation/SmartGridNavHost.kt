@@ -34,10 +34,18 @@ import com.example.smartgrid_mobile.ui.auth.LoginViewModel
 import com.example.smartgrid_mobile.ui.auth.RegisterScreen
 import com.example.smartgrid_mobile.ui.auth.RegisterViewModel
 import com.example.smartgrid_mobile.ui.booking.BookSlotScreen
+import com.example.smartgrid_mobile.ui.booking.BookingAction
+import com.example.smartgrid_mobile.ui.booking.BookingSummaryScreen
+import com.example.smartgrid_mobile.ui.booking.BookingSummaryViewModel
 import com.example.smartgrid_mobile.ui.booking.BookingViewModel
 import com.example.smartgrid_mobile.ui.booking.MyBookingsScreen
 import com.example.smartgrid_mobile.ui.booking.MyBookingsViewModel
+import com.example.smartgrid_mobile.ui.map.NodesMapScreen
+import com.example.smartgrid_mobile.ui.map.NodesMapViewModel
 import com.example.smartgrid_mobile.ui.operator.OperatorHomeScreen
+import com.example.smartgrid_mobile.ui.operator.OperatorViewModel
+import com.example.smartgrid_mobile.ui.operator.ScanQrScreen
+import com.example.smartgrid_mobile.ui.operator.VerifiedTransferScreen
 import com.example.smartgrid_mobile.ui.prosumer.ChangePasswordScreen
 import com.example.smartgrid_mobile.ui.prosumer.EditProfileScreen
 import com.example.smartgrid_mobile.ui.prosumer.ProsumerHomeScreen
@@ -56,7 +64,19 @@ object Routes {
     const val PROSUMER_BOOK_SLOT = "prosumer/book-slot"
     const val PROSUMER_BOOKINGS = "prosumer/bookings"
     const val PROSUMER_QR = "prosumer/qr"
+    const val PROSUMER_NODES_MAP = "prosumer/nodes-map"
+    const val PROSUMER_BOOKING_SUMMARY = "prosumer/booking-summary"
+
+    /** Arguments for the summary screen: which booking, and what was done to it. */
+    const val ARG_ACTION = "action"
+
+    /** Route for the summary shown after a booking is created, changed or cancelled. */
+    fun bookingSummary(reservationId: String, action: BookingAction): String =
+        "$PROSUMER_BOOKING_SUMMARY/$reservationId?$ARG_ACTION=${action.name}"
+    const val OPERATOR_GRAPH = "operator"
     const val OPERATOR_HOME = "operator/home"
+    const val OPERATOR_SCAN = "operator/scan"
+    const val OPERATOR_RESULT = "operator/result"
 
     /** Optional argument naming the booking the QR screen should open on. */
     const val ARG_RESERVATION_ID = "reservationId"
@@ -78,7 +98,7 @@ fun SmartGridNavHost(navController: NavHostController = rememberNavController())
     val startDestination = remember {
         when (repository.session.value?.user?.role) {
             null -> Routes.LOGIN
-            Roles.OPERATOR, Roles.BACKOFFICE -> Routes.OPERATOR_HOME
+            Roles.OPERATOR, Roles.BACKOFFICE -> Routes.OPERATOR_GRAPH
             else -> Routes.PROSUMER_GRAPH
         }
     }
@@ -129,7 +149,7 @@ fun SmartGridNavHost(navController: NavHostController = rememberNavController())
                 viewModel = viewModel,
                 onLoggedIn = { destination ->
                     val route = when (destination) {
-                        LoginDestination.OPERATOR -> Routes.OPERATOR_HOME
+                        LoginDestination.OPERATOR -> Routes.OPERATOR_GRAPH
                         LoginDestination.PROSUMER -> Routes.PROSUMER_GRAPH
                     }
                     navController.navigate(route) {
@@ -177,6 +197,10 @@ fun SmartGridNavHost(navController: NavHostController = rememberNavController())
                         viewModel.clearMessages()
                         navController.navigate(Routes.prosumerQr())
                     },
+                    onNearbyNodes = {
+                        viewModel.clearMessages()
+                        navController.navigate(Routes.PROSUMER_NODES_MAP)
+                    },
                     onChangePassword = {
                         viewModel.clearMessages()
                         navController.navigate(Routes.PROSUMER_PASSWORD)
@@ -199,7 +223,12 @@ fun SmartGridNavHost(navController: NavHostController = rememberNavController())
                 val bookingViewModel: BookingViewModel = viewModel(factory = AppViewModelFactory)
                 BookSlotScreen(
                     viewModel = bookingViewModel,
-                    bottomBar = prosumerBottomBar
+                    bottomBar = prosumerBottomBar,
+                    onBooked = { reservationId ->
+                        navController.navigate(
+                            Routes.bookingSummary(reservationId, BookingAction.CREATED)
+                        )
+                    }
                 )
             }
 
@@ -212,6 +241,11 @@ fun SmartGridNavHost(navController: NavHostController = rememberNavController())
                     bottomBar = prosumerBottomBar,
                     onShowQr = { reservationId ->
                         navController.navigate(Routes.prosumerQr(reservationId))
+                    },
+                    onActionSummary = { reservationId, action ->
+                        navController.navigate(
+                            Routes.bookingSummary(reservationId, BookingAction.valueOf(action))
+                        )
                     }
                 )
             }
@@ -235,6 +269,43 @@ fun SmartGridNavHost(navController: NavHostController = rememberNavController())
                 )
             }
 
+            composable(
+                route = "${Routes.PROSUMER_BOOKING_SUMMARY}/{${Routes.ARG_RESERVATION_ID}}" +
+                    "?${Routes.ARG_ACTION}={${Routes.ARG_ACTION}}",
+                arguments = listOf(
+                    navArgument(Routes.ARG_RESERVATION_ID) { type = NavType.StringType },
+                    navArgument(Routes.ARG_ACTION) {
+                        type = NavType.StringType
+                        defaultValue = BookingAction.CREATED.name
+                    }
+                )
+            ) { entry ->
+                val summaryViewModel: BookingSummaryViewModel =
+                    viewModel(factory = AppViewModelFactory)
+                val reservationId = entry.arguments?.getString(Routes.ARG_RESERVATION_ID).orEmpty()
+                val action = entry.arguments?.getString(Routes.ARG_ACTION)
+                    ?.let { runCatching { BookingAction.valueOf(it) }.getOrNull() }
+                    ?: BookingAction.CREATED
+
+                BookingSummaryScreen(
+                    viewModel = summaryViewModel,
+                    reservationId = reservationId,
+                    action = action,
+                    onViewBookings = { selectTab(Routes.PROSUMER_BOOKINGS) },
+                    onShowQr = { id -> navController.navigate(Routes.prosumerQr(id)) },
+                    onDone = { selectTab(Routes.PROSUMER_HOME) }
+                )
+            }
+
+            composable(Routes.PROSUMER_NODES_MAP) {
+                // Scoped to this destination so the node list is re-read on each visit.
+                val mapViewModel: NodesMapViewModel = viewModel(factory = AppViewModelFactory)
+                NodesMapScreen(
+                    viewModel = mapViewModel,
+                    onBack = { navController.popBackStack() }
+                )
+            }
+
             composable(Routes.PROSUMER_PASSWORD) { entry ->
                 ChangePasswordScreen(
                     viewModel = prosumerViewModel(navController, entry),
@@ -244,13 +315,65 @@ fun SmartGridNavHost(navController: NavHostController = rememberNavController())
             }
         }
 
-        composable(Routes.OPERATOR_HOME) {
-            OperatorHomeScreen(
-                user = session?.user,
-                onSignOut = { repository.logout() }
-            )
+        navigation(startDestination = Routes.OPERATOR_HOME, route = Routes.OPERATOR_GRAPH) {
+
+            composable(Routes.OPERATOR_HOME) { entry ->
+                // Starting a new job here clears whatever the last scan left behind.
+                val operatorViewModel = operatorViewModel(navController, entry)
+                OperatorHomeScreen(
+                    user = session?.user,
+                    onScanQr = {
+                        operatorViewModel.reset()
+                        navController.navigate(Routes.OPERATOR_SCAN)
+                    },
+                    onSignOut = { repository.logout() }
+                )
+            }
+
+            composable(Routes.OPERATOR_SCAN) { entry ->
+                ScanQrScreen(
+                    viewModel = operatorViewModel(navController, entry),
+                    onVerified = {
+                        navController.navigate(Routes.OPERATOR_RESULT) {
+                            // The camera has done its job; back goes to the home screen.
+                            popUpTo(Routes.OPERATOR_SCAN) { inclusive = true }
+                        }
+                    },
+                    onBack = { navController.popBackStack() }
+                )
+            }
+
+            composable(Routes.OPERATOR_RESULT) { entry ->
+                val operatorViewModel = operatorViewModel(navController, entry)
+                VerifiedTransferScreen(
+                    viewModel = operatorViewModel,
+                    onScanAnother = {
+                        operatorViewModel.reset()
+                        navController.navigate(Routes.OPERATOR_SCAN) {
+                            popUpTo(Routes.OPERATOR_RESULT) { inclusive = true }
+                        }
+                    },
+                    onDone = {
+                        operatorViewModel.reset()
+                        navController.popBackStack(Routes.OPERATOR_HOME, inclusive = false)
+                    }
+                )
+            }
         }
     }
+}
+
+/**
+ * Resolves the OperatorViewModel against the operator nav graph, so the home,
+ * scanner and result screens all share one scanned job.
+ */
+@Composable
+private fun operatorViewModel(
+    navController: NavHostController,
+    entry: androidx.navigation.NavBackStackEntry
+): OperatorViewModel {
+    val parentEntry = remember(entry) { navController.getBackStackEntry(Routes.OPERATOR_GRAPH) }
+    return viewModel(parentEntry, factory = AppViewModelFactory)
 }
 
 /**

@@ -5,6 +5,16 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
+    <!-- Optional: only used to centre the node map and sort nodes by distance. -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+
+    <!-- Grid operators scan the prosumer's transaction QR code. -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-feature
+        android:name="android.hardware.camera.any"
+        android:required="false" />
+
     <application
         android:name=".SmartGridApp"
         android:allowBackup="true"
@@ -18,6 +28,12 @@
         android:usesCleartextTraffic="true"
         android:theme="@style/Theme.SmartGridMobile"
         tools:targetApi="31">
+
+        <!-- Injected from MAPS_API_KEY in local.properties; see app/build.gradle.kts. -->
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="${MAPS_API_KEY}" />
+
         <activity
             android:name=".MainActivity"
             android:exported="true"

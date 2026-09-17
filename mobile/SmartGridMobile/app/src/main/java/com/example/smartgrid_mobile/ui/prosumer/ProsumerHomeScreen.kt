@@ -31,6 +31,7 @@ import androidx.compose.material.icons.filled.Bolt
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.EventAvailable
 import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.filled.HourglassTop
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Map
 import androidx.compose.material.icons.filled.PersonOff
@@ -79,6 +80,7 @@ fun ProsumerHomeScreen(
     onBookSlot: () -> Unit,
     onMyBookings: () -> Unit,
     onTransactionQr: () -> Unit,
+    onNearbyNodes: () -> Unit,
     onChangePassword: () -> Unit,
     modifier: Modifier = Modifier,
     bottomBar: @Composable () -> Unit = {}
@@ -137,8 +139,8 @@ fun ProsumerHomeScreen(
                 GreetingHeader(
                     name = user?.fullName.orEmpty().ifBlank { "Prosumer" },
                     email = user?.email.orEmpty(),
-                    nic = user?.nic.orEmpty(),
-                    capacity = user?.solarCapacityKW?.let { formatCapacity(it) } ?: "-",
+                    pending = state.counts?.pending,
+                    approvedUpcoming = state.counts?.approvedUpcoming,
                     statusLabel = visuals.label,
                     statusContainer = visuals.container,
                     statusContent = visuals.content
@@ -178,8 +180,8 @@ fun ProsumerHomeScreen(
                             icon = Icons.Default.Map,
                             title = "Nearby nodes",
                             subtitle = "Find microgrid hubs",
-                            enabled = false,
-                            onClick = {},
+                            enabled = true,
+                            onClick = onNearbyNodes,
                             modifier = Modifier.weight(1f)
                         )
                     }
@@ -254,8 +256,8 @@ fun ProsumerHomeScreen(
 private fun GreetingHeader(
     name: String,
     email: String,
-    nic: String,
-    capacity: String,
+    pending: Int?,
+    approvedUpcoming: Int?,
     statusLabel: String,
     statusContainer: androidx.compose.ui.graphics.Color,
     statusContent: androidx.compose.ui.graphics.Color
@@ -295,17 +297,19 @@ private fun GreetingHeader(
                 content = statusContent
             )
 
+            // Live reservation counts from GET /reservations/dashboard; a dash
+            // until the first response arrives.
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 StatTile(
-                    icon = Icons.Default.Bolt,
-                    label = "Solar capacity",
-                    value = capacity,
+                    icon = Icons.Default.HourglassTop,
+                    label = "Pending",
+                    value = pending?.toString() ?: "-",
                     modifier = Modifier.weight(1f)
                 )
                 StatTile(
-                    icon = Icons.Default.Badge,
-                    label = "NIC",
-                    value = nic.ifBlank { "-" },
+                    icon = Icons.Default.EventAvailable,
+                    label = "Approved ahead",
+                    value = approvedUpcoming?.toString() ?: "-",
                     modifier = Modifier.weight(1f)
                 )
             }

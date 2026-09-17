@@ -125,6 +125,25 @@ data class StationDto(
     val isActive: Boolean?
 )
 
+/** Dashboard counts for the signed-in prosumer, from GET /reservations/dashboard. */
+data class ReservationCountsDto(
+    val pending: Int?,
+    val approvedUpcoming: Int?
+)
+
+/**
+ * Request body for the operator endpoints POST /reservations/verify-qr and
+ * POST /reservations/complete. The token is whatever the scanner read; the API
+ * decides whether it is genuine and still usable.
+ */
+data class QrTokenRequest(val qrToken: String)
+
+/** A grid node with its distance from the caller, as returned by GET /stations/nearby. */
+data class NearbyStationDto(
+    val station: StationDto,
+    val distanceKm: Double?
+)
+
 /** One battery booking slot at a station, as returned by GET /slots/bookable. */
 data class SlotDto(
     val id: String,

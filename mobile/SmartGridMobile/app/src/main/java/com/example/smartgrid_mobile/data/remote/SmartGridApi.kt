@@ -48,6 +48,30 @@ interface SmartGridApi {
     @GET("stations")
     suspend fun getStations(): Response<List<StationDto>>
 
+    /** Pending and approved-upcoming counts for the signed-in prosumer's dashboard. */
+    @GET("reservations/dashboard")
+    suspend fun getDashboardCounts(): Response<ReservationCountsDto>
+
+    /** One reservation by id; prosumers only ever see their own. */
+    @GET("reservations/{id}")
+    suspend fun getReservation(@Path("id") id: String): Response<ReservationDto>
+
+    /** Staff only: checks a scanned QR token and returns the booking behind it. */
+    @POST("reservations/verify-qr")
+    suspend fun verifyQr(@Body body: QrTokenRequest): Response<ReservationDto>
+
+    /** Staff only: finalises the energy transfer for a verified QR token. */
+    @POST("reservations/complete")
+    suspend fun completeTransfer(@Body body: QrTokenRequest): Response<ReservationDto>
+
+    /** Active grid nodes within radiusKm of a point, nearest first, for the map. */
+    @GET("stations/nearby")
+    suspend fun getNearbyStations(
+        @Query("latitude") latitude: Double,
+        @Query("longitude") longitude: Double,
+        @Query("radiusKm") radiusKm: Double
+    ): Response<List<NearbyStationDto>>
+
     /** Slots a prosumer may book right now, optionally narrowed to one station. */
     @GET("slots/bookable")
     suspend fun getBookableSlots(

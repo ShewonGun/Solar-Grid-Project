@@ -12,9 +12,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.smartgrid_mobile.data.ApiResult
 import com.example.smartgrid_mobile.data.remote.AccountStatus
+import com.example.smartgrid_mobile.data.remote.ReservationCountsDto
 import com.example.smartgrid_mobile.data.remote.UpdateProfileRequest
 import com.example.smartgrid_mobile.data.remote.UserDto
 import com.example.smartgrid_mobile.data.repository.AuthRepository
+import com.example.smartgrid_mobile.data.repository.ReservationRepository
 import com.example.smartgrid_mobile.ui.auth.validateCapacity
 import com.example.smartgrid_mobile.ui.auth.validateEmail
 import com.example.smartgrid_mobile.ui.auth.validatePassword
@@ -31,6 +33,8 @@ import kotlinx.coroutines.launch
 
 data class ProsumerUiState(
     val refreshing: Boolean = false,
+    /** Dashboard counts read live from the service, or null before they arrive. */
+    val counts: ReservationCountsDto? = null,
     val working: Boolean = false,
     val errorMessage: String? = null,
     val successMessage: String? = null,
@@ -51,7 +55,10 @@ object ProfileField {
     const val CONFIRM_PASSWORD = "confirmPassword"
 }
 
-class ProsumerViewModel(private val repository: AuthRepository) : ViewModel() {
+class ProsumerViewModel(
+    private val repository: AuthRepository,
+    private val reservationRepository: ReservationRepository
+) : ViewModel() {
 
     private val _state = MutableStateFlow(ProsumerUiState())
     val state: StateFlow<ProsumerUiState> = _state.asStateFlow()
@@ -65,14 +72,21 @@ class ProsumerViewModel(private val repository: AuthRepository) : ViewModel() {
         refresh()
     }
 
-    /** Pulls the latest profile so status changes made in the web app show up here. */
+    /** Pulls the latest profile and dashboard counts from the service. */
     fun refresh() {
         viewModelScope.launch {
             _state.update { it.copy(refreshing = true) }
+
             val result = repository.refreshProfile()
+
+            // The counts are a dashboard extra: a failure leaves the last values
+            // rather than replacing the profile's error message.
+            val counts = (reservationRepository.dashboardCounts() as? ApiResult.Success)?.data
+
             _state.update {
                 it.copy(
                     refreshing = false,
+                    counts = counts ?: it.counts,
                     errorMessage = (result as? ApiResult.Failure)?.message ?: it.errorMessage
                 )
             }

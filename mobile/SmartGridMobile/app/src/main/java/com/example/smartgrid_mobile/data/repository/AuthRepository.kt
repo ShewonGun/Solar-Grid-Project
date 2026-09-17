@@ -10,7 +10,9 @@ package com.example.smartgrid_mobile.data.repository
 
 import com.example.smartgrid_mobile.data.ApiResult
 import com.example.smartgrid_mobile.data.local.LocalSession
+import com.example.smartgrid_mobile.data.local.ReservationCache
 import com.example.smartgrid_mobile.data.local.SessionStore
+import com.example.smartgrid_mobile.data.local.StationCache
 import com.example.smartgrid_mobile.data.remote.ChangePasswordRequest
 import com.example.smartgrid_mobile.data.remote.LoginRequest
 import com.example.smartgrid_mobile.data.remote.LoginResponse
@@ -22,7 +24,9 @@ import kotlinx.coroutines.flow.StateFlow
 
 class AuthRepository(
     private val api: SmartGridApi,
-    private val sessionStore: SessionStore
+    private val sessionStore: SessionStore,
+    private val stationCache: StationCache,
+    private val reservationCache: ReservationCache
 ) {
 
     /** Observable local session, so the navigation graph knows who is signed in. */
@@ -55,5 +59,13 @@ class AuthRepository(
         apiCall({ api.requestDeactivation() }) { refreshProfile() }
 
     /** Drops the local session so the app returns to the login screen. */
-    fun logout() = sessionStore.clear()
+    /**
+     * Signs out and wipes the local copies with the session, so the next person
+     * to use the device never sees the previous prosumer's bookings.
+     */
+    fun logout() {
+        sessionStore.clear()
+        reservationCache.clear()
+        stationCache.clear()
+    }
 }

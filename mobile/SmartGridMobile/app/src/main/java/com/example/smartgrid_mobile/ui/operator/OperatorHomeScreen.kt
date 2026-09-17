@@ -1,34 +1,49 @@
 /* ============================================================================
  * File        : OperatorHomeScreen.kt
- * Purpose     : Landing screen for Grid Operator and Backoffice accounts that
- *               sign in on the mobile client. Role-based routing is in place;
- *               the QR verification and map tools land in the operator build.
+ * Purpose     : Landing screen for Grid Operator and Backoffice accounts on the
+ *               mobile client. Opens the QR scanner used to verify a prosumer's
+ *               transaction code and finalise the energy transfer.
  * Author      : SmartGrid Mobile Team
  * Created     : 2026-09-17
  * ==========================================================================*/
 package com.example.smartgrid_mobile.ui.operator
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
+import androidx.compose.material.icons.filled.Badge
+import androidx.compose.material.icons.filled.QrCodeScanner
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.smartgrid_mobile.data.remote.UserDto
-import com.example.smartgrid_mobile.ui.common.BannerTone
+import com.example.smartgrid_mobile.ui.common.IconBadge
 import com.example.smartgrid_mobile.ui.common.InfoRow
-import com.example.smartgrid_mobile.ui.common.MessageBanner
+import com.example.smartgrid_mobile.ui.common.PageHeaderCard
+import com.example.smartgrid_mobile.ui.common.PrimaryButton
 import com.example.smartgrid_mobile.ui.common.SectionCard
 import com.example.smartgrid_mobile.ui.common.SectionLabel
 
@@ -36,6 +51,7 @@ import com.example.smartgrid_mobile.ui.common.SectionLabel
 @Composable
 fun OperatorHomeScreen(
     user: UserDto?,
+    onScanQr: () -> Unit,
     onSignOut: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -44,6 +60,10 @@ fun OperatorHomeScreen(
         topBar = {
             CenterAlignedTopAppBar(
                 title = { Text("Operator mode", fontWeight = FontWeight.SemiBold) },
+                // Sits on the page background, matching the rest of the app.
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.background
+                ),
                 actions = {
                     IconButton(onClick = onSignOut) {
                         Icon(Icons.AutoMirrored.Filled.Logout, contentDescription = "Sign out")
@@ -56,27 +76,92 @@ fun OperatorHomeScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .padding(horizontal = 20.dp, vertical = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 20.dp)
+                .padding(top = 8.dp, bottom = 24.dp),
+            verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
-            MessageBanner(
-                message = "Signed in as an operator. QR verification and the station map " +
-                    "are delivered with the operator module.",
-                tone = BannerTone.INFO
+            PageHeaderCard(
+                icon = Icons.Default.QrCodeScanner,
+                title = "Verify a transfer",
+                subtitle = user?.fullName.orEmpty().ifBlank { "Grid operator" },
+                // The one job this screen exists for, stated plainly.
+                footnote = "Scan the prosumer's transaction QR code to confirm the " +
+                    "booking and finalise the energy transfer."
             )
 
-            SectionLabel("Signed-in account")
-            SectionCard {
-                Text(
-                    text = user?.fullName.orEmpty().ifBlank { "Operator" },
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold
-                )
-                InfoRow("NIC", user?.nic)
-                InfoRow("Email", user?.email)
-                InfoRow("Role", user?.role)
-                InfoRow("Status", user?.status)
+            PrimaryButton(text = "Scan transaction QR", onClick = onScanQr)
+
+            // ---- How the job works ---------------------------------------
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                SectionLabel("How it works")
+                SectionCard {
+                    StepRow(1, "Scan", "Read the code the prosumer shows you.")
+                    StepRow(2, "Verify", "The service confirms the booking and its status.")
+                    StepRow(3, "Finalise", "Mark the transfer as done once energy has moved.")
+                }
             }
+
+            // ---- Signed-in account ---------------------------------------
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                SectionLabel("Signed-in account")
+                SectionCard {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        IconBadge(
+                            icon = Icons.Default.Badge,
+                            container = MaterialTheme.colorScheme.primaryContainer,
+                            tint = MaterialTheme.colorScheme.primary,
+                            size = 40.dp
+                        )
+                        Spacer(Modifier.width(14.dp))
+                        Text(
+                            text = user?.fullName.orEmpty().ifBlank { "Operator" },
+                            style = MaterialTheme.typography.bodyLarge,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    }
+                    InfoRow("NIC", user?.nic)
+                    InfoRow("Email", user?.email)
+                    InfoRow("Role", user?.role)
+                    InfoRow("Status", user?.status)
+                }
+            }
+        }
+    }
+}
+
+/** One numbered step in the short explanation of the operator job. */
+@Composable
+private fun StepRow(number: Int, title: String, detail: String) {
+    val colors = MaterialTheme.colorScheme
+
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Surface(
+            color = colors.primaryContainer,
+            contentColor = colors.onPrimaryContainer,
+            shape = RoundedCornerShape(50),
+            modifier = Modifier.size(28.dp)
+        ) {
+            Box(contentAlignment = Alignment.Center) {
+                Text(
+                    text = number.toString(),
+                    style = MaterialTheme.typography.labelMedium,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        }
+        Spacer(Modifier.width(14.dp))
+        Column(modifier = Modifier.fillMaxWidth()) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.SemiBold
+            )
+            Text(
+                text = detail,
+                style = MaterialTheme.typography.bodySmall,
+                color = colors.onSurfaceVariant
+            )
         }
     }
 }

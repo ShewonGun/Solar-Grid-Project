@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -31,6 +32,8 @@ import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.QrCode2
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Schedule
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.SearchOff
 import androidx.compose.material.icons.filled.Upload
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -49,10 +52,12 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -82,10 +87,19 @@ fun MyBookingsScreen(
     viewModel: MyBookingsViewModel,
     modifier: Modifier = Modifier,
     bottomBar: @Composable () -> Unit = {},
-    onShowQr: (String) -> Unit = {}
+    onShowQr: (String) -> Unit = {},
+    onActionSummary: (String, String) -> Unit = { _, _ -> }
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val upcoming = state.tab == BookingsTab.UPCOMING
+
+    // Every change or cancellation ends on the summary screen.
+    LaunchedEffect(state.completedActionId) {
+        val id = state.completedActionId ?: return@LaunchedEffect
+        val action = state.completedAction ?: return@LaunchedEffect
+        viewModel.onSummaryShown()
+        onActionSummary(id, action)
+    }
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -115,6 +129,16 @@ fun MyBookingsScreen(
             MessageBanner(state.errorMessage, BannerTone.ERROR)
             MessageBanner(state.successMessage, BannerTone.SUCCESS)
 
+            // Says plainly that the list is the last one SQLite saw, rather than
+            // letting stale bookings pass for live ones.
+            if (state.showingCached) {
+                MessageBanner(
+                    "Showing saved bookings. The service could not be reached, so " +
+                        "these may be out of date.",
+                    BannerTone.INFO
+                )
+            }
+
             // ---- Header ----------------------------------------------------
             PageHeaderCard(
                 icon = if (upcoming) Icons.AutoMirrored.Filled.EventNote else Icons.Default.History,
@@ -123,7 +147,13 @@ fun MyBookingsScreen(
                     state.visible.size == 1 -> "1 booking"
                     else -> "${state.visible.size} bookings"
                 },
-                subtitle = if (upcoming) "Pending and approved" else "Completed and cancelled",
+                subtitle = if (state.filtered) {
+                    "${state.visible.size} of ${state.tabBookings.size} shown"
+                } else if (upcoming) {
+                    "Pending and approved"
+                } else {
+                    "Completed and cancelled"
+                },
                 // The 12-hour rule is enforced by the API; showing it explains the
                 // cards that offer no actions.
                 footnote = if (upcoming) {
@@ -149,6 +179,32 @@ fun MyBookingsScreen(
                 )
             }
 
+            // ---- Search and status filter ----------------------------------
+            FormField(
+                value = state.query,
+                onValueChange = viewModel::onQueryChange,
+                label = "Search bookings",
+                leadingIcon = Icons.Default.Search,
+                imeAction = ImeAction.Search
+            )
+
+            LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                item {
+                    PillChip(
+                        label = "All",
+                        selected = state.statusFilter == null,
+                        onClick = { viewModel.onStatusFilterChange(null) }
+                    )
+                }
+                items(statusFiltersFor(state.tab), key = { it }) { status ->
+                    PillChip(
+                        label = reservationStatusVisuals(status).label,
+                        selected = state.statusFilter == status,
+                        onClick = { viewModel.onStatusFilterChange(status) }
+                    )
+                }
+            }
+
             // ---- Bookings --------------------------------------------------
             when {
                 state.loading -> CenteredBox {
@@ -156,6 +212,27 @@ fun MyBookingsScreen(
                         strokeWidth = 2.dp,
                         modifier = Modifier.size(28.dp)
                     )
+                }
+
+                // A filtered-out list gets its own wording, so it does not read
+                // as "you have no bookings".
+                state.visible.isEmpty() && state.filtered -> CenteredBox {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        EmptyStateBlock(
+                            icon = Icons.Default.SearchOff,
+                            title = "No matches",
+                            body = "No booking on this tab matches the search or filter."
+                        )
+                        OutlinedButton(
+                            onClick = viewModel::clearFilters,
+                            shape = RoundedCornerShape(10.dp)
+                        ) {
+                            Text("Clear filters")
+                        }
+                    }
                 }
 
                 state.visible.isEmpty() -> CenteredBox {
@@ -519,6 +596,14 @@ private fun BookingCard(
         }
     }
 }
+
+/** The statuses worth offering as filters on each tab. */
+private fun statusFiltersFor(tab: BookingsTab): List<String> =
+    if (tab == BookingsTab.UPCOMING) {
+        listOf(ReservationStatuses.PENDING, ReservationStatuses.APPROVED)
+    } else {
+        listOf(ReservationStatuses.COMPLETED, ReservationStatuses.CANCELLED)
+    }
 
 /** Tinted recap of the reservation a dialog is about to act on. */
 @Composable

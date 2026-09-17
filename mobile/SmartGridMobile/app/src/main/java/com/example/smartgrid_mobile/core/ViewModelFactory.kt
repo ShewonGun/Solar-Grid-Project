@@ -11,8 +11,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.smartgrid_mobile.ui.auth.LoginViewModel
 import com.example.smartgrid_mobile.ui.auth.RegisterViewModel
+import com.example.smartgrid_mobile.ui.booking.BookingSummaryViewModel
 import com.example.smartgrid_mobile.ui.booking.BookingViewModel
 import com.example.smartgrid_mobile.ui.booking.MyBookingsViewModel
+import com.example.smartgrid_mobile.ui.map.NodesMapViewModel
+import com.example.smartgrid_mobile.ui.operator.OperatorViewModel
 import com.example.smartgrid_mobile.ui.prosumer.ProsumerViewModel
 import com.example.smartgrid_mobile.ui.qr.TransactionQrViewModel
 
@@ -35,11 +38,23 @@ object AppViewModelFactory : ViewModelProvider.Factory {
             modelClass.isAssignableFrom(MyBookingsViewModel::class.java) ->
                 MyBookingsViewModel(ServiceLocator.reservationRepository) as T
 
+            modelClass.isAssignableFrom(BookingSummaryViewModel::class.java) ->
+                BookingSummaryViewModel(ServiceLocator.reservationRepository) as T
+
+            modelClass.isAssignableFrom(OperatorViewModel::class.java) ->
+                OperatorViewModel(ServiceLocator.operatorRepository) as T
+
+            modelClass.isAssignableFrom(NodesMapViewModel::class.java) ->
+                NodesMapViewModel(
+                    ServiceLocator.reservationRepository,
+                    ServiceLocator.locationProvider
+                ) as T
+
             modelClass.isAssignableFrom(TransactionQrViewModel::class.java) ->
                 TransactionQrViewModel(ServiceLocator.reservationRepository) as T
 
             modelClass.isAssignableFrom(ProsumerViewModel::class.java) ->
-                ProsumerViewModel(repository) as T
+                ProsumerViewModel(repository, ServiceLocator.reservationRepository) as T
 
             else -> throw IllegalArgumentException("Unknown ViewModel: ${modelClass.name}")
         }

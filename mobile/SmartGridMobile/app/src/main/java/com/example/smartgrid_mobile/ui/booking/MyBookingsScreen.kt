@@ -8,35 +8,46 @@
  * ==========================================================================*/
 package com.example.smartgrid_mobile.ui.booking
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.BatteryChargingFull
+import androidx.compose.material.icons.filled.Bolt
+import androidx.compose.material.icons.filled.EventBusy
+import androidx.compose.material.icons.automirrored.filled.EventNote
+import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.filled.QrCode2
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Schedule
+import androidx.compose.material.icons.filled.Upload
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRow
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -49,11 +60,16 @@ import com.example.smartgrid_mobile.data.remote.ReservationDto
 import com.example.smartgrid_mobile.data.remote.ReservationStatuses
 import com.example.smartgrid_mobile.data.remote.ReservationTypes
 import com.example.smartgrid_mobile.ui.common.BannerTone
+import com.example.smartgrid_mobile.ui.common.CenteredBox
+import com.example.smartgrid_mobile.ui.common.EmptyStateBlock
 import com.example.smartgrid_mobile.ui.common.FormField
-import com.example.smartgrid_mobile.ui.common.InfoRow
+import com.example.smartgrid_mobile.ui.common.IconBadge
 import com.example.smartgrid_mobile.ui.common.MessageBanner
-import com.example.smartgrid_mobile.ui.common.SectionCard
+import com.example.smartgrid_mobile.ui.common.MetaPill
+import com.example.smartgrid_mobile.ui.common.PageHeaderCard
+import com.example.smartgrid_mobile.ui.common.PillChip
 import com.example.smartgrid_mobile.ui.common.SectionLabel
+import com.example.smartgrid_mobile.ui.common.SelectableOption
 import com.example.smartgrid_mobile.ui.common.StatusChip
 import com.example.smartgrid_mobile.ui.common.formatKWh
 import com.example.smartgrid_mobile.ui.common.formatWindow
@@ -68,12 +84,17 @@ fun MyBookingsScreen(
     bottomBar: @Composable () -> Unit = {}
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val upcoming = state.tab == BookingsTab.UPCOMING
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
         topBar = {
             CenterAlignedTopAppBar(
                 title = { Text("My bookings", fontWeight = FontWeight.SemiBold) },
+                // Sits on the page background, matching the other prosumer tabs.
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.background
+                ),
                 actions = {
                     IconButton(onClick = viewModel::load, enabled = !state.loading) {
                         Icon(Icons.Default.Refresh, contentDescription = "Refresh")
@@ -87,57 +108,81 @@ fun MyBookingsScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
+                .padding(horizontal = 20.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            TabRow(selectedTabIndex = state.tab.ordinal) {
-                Tab(
-                    selected = state.tab == BookingsTab.UPCOMING,
+            MessageBanner(state.errorMessage, BannerTone.ERROR)
+            MessageBanner(state.successMessage, BannerTone.SUCCESS)
+
+            // ---- Header ----------------------------------------------------
+            PageHeaderCard(
+                icon = if (upcoming) Icons.AutoMirrored.Filled.EventNote else Icons.Default.History,
+                title = when {
+                    state.loading -> "Loading bookings"
+                    state.visible.size == 1 -> "1 booking"
+                    else -> "${state.visible.size} bookings"
+                },
+                subtitle = if (upcoming) "Pending and approved" else "Completed and cancelled",
+                // The 12-hour rule is enforced by the API; showing it explains the
+                // cards that offer no actions.
+                footnote = if (upcoming) {
+                    "Changes and cancellations close 12 hours before a slot starts."
+                } else {
+                    null
+                }
+            )
+
+            // ---- Tabs ------------------------------------------------------
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                PillChip(
+                    label = "Upcoming",
+                    selected = upcoming,
                     onClick = { viewModel.onTabChange(BookingsTab.UPCOMING) },
-                    text = { Text("Upcoming") }
+                    modifier = Modifier.weight(1f)
                 )
-                Tab(
-                    selected = state.tab == BookingsTab.HISTORY,
+                PillChip(
+                    label = "History",
+                    selected = !upcoming,
                     onClick = { viewModel.onTabChange(BookingsTab.HISTORY) },
-                    text = { Text("History") }
+                    modifier = Modifier.weight(1f)
                 )
             }
 
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 20.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                Spacer(Modifier.height(4.dp))
-                MessageBanner(state.errorMessage, BannerTone.ERROR)
-                MessageBanner(state.successMessage, BannerTone.SUCCESS)
+            // ---- Bookings --------------------------------------------------
+            when {
+                state.loading -> CenteredBox {
+                    CircularProgressIndicator(
+                        strokeWidth = 2.dp,
+                        modifier = Modifier.size(28.dp)
+                    )
+                }
 
-                when {
-                    state.loading -> CenteredBox {
-                        CircularProgressIndicator(
-                            strokeWidth = 2.dp,
-                            modifier = Modifier.size(28.dp)
-                        )
-                    }
-
-                    state.visible.isEmpty() -> CenteredBox {
-                        EmptyState(tab = state.tab)
-                    }
-
-                    else -> LazyColumn(
-                        verticalArrangement = Arrangement.spacedBy(10.dp),
-                        contentPadding = PaddingValues(bottom = 20.dp)
-                    ) {
-                        items(state.visible, key = { it.id }) { reservation ->
-                            BookingCard(
-                                reservation = reservation,
-                                stationName = viewModel.stationName(reservation.stationId),
-                                canModify = viewModel.canModify(reservation),
-                                lockedNote = viewModel.lockedNote(reservation),
-                                working = state.working,
-                                onEdit = { viewModel.onEditRequested(reservation) },
-                                onCancel = { viewModel.onCancelRequested(reservation) }
-                            )
+                state.visible.isEmpty() -> CenteredBox {
+                    EmptyStateBlock(
+                        icon = Icons.Default.EventBusy,
+                        title = if (upcoming) "No upcoming bookings" else "No past bookings",
+                        body = if (upcoming) {
+                            "Reserve an energy slot from the Book tab and it will appear here."
+                        } else {
+                            "Completed and cancelled bookings are kept here once a slot has passed."
                         }
+                    )
+                }
+
+                else -> LazyColumn(
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    contentPadding = PaddingValues(bottom = 24.dp)
+                ) {
+                    items(state.visible, key = { it.id }) { reservation ->
+                        BookingCard(
+                            reservation = reservation,
+                            stationName = viewModel.stationName(reservation.stationId),
+                            canModify = viewModel.canModify(reservation),
+                            lockedNote = viewModel.lockedNote(reservation),
+                            working = state.working,
+                            onEdit = { viewModel.onEditRequested(reservation) },
+                            onCancel = { viewModel.onCancelRequested(reservation) }
+                        )
                     }
                 }
             }
@@ -146,19 +191,36 @@ fun MyBookingsScreen(
 
     // ---- Cancel confirmation ----------------------------------------------
     state.cancelling?.let { reservation ->
+        val colors = MaterialTheme.colorScheme
         AlertDialog(
             onDismissRequest = { if (!state.working) viewModel.onCancelDismissed() },
-            title = { Text("Cancel this booking?") },
+            shape = RoundedCornerShape(24.dp),
+            containerColor = colors.surface,
+            icon = {
+                IconBadge(
+                    icon = Icons.Default.EventBusy,
+                    container = colors.errorContainer,
+                    tint = colors.error,
+                    size = 48.dp
+                )
+            },
+            title = {
+                Text(
+                    text = "Cancel this booking?",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold
+                )
+            },
             text = {
-                Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
-                    Text(
-                        text = "${viewModel.stationName(reservation.stationId)}\n" +
-                            formatWindow(
-                                reservation.reservationStart,
-                                reservation.reservationEnd
-                            ),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                    ReservationSummary(
+                        stationName = viewModel.stationName(reservation.stationId),
+                        window = formatWindow(
+                            reservation.reservationStart,
+                            reservation.reservationEnd
+                        ),
+                        detail = "${reservationTypeLabel(reservation.type)} - " +
+                            formatKWh(reservation.energyKWh)
                     )
                     Text(
                         text = "The slot is released for other prosumers and this cannot " +
@@ -175,8 +237,24 @@ fun MyBookingsScreen(
                 }
             },
             confirmButton = {
-                TextButton(onClick = viewModel::confirmCancel, enabled = !state.working) {
-                    Text(if (state.working) "Cancelling..." else "Cancel booking")
+                Button(
+                    onClick = viewModel::confirmCancel,
+                    enabled = !state.working,
+                    shape = RoundedCornerShape(10.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = colors.error,
+                        contentColor = colors.onError
+                    )
+                ) {
+                    if (state.working) {
+                        CircularProgressIndicator(
+                            strokeWidth = 2.dp,
+                            color = colors.onError,
+                            modifier = Modifier.size(18.dp)
+                        )
+                    } else {
+                        Text("Cancel booking", fontWeight = FontWeight.SemiBold)
+                    }
                 }
             },
             dismissButton = {
@@ -189,33 +267,62 @@ fun MyBookingsScreen(
 
     // ---- Edit dialog -------------------------------------------------------
     state.editing?.let { reservation ->
+        val colors = MaterialTheme.colorScheme
         AlertDialog(
             onDismissRequest = { if (!state.working) viewModel.onEditDismissed() },
-            title = { Text("Change booking") },
+            shape = RoundedCornerShape(24.dp),
+            containerColor = colors.surface,
+            icon = {
+                IconBadge(
+                    icon = Icons.AutoMirrored.Filled.EventNote,
+                    container = colors.primaryContainer,
+                    tint = colors.primary,
+                    size = 48.dp
+                )
+            },
+            title = {
+                Text(
+                    text = "Change booking",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold
+                )
+            },
             text = {
-                Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
-                    Text(
-                        text = "${viewModel.stationName(reservation.stationId)}\n" +
-                            formatWindow(
-                                reservation.reservationStart,
-                                reservation.reservationEnd
-                            ),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                    ReservationSummary(
+                        stationName = viewModel.stationName(reservation.stationId),
+                        window = formatWindow(
+                            reservation.reservationStart,
+                            reservation.reservationEnd
+                        ),
+                        detail = "Currently ${reservationTypeLabel(reservation.type).lowercase()}" +
+                            " - ${formatKWh(reservation.energyKWh)}"
                     )
 
-                    SectionLabel("Direction")
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        FilterChip(
-                            selected = state.editType == ReservationTypes.DROP_OFF,
-                            onClick = { viewModel.onEditTypeChange(ReservationTypes.DROP_OFF) },
-                            label = { Text("Drop off") }
-                        )
-                        FilterChip(
-                            selected = state.editType == ReservationTypes.CHARGING,
-                            onClick = { viewModel.onEditTypeChange(ReservationTypes.CHARGING) },
-                            label = { Text("Charge") }
-                        )
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        SectionLabel("Direction")
+                        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                            SelectableOption(
+                                icon = Icons.Default.Upload,
+                                label = "Drop off",
+                                selected = state.editType == ReservationTypes.DROP_OFF,
+                                enabled = !state.working,
+                                onClick = {
+                                    viewModel.onEditTypeChange(ReservationTypes.DROP_OFF)
+                                },
+                                modifier = Modifier.weight(1f)
+                            )
+                            SelectableOption(
+                                icon = Icons.Default.BatteryChargingFull,
+                                label = "Charge",
+                                selected = state.editType == ReservationTypes.CHARGING,
+                                enabled = !state.working,
+                                onClick = {
+                                    viewModel.onEditTypeChange(ReservationTypes.CHARGING)
+                                },
+                                modifier = Modifier.weight(1f)
+                            )
+                        }
                     }
 
                     FormField(
@@ -232,18 +339,37 @@ fun MyBookingsScreen(
                     // Changing an approved booking costs the prosumer its approval,
                     // so the trade-off is stated before they commit to it.
                     if (reservation.status == ReservationStatuses.APPROVED) {
-                        Text(
-                            text = "This booking is already approved. Saving a change sends " +
-                                "it back for approval and revokes the current QR code.",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.error
-                        )
+                        Surface(
+                            color = colors.errorContainer,
+                            contentColor = colors.onErrorContainer,
+                            shape = RoundedCornerShape(12.dp),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(
+                                text = "This booking is already approved. Saving a change " +
+                                    "sends it back for approval and revokes the current QR code.",
+                                style = MaterialTheme.typography.bodySmall,
+                                modifier = Modifier.padding(12.dp)
+                            )
+                        }
                     }
                 }
             },
             confirmButton = {
-                TextButton(onClick = viewModel::confirmEdit, enabled = !state.working) {
-                    Text(if (state.working) "Saving..." else "Save changes")
+                Button(
+                    onClick = viewModel::confirmEdit,
+                    enabled = !state.working,
+                    shape = RoundedCornerShape(10.dp)
+                ) {
+                    if (state.working) {
+                        CircularProgressIndicator(
+                            strokeWidth = 2.dp,
+                            color = colors.onPrimary,
+                            modifier = Modifier.size(18.dp)
+                        )
+                    } else {
+                        Text("Save changes", fontWeight = FontWeight.SemiBold)
+                    }
                 }
             },
             dismissButton = {
@@ -266,95 +392,168 @@ private fun BookingCard(
     onEdit: () -> Unit,
     onCancel: () -> Unit
 ) {
+    val colors = MaterialTheme.colorScheme
     val visuals = reservationStatusVisuals(reservation.status)
+    val approved = reservation.status == ReservationStatuses.APPROVED
 
-    SectionCard {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+    Surface(
+        color = colors.surface,
+        shape = RoundedCornerShape(18.dp),
+        border = BorderStroke(1.dp, colors.outline),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                IconBadge(
+                    icon = Icons.Default.Bolt,
+                    container = colors.primaryContainer,
+                    tint = colors.primary,
+                    size = 40.dp
+                )
+                Spacer(Modifier.width(14.dp))
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = stationName,
+                        style = MaterialTheme.typography.bodyLarge,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                    Text(
+                        text = formatWindow(
+                            reservation.reservationStart,
+                            reservation.reservationEnd
+                        ),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = colors.onSurfaceVariant
+                    )
+                }
+                StatusChip(
+                    text = visuals.label,
+                    container = visuals.container,
+                    content = visuals.content
+                )
+            }
+
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                MetaPill(
+                    icon = if (reservation.type == ReservationTypes.CHARGING) {
+                        Icons.Default.BatteryChargingFull
+                    } else {
+                        Icons.Default.Upload
+                    },
+                    text = reservationTypeLabel(reservation.type)
+                )
+                MetaPill(icon = Icons.Default.Bolt, text = formatKWh(reservation.energyKWh))
+            }
+
+            // The token itself belongs on the QR screen; here it is only a signal
+            // that the booking is ready to be shown to an operator.
+            if (approved && !reservation.qrToken.isNullOrBlank()) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        Icons.Default.QrCode2,
+                        contentDescription = null,
+                        tint = colors.primary,
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Spacer(Modifier.width(8.dp))
+                    Text(
+                        text = "Your QR code is ready for the grid operator.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = colors.primary
+                    )
+                }
+            }
+
+            if (!reservation.cancellationReason.isNullOrBlank()) {
+                Text(
+                    text = "Reason: ${reservation.cancellationReason}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = colors.onSurfaceVariant
+                )
+            }
+
+            if (canModify) {
+                HorizontalDivider(color = colors.outline)
+                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Button(
+                        onClick = onEdit,
+                        enabled = !working,
+                        shape = RoundedCornerShape(10.dp),
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text("Change", fontWeight = FontWeight.SemiBold)
+                    }
+                    OutlinedButton(
+                        onClick = onCancel,
+                        enabled = !working,
+                        shape = RoundedCornerShape(10.dp),
+                        border = BorderStroke(1.dp, colors.outline),
+                        colors = ButtonDefaults.outlinedButtonColors(contentColor = colors.error),
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text("Cancel")
+                    }
+                }
+            } else if (lockedNote != null) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        Icons.Default.Schedule,
+                        contentDescription = null,
+                        tint = colors.onSurfaceVariant,
+                        modifier = Modifier.size(14.dp)
+                    )
+                    Spacer(Modifier.width(8.dp))
+                    Text(
+                        text = lockedNote,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = colors.onSurfaceVariant
+                    )
+                }
+            }
+        }
+    }
+}
+
+/** Tinted recap of the reservation a dialog is about to act on. */
+@Composable
+private fun ReservationSummary(stationName: String, window: String, detail: String) {
+    val colors = MaterialTheme.colorScheme
+    Surface(
+        color = colors.secondaryContainer,
+        contentColor = colors.onSecondaryContainer,
+        shape = RoundedCornerShape(14.dp),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Column(
+            modifier = Modifier.padding(14.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp)
         ) {
             Text(
                 text = stationName,
                 style = MaterialTheme.typography.bodyLarge,
-                fontWeight = FontWeight.Medium,
-                modifier = Modifier.weight(1f)
+                fontWeight = FontWeight.SemiBold
             )
-            StatusChip(
-                text = visuals.label,
-                container = visuals.container,
-                content = visuals.content
-            )
-        }
-
-        InfoRow("When", formatWindow(reservation.reservationStart, reservation.reservationEnd))
-        InfoRow("Direction", reservationTypeLabel(reservation.type))
-        InfoRow("Energy", formatKWh(reservation.energyKWh))
-
-        // The token itself belongs on the QR screen; here it is only a signal
-        // that the booking is ready to be shown to an operator.
-        if (reservation.status == ReservationStatuses.APPROVED && !reservation.qrToken.isNullOrBlank()) {
-            Text(
-                text = "Approved - your QR code is ready for the grid operator.",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.primary
-            )
-        }
-
-        if (!reservation.cancellationReason.isNullOrBlank()) {
-            InfoRow("Reason", reservation.cancellationReason)
-        }
-
-        if (canModify) {
-            HorizontalDivider(color = MaterialTheme.colorScheme.outline)
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                TextButton(onClick = onEdit, enabled = !working) { Text("Change") }
-                TextButton(onClick = onCancel, enabled = !working) { Text("Cancel booking") }
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    Icons.Default.Schedule,
+                    contentDescription = null,
+                    modifier = Modifier.size(14.dp)
+                )
+                Spacer(Modifier.width(6.dp))
+                Text(text = window, style = MaterialTheme.typography.bodySmall)
             }
-        } else if (lockedNote != null) {
-            Text(
-                text = lockedNote,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    Icons.Default.Bolt,
+                    contentDescription = null,
+                    modifier = Modifier.size(14.dp)
+                )
+                Spacer(Modifier.width(6.dp))
+                Text(text = detail, style = MaterialTheme.typography.bodySmall)
+            }
         }
-    }
-}
-
-/** Wording for an empty list, which differs between the two tabs. */
-@Composable
-private fun EmptyState(tab: BookingsTab) {
-    val title = if (tab == BookingsTab.UPCOMING) "No upcoming bookings" else "No past bookings"
-    val body = if (tab == BookingsTab.UPCOMING) {
-        "Reserve an energy slot from the home screen and it will appear here."
-    } else {
-        "Completed and cancelled bookings are kept here once a slot has passed."
-    }
-
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(
-            text = title,
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.SemiBold
-        )
-        Spacer(Modifier.height(6.dp))
-        Text(
-            text = body,
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-    }
-}
-
-/** Centres a loading spinner or empty-state message in the remaining space. */
-@Composable
-private fun CenteredBox(content: @Composable () -> Unit) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(260.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        content()
     }
 }

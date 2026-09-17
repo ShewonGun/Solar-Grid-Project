@@ -17,12 +17,17 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.LockReset
+import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -37,9 +42,11 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.smartgrid_mobile.ui.common.BannerTone
 import com.example.smartgrid_mobile.ui.common.MessageBanner
+import com.example.smartgrid_mobile.ui.common.PageHeaderCard
 import com.example.smartgrid_mobile.ui.common.PasswordField
 import com.example.smartgrid_mobile.ui.common.PrimaryButton
 import com.example.smartgrid_mobile.ui.common.SectionCard
+import com.example.smartgrid_mobile.ui.common.SectionLabel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -68,6 +75,10 @@ fun ChangePasswordScreen(
         topBar = {
             CenterAlignedTopAppBar(
                 title = { Text("Change password", fontWeight = FontWeight.SemiBold) },
+                // Sits on the page background, matching the prosumer tabs.
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.background
+                ),
                 navigationIcon = {
                     IconButton(onClick = onBack, enabled = !state.working) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
@@ -81,44 +92,61 @@ fun ChangePasswordScreen(
                 .fillMaxSize()
                 .padding(padding)
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = 20.dp, vertical = 12.dp),
+                .padding(horizontal = 20.dp)
+                .padding(top = 8.dp, bottom = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .widthIn(max = 440.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+                verticalArrangement = Arrangement.spacedBy(20.dp)
             ) {
                 MessageBanner(state.errorMessage, BannerTone.ERROR)
 
-                SectionCard {
-                    PasswordField(
-                        value = currentPassword,
-                        onValueChange = { currentPassword = it },
-                        label = "Current password",
-                        enabled = !state.working,
-                        isError = state.fieldErrors.containsKey(ProfileField.CURRENT_PASSWORD),
-                        supportingText = state.fieldErrors[ProfileField.CURRENT_PASSWORD]
-                    )
-                    PasswordField(
-                        value = newPassword,
-                        onValueChange = { newPassword = it },
-                        label = "New password",
-                        enabled = !state.working,
-                        isError = state.fieldErrors.containsKey(ProfileField.NEW_PASSWORD),
-                        supportingText = state.fieldErrors[ProfileField.NEW_PASSWORD]
-                            ?: "At least 8 characters"
-                    )
-                    PasswordField(
-                        value = confirmPassword,
-                        onValueChange = { confirmPassword = it },
-                        label = "Confirm new password",
-                        enabled = !state.working,
-                        isError = state.fieldErrors.containsKey(ProfileField.CONFIRM_PASSWORD),
-                        supportingText = state.fieldErrors[ProfileField.CONFIRM_PASSWORD],
-                        imeAction = ImeAction.Done
-                    )
+                // ---- Header ----------------------------------------------
+                PageHeaderCard(
+                    icon = Icons.Default.Shield,
+                    title = "Keep your account safe",
+                    subtitle = "Sign-in password",
+                    // The service re-checks the current password, so say so up front.
+                    footnote = "Your current password is required to set a new one."
+                )
+
+                // ---- Password form ---------------------------------------
+                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    SectionLabel("New password")
+                    SectionCard {
+                        PasswordField(
+                            value = currentPassword,
+                            onValueChange = { currentPassword = it },
+                            label = "Current password",
+                            enabled = !state.working,
+                            isError = state.fieldErrors.containsKey(ProfileField.CURRENT_PASSWORD),
+                            supportingText = state.fieldErrors[ProfileField.CURRENT_PASSWORD],
+                            leadingIcon = Icons.Default.Lock
+                        )
+                        PasswordField(
+                            value = newPassword,
+                            onValueChange = { newPassword = it },
+                            label = "New password",
+                            enabled = !state.working,
+                            isError = state.fieldErrors.containsKey(ProfileField.NEW_PASSWORD),
+                            supportingText = state.fieldErrors[ProfileField.NEW_PASSWORD]
+                                ?: "At least 8 characters",
+                            leadingIcon = Icons.Default.LockReset
+                        )
+                        PasswordField(
+                            value = confirmPassword,
+                            onValueChange = { confirmPassword = it },
+                            label = "Confirm new password",
+                            enabled = !state.working,
+                            isError = state.fieldErrors.containsKey(ProfileField.CONFIRM_PASSWORD),
+                            supportingText = state.fieldErrors[ProfileField.CONFIRM_PASSWORD],
+                            imeAction = ImeAction.Done,
+                            leadingIcon = Icons.Default.LockReset
+                        )
+                    }
                 }
 
                 PrimaryButton(

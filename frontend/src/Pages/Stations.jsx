@@ -36,6 +36,7 @@ import {
 import Pagination from '../Components/Pagination'
 import StationFormModal from '../Components/StationFormModal'
 import usePagination from '../hooks/usePagination'
+import { newestFirst } from '../utils/sorting'
 
 /* Formats a coordinate pair for the table. */
 function formatLocation(station) {
@@ -203,12 +204,14 @@ export default function Stations() {
 
   // Filtering by name happens in the browser: the list endpoint has no search
   // parameter, and a site's node list is small enough to filter client-side.
+  // The API returns nodes alphabetically; the table shows newest first.
   const visibleStations = useMemo(() => {
     const term = search.trim().toLowerCase()
-
-    return term
+    const matches = term
       ? stations.filter((station) => station.stationName.toLowerCase().includes(term))
       : stations
+
+    return newestFirst(matches)
   }, [stations, search])
 
   // Paged in the browser: no endpoint on the Web API takes a page parameter.

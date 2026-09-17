@@ -17,6 +17,14 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Badge
+import androidx.compose.material.icons.filled.Bolt
+import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.PersonAdd
+import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -24,6 +32,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -37,6 +46,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.smartgrid_mobile.ui.common.BannerTone
 import com.example.smartgrid_mobile.ui.common.FormField
 import com.example.smartgrid_mobile.ui.common.MessageBanner
+import com.example.smartgrid_mobile.ui.common.PageHeaderCard
 import com.example.smartgrid_mobile.ui.common.PasswordField
 import com.example.smartgrid_mobile.ui.common.PrimaryButton
 import com.example.smartgrid_mobile.ui.common.SectionCard
@@ -65,6 +75,10 @@ fun RegisterScreen(
         topBar = {
             CenterAlignedTopAppBar(
                 title = { Text("Create account", fontWeight = FontWeight.SemiBold) },
+                // Sits on the page background, matching the rest of the app.
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.background
+                ),
                 navigationIcon = {
                     IconButton(onClick = onBack, enabled = !state.loading) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
@@ -78,109 +92,129 @@ fun RegisterScreen(
                 .fillMaxSize()
                 .padding(padding)
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = 20.dp, vertical = 12.dp),
+                .padding(horizontal = 20.dp)
+                .padding(top = 8.dp, bottom = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .widthIn(max = 440.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+                verticalArrangement = Arrangement.spacedBy(20.dp)
             ) {
-                Text(
-                    text = "Register as a solar prosumer. A backoffice officer activates " +
-                        "the account before the first sign-in.",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-
                 MessageBanner(state.errorMessage, BannerTone.ERROR)
 
-                SectionLabel("Identity")
-                SectionCard {
-                    FormField(
-                        value = state.nic,
-                        onValueChange = viewModel::onNicChange,
-                        label = "NIC (primary key)",
-                        enabled = !state.loading,
-                        isError = state.fieldErrors.containsKey(RegisterField.NIC),
-                        supportingText = state.fieldErrors[RegisterField.NIC]
-                    )
-                    FormField(
-                        value = state.fullName,
-                        onValueChange = viewModel::onFullNameChange,
-                        label = "Full name",
-                        enabled = !state.loading,
-                        isError = state.fieldErrors.containsKey(RegisterField.FULL_NAME),
-                        supportingText = state.fieldErrors[RegisterField.FULL_NAME]
-                    )
+                // ---- Header ----------------------------------------------
+                PageHeaderCard(
+                    icon = Icons.Default.PersonAdd,
+                    title = "Join the microgrid",
+                    subtitle = "Register as a solar prosumer",
+                    // Sets the expectation before they wait for a sign-in that fails.
+                    footnote = "A backoffice officer activates the account before " +
+                        "your first sign-in."
+                )
+
+                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    SectionLabel("Identity")
+                    SectionCard {
+                        FormField(
+                            value = state.nic,
+                            onValueChange = viewModel::onNicChange,
+                            label = "NIC (primary key)",
+                            enabled = !state.loading,
+                            isError = state.fieldErrors.containsKey(RegisterField.NIC),
+                            supportingText = state.fieldErrors[RegisterField.NIC],
+                            leadingIcon = Icons.Default.Badge
+                        )
+                        FormField(
+                            value = state.fullName,
+                            onValueChange = viewModel::onFullNameChange,
+                            label = "Full name",
+                            enabled = !state.loading,
+                            isError = state.fieldErrors.containsKey(RegisterField.FULL_NAME),
+                            supportingText = state.fieldErrors[RegisterField.FULL_NAME],
+                            leadingIcon = Icons.Default.Person
+                        )
+                    }
                 }
 
-                SectionLabel("Contact")
-                SectionCard {
-                    FormField(
-                        value = state.email,
-                        onValueChange = viewModel::onEmailChange,
-                        label = "Email",
-                        enabled = !state.loading,
-                        isError = state.fieldErrors.containsKey(RegisterField.EMAIL),
-                        supportingText = state.fieldErrors[RegisterField.EMAIL],
-                        keyboardType = KeyboardType.Email
-                    )
-                    FormField(
-                        value = state.phone,
-                        onValueChange = viewModel::onPhoneChange,
-                        label = "Phone",
-                        enabled = !state.loading,
-                        isError = state.fieldErrors.containsKey(RegisterField.PHONE),
-                        supportingText = state.fieldErrors[RegisterField.PHONE],
-                        keyboardType = KeyboardType.Phone
-                    )
-                    FormField(
-                        value = state.address,
-                        onValueChange = viewModel::onAddressChange,
-                        label = "Address",
-                        enabled = !state.loading,
-                        singleLine = false,
-                        isError = state.fieldErrors.containsKey(RegisterField.ADDRESS),
-                        supportingText = state.fieldErrors[RegisterField.ADDRESS]
-                    )
+                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    SectionLabel("Contact")
+                    SectionCard {
+                        FormField(
+                            value = state.email,
+                            onValueChange = viewModel::onEmailChange,
+                            label = "Email",
+                            enabled = !state.loading,
+                            isError = state.fieldErrors.containsKey(RegisterField.EMAIL),
+                            supportingText = state.fieldErrors[RegisterField.EMAIL],
+                            keyboardType = KeyboardType.Email,
+                            leadingIcon = Icons.Default.Email
+                        )
+                        FormField(
+                            value = state.phone,
+                            onValueChange = viewModel::onPhoneChange,
+                            label = "Phone",
+                            enabled = !state.loading,
+                            isError = state.fieldErrors.containsKey(RegisterField.PHONE),
+                            supportingText = state.fieldErrors[RegisterField.PHONE],
+                            keyboardType = KeyboardType.Phone,
+                            leadingIcon = Icons.Default.Phone
+                        )
+                        FormField(
+                            value = state.address,
+                            onValueChange = viewModel::onAddressChange,
+                            label = "Address",
+                            enabled = !state.loading,
+                            singleLine = false,
+                            isError = state.fieldErrors.containsKey(RegisterField.ADDRESS),
+                            supportingText = state.fieldErrors[RegisterField.ADDRESS],
+                            leadingIcon = Icons.Default.Home
+                        )
+                    }
                 }
 
-                SectionLabel("Solar installation")
-                SectionCard {
-                    FormField(
-                        value = state.solarCapacityKW,
-                        onValueChange = viewModel::onCapacityChange,
-                        label = "Installed capacity (kW)",
-                        enabled = !state.loading,
-                        isError = state.fieldErrors.containsKey(RegisterField.CAPACITY),
-                        supportingText = state.fieldErrors[RegisterField.CAPACITY]
-                            ?: "Panel array rating, for example 5.5",
-                        keyboardType = KeyboardType.Decimal
-                    )
+                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    SectionLabel("Solar installation")
+                    SectionCard {
+                        FormField(
+                            value = state.solarCapacityKW,
+                            onValueChange = viewModel::onCapacityChange,
+                            label = "Installed capacity (kW)",
+                            enabled = !state.loading,
+                            isError = state.fieldErrors.containsKey(RegisterField.CAPACITY),
+                            supportingText = state.fieldErrors[RegisterField.CAPACITY]
+                                ?: "Panel array rating, for example 5.5",
+                            keyboardType = KeyboardType.Decimal,
+                            leadingIcon = Icons.Default.Bolt
+                        )
+                    }
                 }
 
-                SectionLabel("Security")
-                SectionCard {
-                    PasswordField(
-                        value = state.password,
-                        onValueChange = viewModel::onPasswordChange,
-                        label = "Password",
-                        enabled = !state.loading,
-                        isError = state.fieldErrors.containsKey(RegisterField.PASSWORD),
-                        supportingText = state.fieldErrors[RegisterField.PASSWORD]
-                            ?: "At least 8 characters"
-                    )
-                    PasswordField(
-                        value = state.confirmPassword,
-                        onValueChange = viewModel::onConfirmPasswordChange,
-                        label = "Confirm password",
-                        enabled = !state.loading,
-                        isError = state.fieldErrors.containsKey(RegisterField.CONFIRM),
-                        supportingText = state.fieldErrors[RegisterField.CONFIRM],
-                        imeAction = ImeAction.Done
-                    )
+                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    SectionLabel("Security")
+                    SectionCard {
+                        PasswordField(
+                            value = state.password,
+                            onValueChange = viewModel::onPasswordChange,
+                            label = "Password",
+                            enabled = !state.loading,
+                            isError = state.fieldErrors.containsKey(RegisterField.PASSWORD),
+                            supportingText = state.fieldErrors[RegisterField.PASSWORD]
+                                ?: "At least 8 characters",
+                            leadingIcon = Icons.Default.Lock
+                        )
+                        PasswordField(
+                            value = state.confirmPassword,
+                            onValueChange = viewModel::onConfirmPasswordChange,
+                            label = "Confirm password",
+                            enabled = !state.loading,
+                            isError = state.fieldErrors.containsKey(RegisterField.CONFIRM),
+                            supportingText = state.fieldErrors[RegisterField.CONFIRM],
+                            imeAction = ImeAction.Done,
+                            leadingIcon = Icons.Default.Lock
+                        )
+                    }
                 }
 
                 PrimaryButton(

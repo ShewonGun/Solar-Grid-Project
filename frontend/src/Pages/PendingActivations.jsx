@@ -7,7 +7,7 @@
  * Author:  <your name>
  * Created: 2026
  */
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { toast } from 'react-toastify'
 
 import { toApiError } from '../api/client'
@@ -29,6 +29,7 @@ import {
 } from '../Components/PageControls'
 import Pagination from '../Components/Pagination'
 import usePagination from '../hooks/usePagination'
+import { newestFirst } from '../utils/sorting'
 
 /* Formats the date an account registered. */
 function formatDate(value) {
@@ -133,8 +134,12 @@ export default function PendingActivations() {
     }
   }
 
+  // Newest registration first, so the accounts waiting longest sink to the
+  // bottom and a prosumer who just signed up appears at the top of the queue.
+  const orderedAccounts = useMemo(() => newestFirst(accounts), [accounts])
+
   // Paged in the browser: no endpoint on the Web API takes a page parameter.
-  const pagination = usePagination(accounts)
+  const pagination = usePagination(orderedAccounts)
 
   return (
     <>

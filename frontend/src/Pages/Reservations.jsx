@@ -35,6 +35,7 @@ import {
 import Pagination from '../Components/Pagination'
 import ReservationFormModal from '../Components/ReservationFormModal'
 import usePagination from '../hooks/usePagination'
+import { newestFirst } from '../utils/sorting'
 import { MIN_NOTICE_HOURS, formatDateTime, modificationState } from '../utils/reservationRules'
 
 /** The statuses the API can return, for the filter control. */
@@ -268,8 +269,12 @@ export default function Reservations() {
     }
   }
 
+  // The API sorts bookings by start time; the table shows the newest booking
+  // made at the top, so a reservation just created is the first row.
+  const orderedReservations = useMemo(() => newestFirst(reservations), [reservations])
+
   // Paged in the browser: no endpoint on the Web API takes a page parameter.
-  const pagination = usePagination(reservations)
+  const pagination = usePagination(orderedReservations)
 
   return (
     <>

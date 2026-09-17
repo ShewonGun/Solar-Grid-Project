@@ -8,7 +8,7 @@
  * Author:  <your name>
  * Created: 2026
  */
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { toast } from 'react-toastify'
 
 import { toApiError } from '../api/client'
@@ -35,6 +35,7 @@ import {
 import Pagination from '../Components/Pagination'
 import UserFormModal from '../Components/UserFormModal'
 import usePagination from '../hooks/usePagination'
+import { newestFirst } from '../utils/sorting'
 
 /** Roles the API can return, for the filter control. */
 const ROLES = [
@@ -257,8 +258,11 @@ export default function Users() {
     }
   }
 
+  // The API returns accounts alphabetically; the table shows newest first.
+  const orderedUsers = useMemo(() => newestFirst(users), [users])
+
   // Paged in the browser: no endpoint on the Web API takes a page parameter.
-  const pagination = usePagination(users)
+  const pagination = usePagination(orderedUsers)
 
   return (
     <>

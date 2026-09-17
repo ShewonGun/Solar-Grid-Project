@@ -8,7 +8,7 @@
  * Author:  <your name>
  * Created: 2026
  */
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { toast } from 'react-toastify'
 
@@ -37,6 +37,7 @@ import {
 import Pagination from '../Components/Pagination'
 import SlotFormModal from '../Components/SlotFormModal'
 import usePagination from '../hooks/usePagination'
+import { newestFirst } from '../utils/sorting'
 import { formatDateTime, formatTimeRange } from '../utils/reservationRules'
 
 /** Slot statuses the API can return, for the filter control. */
@@ -268,8 +269,12 @@ export default function StationSlots() {
     }
   }
 
+  // The API returns slots in schedule order; the table shows the most recently
+  // opened slot first, so a slot just created is the first row.
+  const orderedSlots = useMemo(() => newestFirst(slots), [slots])
+
   // Paged in the browser: no endpoint on the Web API takes a page parameter.
-  const pagination = usePagination(slots)
+  const pagination = usePagination(orderedSlots)
 
   return (
     <>

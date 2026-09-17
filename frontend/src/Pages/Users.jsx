@@ -9,6 +9,7 @@
  * Created: 2026
  */
 import { useEffect, useState } from 'react'
+import { toast } from 'react-toastify'
 
 import { toApiError } from '../api/client'
 import { activateUser, deactivateUser, getUsers } from '../api/usersApi'
@@ -31,7 +32,9 @@ import {
   Toolbar,
   TR,
 } from '../Components/PageControls'
+import Pagination from '../Components/Pagination'
 import UserFormModal from '../Components/UserFormModal'
+import usePagination from '../hooks/usePagination'
 
 /** Roles the API can return, for the filter control. */
 const ROLES = [
@@ -139,8 +142,8 @@ export default function Users() {
   const [filters, setFilters] = useState(EMPTY_FILTERS)
   const [applied, setApplied] = useState(EMPTY_FILTERS)
   const [loading, setLoading] = useState(true)
+  // Only the load failure lives on the page; action outcomes go to a toast.
   const [error, setError] = useState('')
-  const [notice, setNotice] = useState('')
   const [busyNic, setBusyNic] = useState(null)
   // Which account the dialog is editing: a NIC, 'new' to create one, or null.
   const [editing, setEditing] = useState(null)
@@ -189,8 +192,7 @@ export default function Users() {
 
   /* Reloads the list and reports what changed after the dialog saves. */
   function handleSaved(message) {
-    setNotice(message)
-    setError('')
+    toast.success(message)
     setReloadToken((current) => current + 1)
   }
 
@@ -219,16 +221,14 @@ export default function Users() {
    */
   async function handleActivate(user) {
     setBusyNic(user.nic)
-    setError('')
-    setNotice('')
 
     try {
       const updated = await activateUser(user.nic)
 
       setUsers((current) => current.map((item) => (item.nic === updated.nic ? updated : item)))
-      setNotice(`${updated.fullName} is now active.`)
+      toast.success(`${updated.fullName} is now active.`)
     } catch (failure) {
-      setError(toApiError(failure).message)
+      toast.error(toApiError(failure).message)
     } finally {
       setBusyNic(null)
     }
@@ -242,22 +242,23 @@ export default function Users() {
     const user = deactivating
 
     setBusyNic(user.nic)
-    setError('')
-    setNotice('')
 
     try {
       const updated = await deactivateUser(user.nic)
 
       setUsers((current) => current.map((item) => (item.nic === updated.nic ? updated : item)))
-      setNotice(`${updated.fullName} has been deactivated.`)
+      toast.success(`${updated.fullName} has been deactivated.`)
       setDeactivating(null)
     } catch (failure) {
-      setError(toApiError(failure).message)
+      toast.error(toApiError(failure).message)
       setDeactivating(null)
     } finally {
       setBusyNic(null)
     }
   }
+
+  // Paged in the browser: no endpoint on the Web API takes a page parameter.
+  const pagination = usePagination(users)
 
   return (
     <>
@@ -272,7 +273,6 @@ export default function Users() {
       </PageHeader>
 
       <Banner tone="error">{error}</Banner>
-      <Banner tone="success">{notice}</Banner>
 
       {loading ? (
         <LoadingState label="Loading users..." />
@@ -358,7 +358,7 @@ export default function Users() {
                 </tr>
               </thead>
               <tbody>
-                {users.map((user) => (
+                {pagination.pageItems.map((user) => (
                   <UserRow
                     key={user.nic}
                     user={user}
@@ -372,6 +372,15 @@ export default function Users() {
               </tbody>
             </TableWrap>
           )}
+
+          {users.length > 0 ? (
+            <Pagination
+              {...pagination}
+              onPageChange={pagination.setPage}
+              onPageSizeChange={pagination.setPageSize}
+              noun="accounts"
+            />
+          ) : null}
         </Panel>
       )}
 

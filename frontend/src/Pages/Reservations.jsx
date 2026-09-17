@@ -9,6 +9,7 @@
  * Created: 2026
  */
 import { useEffect, useMemo, useState } from 'react'
+import { toast } from 'react-toastify'
 
 import { toApiError } from '../api/client'
 import { approveReservation, cancelReservation, searchReservations } from '../api/reservationsApi'
@@ -31,7 +32,9 @@ import {
   Toolbar,
   TR,
 } from '../Components/PageControls'
+import Pagination from '../Components/Pagination'
 import ReservationFormModal from '../Components/ReservationFormModal'
+import usePagination from '../hooks/usePagination'
 import { MIN_NOTICE_HOURS, formatDateTime, modificationState } from '../utils/reservationRules'
 
 /** The statuses the API can return, for the filter control. */
@@ -116,8 +119,8 @@ export default function Reservations() {
   const [filters, setFilters] = useState(EMPTY_FILTERS)
   const [applied, setApplied] = useState(EMPTY_FILTERS)
   const [loading, setLoading] = useState(true)
+  // Only the load failure lives on the page; action outcomes go to a toast.
   const [error, setError] = useState('')
-  const [notice, setNotice] = useState('')
   const [busyId, setBusyId] = useState(null)
   const [cancelling, setCancelling] = useState(null)
   const [cancelReason, setCancelReason] = useState('')
@@ -196,8 +199,7 @@ export default function Reservations() {
 
   /* Reloads the list and reports what changed after the dialog saves. */
   function handleSaved(message) {
-    setNotice(message)
-    setError('')
+    toast.success(message)
     setReloadToken((current) => current + 1)
   }
 
@@ -225,8 +227,6 @@ export default function Reservations() {
    */
   async function handleApprove(reservation) {
     setBusyId(reservation.id)
-    setError('')
-    setNotice('')
 
     try {
       const updated = await approveReservation(reservation.id)
@@ -234,9 +234,9 @@ export default function Reservations() {
       setReservations((current) =>
         current.map((item) => (item.id === updated.id ? updated : item)),
       )
-      setNotice(`Reservation for NIC ${updated.prosumerNic} approved.`)
+      toast.success(`Reservation for NIC ${updated.prosumerNic} approved.`)
     } catch (failure) {
-      setError(toApiError(failure).message)
+      toast.error(toApiError(failure).message)
     } finally {
       setBusyId(null)
     }
@@ -250,8 +250,6 @@ export default function Reservations() {
     const reservation = cancelling
 
     setBusyId(reservation.id)
-    setError('')
-    setNotice('')
 
     try {
       const updated = await cancelReservation(reservation.id, cancelReason.trim() || undefined)
@@ -259,16 +257,19 @@ export default function Reservations() {
       setReservations((current) =>
         current.map((item) => (item.id === updated.id ? updated : item)),
       )
-      setNotice(`Reservation for NIC ${updated.prosumerNic} cancelled.`)
+      toast.success(`Reservation for NIC ${updated.prosumerNic} cancelled.`)
       setCancelling(null)
       setCancelReason('')
     } catch (failure) {
-      setError(toApiError(failure).message)
+      toast.error(toApiError(failure).message)
       setCancelling(null)
     } finally {
       setBusyId(null)
     }
   }
+
+  // Paged in the browser: no endpoint on the Web API takes a page parameter.
+  const pagination = usePagination(reservations)
 
   return (
     <>
@@ -283,7 +284,6 @@ export default function Reservations() {
       </PageHeader>
 
       <Banner tone="error">{error}</Banner>
-      <Banner tone="success">{notice}</Banner>
 
       {loading ? (
         <LoadingState label="Loading reservations..." />
@@ -387,7 +387,7 @@ export default function Reservations() {
                 </tr>
               </thead>
               <tbody>
-                {reservations.map((reservation) => (
+                {pagination.pageItems.map((reservation) => (
                   <ReservationRow
                     key={reservation.id}
                     reservation={reservation}
@@ -404,6 +404,15 @@ export default function Reservations() {
               </tbody>
             </TableWrap>
           )}
+
+          {reservations.length > 0 ? (
+            <Pagination
+              {...pagination}
+              onPageChange={pagination.setPage}
+              onPageSizeChange={pagination.setPageSize}
+              noun="bookings"
+            />
+          ) : null}
         </Panel>
       )}
 

@@ -10,6 +10,8 @@
  */
 import { useId, useState } from 'react'
 
+import { IconSpinner } from './Icons'
+
 const BASE_INPUT_CLASSES =
   'w-full rounded-xs border bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition-colors placeholder:text-slate-400 focus:ring-1 disabled:bg-slate-50 disabled:text-slate-400'
 
@@ -164,23 +166,7 @@ export function SubmitButton({ busy = false, busyLabel = 'Please wait...', child
     >
       {busy ? (
         <>
-          <svg className="h-3.5 w-3.5 animate-spin" viewBox="0 0 24 24" aria-hidden="true">
-            <circle
-              cx="12"
-              cy="12"
-              r="10"
-              stroke="currentColor"
-              strokeWidth="3"
-              fill="none"
-              opacity="0.3"
-            />
-            <path
-              d="M12 2a10 10 0 0 1 10 10"
-              stroke="currentColor"
-              strokeWidth="3"
-              fill="none"
-            />
-          </svg>
+          <IconSpinner className="h-3.5 w-3.5 animate-spin" />
           {busyLabel}
         </>
       ) : (

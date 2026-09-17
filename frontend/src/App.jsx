@@ -1,14 +1,5 @@
-/*
- * File: App.jsx
- * Purpose: Root component and route table for the Smart Solar Microgrid web
- *          console. Declares the public authentication routes, then the
- *          signed-in routes, which sit behind ProtectedRoute and inside the
- *          AppShell frame. Routes that only Back-office officers may open name
- *          that role, matching the roles the Web API enforces.
- * Author:  <your name>
- * Created: 2026
- */
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
+import { ToastContainer } from 'react-toastify'
 
 import AppShell from './Components/AppShell'
 import ProtectedRoute from './Components/ProtectedRoute'
@@ -90,6 +81,19 @@ export default function App() {
 
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+
+      {/* Toasts report the outcome of an action the user just took. Conditions
+          that persist - a list that failed to load, an invalid form field -
+          stay on the page itself, where they cannot time out unread. */}
+      <ToastContainer
+        position="top-right"
+        autoClose={4000}
+        newestOnTop
+        closeOnClick
+        pauseOnFocusLoss={false}
+        draggable={false}
+        theme="light"
+      />
     </BrowserRouter>
   )
 }

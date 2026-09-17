@@ -1,161 +1,118 @@
 /*
  * File: Icons.jsx
- * Purpose: The console's icon set, drawn inline as SVG so they inherit the
- *          surrounding text colour and need no icon font or extra request.
- *          All of them share one grid, stroke weight and square cap, which is
- *          what keeps a toolbar of mixed icons looking like one set.
+ * Purpose: The console's icon set, drawn from react-icons' Lucide collection.
+ *          Every icon in the app is named and sized here rather than imported
+ *          piecemeal, so a toolbar of mixed icons keeps one stroke weight and
+ *          one default size, and swapping an icon is a one-line change that
+ *          every screen picks up.
  * Author:  <your name>
  * Created: 2026
  */
+import {
+  LuBatteryCharging,
+  LuCalendar,
+  LuChevronLeft,
+  LuChevronRight,
+  LuCircleUser,
+  LuClock,
+  LuInbox,
+  LuLayoutDashboard,
+  LuLoaderCircle,
+  LuLogOut,
+  LuPlus,
+  LuSearch,
+  LuSun,
+  LuSunMedium,
+  LuUsers,
+  LuX,
+} from 'react-icons/lu'
 
 /*
- * Shared frame for every icon. Children are drawn on a 24x24 grid with a
- * 1.6 stroke; `aria-hidden` because an icon here always sits beside a label.
+ * Shared frame for every icon. Lucide draws at stroke-width 2 by default, which
+ * reads heavy beside this UI's thin borders and small type, so it is lightened
+ * here in one place. Icons are hidden from screen readers because one always
+ * sits beside a text label.
  */
-function Icon({ children, className = 'h-4 w-4' }) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      className={className}
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.6"
-      strokeLinecap="square"
-      strokeLinejoin="miter"
-      aria-hidden="true"
-    >
-      {children}
-    </svg>
-  )
+function Glyph({ as: Component, className = 'h-4 w-4', ...props }) {
+  return <Component className={className} strokeWidth={1.6} aria-hidden="true" {...props} />
 }
 
 /* Dashboard - a panel grid. */
 export function IconDashboard(props) {
-  return (
-    <Icon {...props}>
-      <rect x="3" y="3" width="7.5" height="7.5" />
-      <rect x="13.5" y="3" width="7.5" height="4.5" />
-      <rect x="3" y="13.5" width="7.5" height="7.5" />
-      <rect x="13.5" y="10.5" width="7.5" height="10.5" />
-    </Icon>
-  )
+  return <Glyph as={LuLayoutDashboard} {...props} />
 }
 
-/* Microgrid node - a solar panel. */
+/* Microgrid node. Lucide has no solar-panel glyph; the sun carries the idea. */
 export function IconNode(props) {
-  return (
-    <Icon {...props}>
-      <path d="M3 14h18l-2.5-9h-13L3 14Z" />
-      <path d="M12 5v9M6.8 9.5h10.4M12 14v5M9 19h6" />
-    </Icon>
-  )
+  return <Glyph as={LuSunMedium} {...props} />
 }
 
 /* Reservations - a calendar. */
 export function IconCalendar(props) {
-  return (
-    <Icon {...props}>
-      <rect x="3" y="5" width="18" height="16" />
-      <path d="M3 10h18M8 3v4M16 3v4" />
-    </Icon>
-  )
+  return <Glyph as={LuCalendar} {...props} />
 }
 
-/* Users - two figures. */
+/* Users - a pair of figures. */
 export function IconUsers(props) {
-  return (
-    <Icon {...props}>
-      <circle cx="9" cy="8" r="3.2" />
-      <path d="M3 20c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5" />
-      <path d="M16 5.2A3.2 3.2 0 0 1 16 11M17.5 14.8c2.1.6 3.5 2.4 3.5 4.8" />
-    </Icon>
-  )
+  return <Glyph as={LuUsers} {...props} />
 }
 
 /* Pending - a clock. */
 export function IconClock(props) {
-  return (
-    <Icon {...props}>
-      <circle cx="12" cy="12" r="9" />
-      <path d="M12 7v5.5l3.5 2" />
-    </Icon>
-  )
+  return <Glyph as={LuClock} {...props} />
 }
 
 /* Battery slot. */
 export function IconBattery(props) {
-  return (
-    <Icon {...props}>
-      <rect x="2" y="7" width="17" height="10" />
-      <path d="M22 10.5v3M6 10.5v3M10 10.5v3" />
-    </Icon>
-  )
+  return <Glyph as={LuBatteryCharging} {...props} />
 }
 
 /* Search. */
 export function IconSearch(props) {
-  return (
-    <Icon {...props}>
-      <circle cx="10.5" cy="10.5" r="6.5" />
-      <path d="m15.5 15.5 5 5" />
-    </Icon>
-  )
+  return <Glyph as={LuSearch} {...props} />
 }
 
 /* Plus, for a create action. */
 export function IconPlus(props) {
-  return (
-    <Icon {...props}>
-      <path d="M12 5v14M5 12h14" />
-    </Icon>
-  )
+  return <Glyph as={LuPlus} {...props} />
 }
 
 /* Close. */
 export function IconClose(props) {
-  return (
-    <Icon {...props}>
-      <path d="m6 6 12 12M18 6 6 18" />
-    </Icon>
-  )
+  return <Glyph as={LuX} {...props} />
 }
 
-/* Chevron, pointing right - used for breadcrumb separators. */
+/* Chevron, pointing right - breadcrumb separators and the next page. */
 export function IconChevronRight(props) {
-  return (
-    <Icon {...props}>
-      <path d="m9 5 7 7-7 7" />
-    </Icon>
-  )
+  return <Glyph as={LuChevronRight} {...props} />
+}
+
+/* Chevron, pointing left - the previous page. */
+export function IconChevronLeft(props) {
+  return <Glyph as={LuChevronLeft} {...props} />
 }
 
 /* Sign out. */
 export function IconSignOut(props) {
-  return (
-    <Icon {...props}>
-      <path d="M15 4h5v16h-5" />
-      <path d="M3 12h12m0 0-4-4m4 4-4 4" />
-    </Icon>
-  )
+  return <Glyph as={LuLogOut} {...props} />
 }
 
 /* A single user, for the account menu. */
 export function IconUserCircle(props) {
-  return (
-    <Icon {...props}>
-      <circle cx="12" cy="9" r="3.4" />
-      <circle cx="12" cy="12" r="9" />
-      <path d="M5.9 19a6.6 6.6 0 0 1 12.2 0" />
-    </Icon>
-  )
+  return <Glyph as={LuCircleUser} {...props} />
 }
 
 /* Inbox, for an empty list. */
 export function IconInbox(props) {
-  return (
-    <Icon {...props}>
-      <path d="M3 13h5l1.5 3h5L16 13h5" />
-      <path d="M5.5 4h13L21 13v7H3v-7L5.5 4Z" />
-    </Icon>
-  )
+  return <Glyph as={LuInbox} {...props} />
+}
+
+/* The sun used as the product logo on the auth screens and in the shell. */
+export function IconSun(props) {
+  return <Glyph as={LuSun} {...props} />
+}
+
+/* Spinner for a button that is waiting on the Web API; pair with animate-spin. */
+export function IconSpinner(props) {
+  return <Glyph as={LuLoaderCircle} {...props} />
 }

@@ -9,6 +9,7 @@
  * Created: 2026
  */
 import { useEffect, useMemo, useState } from 'react'
+import { toast } from 'react-toastify'
 
 import { toApiError } from '../api/client'
 import { deleteStation, getStations, setStationActive } from '../api/stationsApi'
@@ -32,7 +33,9 @@ import {
   Toolbar,
   TR,
 } from '../Components/PageControls'
+import Pagination from '../Components/Pagination'
 import StationFormModal from '../Components/StationFormModal'
+import usePagination from '../hooks/usePagination'
 
 /* Formats a coordinate pair for the table. */
 function formatLocation(station) {
@@ -100,8 +103,8 @@ export default function Stations() {
 
   const [stations, setStations] = useState([])
   const [loading, setLoading] = useState(true)
+  // Only the load failure lives on the page; action outcomes go to a toast.
   const [error, setError] = useState('')
-  const [notice, setNotice] = useState('')
   const [busyId, setBusyId] = useState(null)
   const [search, setSearch] = useState('')
   const [activeOnly, setActiveOnly] = useState(false)
@@ -148,8 +151,7 @@ export default function Stations() {
 
   /* Reloads the list and reports what changed after the dialog saves. */
   function handleSaved(message) {
-    setNotice(message)
-    setError('')
+    toast.success(message)
     setReloadToken((current) => current + 1)
   }
 
@@ -160,8 +162,6 @@ export default function Stations() {
    */
   async function handleToggleActive(station) {
     setBusyId(station.id)
-    setError('')
-    setNotice('')
 
     try {
       const updated = await setStationActive(station.id, !station.isActive)
@@ -169,9 +169,9 @@ export default function Stations() {
       setStations((current) =>
         current.map((item) => (item.id === updated.id ? updated : item)),
       )
-      setNotice(`${updated.stationName} is now ${updated.isActive ? 'active' : 'inactive'}.`)
+      toast.success(`${updated.stationName} is now ${updated.isActive ? 'active' : 'inactive'}.`)
     } catch (failure) {
-      setError(toApiError(failure).message)
+      toast.error(toApiError(failure).message)
     } finally {
       setBusyId(null)
     }
@@ -186,17 +186,15 @@ export default function Stations() {
     const station = deleting
 
     setBusyId(station.id)
-    setError('')
-    setNotice('')
 
     try {
       await deleteStation(station.id)
 
       setStations((current) => current.filter((item) => item.id !== station.id))
-      setNotice(`${station.stationName} removed.`)
+      toast.success(`${station.stationName} removed.`)
       setDeleting(null)
     } catch (failure) {
-      setError(toApiError(failure).message)
+      toast.error(toApiError(failure).message)
       setDeleting(null)
     } finally {
       setBusyId(null)
@@ -213,6 +211,9 @@ export default function Stations() {
       : stations
   }, [stations, search])
 
+  // Paged in the browser: no endpoint on the Web API takes a page parameter.
+  const pagination = usePagination(visibleStations)
+
   return (
     <>
       <PageHeader
@@ -228,7 +229,6 @@ export default function Stations() {
       </PageHeader>
 
       <Banner tone="error">{error}</Banner>
-      <Banner tone="success">{notice}</Banner>
 
       {loading ? (
         <LoadingState label="Loading microgrid nodes..." />
@@ -291,7 +291,7 @@ export default function Stations() {
                 </tr>
               </thead>
               <tbody>
-                {visibleStations.map((station) => (
+                {pagination.pageItems.map((station) => (
                   <StationRow
                     key={station.id}
                     station={station}
@@ -305,6 +305,15 @@ export default function Stations() {
               </tbody>
             </TableWrap>
           )}
+
+          {visibleStations.length > 0 ? (
+            <Pagination
+              {...pagination}
+              onPageChange={pagination.setPage}
+              onPageSizeChange={pagination.setPageSize}
+              noun="nodes"
+            />
+          ) : null}
         </Panel>
       )}
 

@@ -11,21 +11,7 @@
 import { Link } from 'react-router-dom'
 
 import AuthShowcase from './AuthShowcase'
-
-/* Square sun mark shown above the form on small screens. */
-function SunMark({ className = '' }) {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true" className={className} fill="none">
-      <circle cx="12" cy="12" r="4.2" fill="currentColor" />
-      <path
-        d="M12 1.8v3.1m0 14.2v3.1M1.8 12h3.1m14.2 0h3.1M4.8 4.8l2.2 2.2m10 10l2.2 2.2M19.2 4.8L17 7m-10 10l-2.2 2.2"
-        stroke="currentColor"
-        strokeWidth="1.6"
-        strokeLinecap="square"
-      />
-    </svg>
-  )
-}
+import { IconSun } from './Icons'
 
 /*
  * Renders the photo panel beside the given form. `title` and `subtitle` head
@@ -45,7 +31,7 @@ export default function AuthLayout({ title, subtitle, headline, footer, children
           {/* Compact logo for small screens, where the photo panel is hidden. */}
           <Link to="/" className="mb-10 flex items-center gap-2.5 lg:hidden">
             <span className="grid h-8 w-8 place-items-center rounded-xs bg-amber-400 text-slate-900">
-              <SunMark className="h-4 w-4" />
+              <IconSun className="h-4 w-4" />
             </span>
             <span className="text-sm font-medium tracking-tight">Smart Solar Microgrid</span>
           </Link>

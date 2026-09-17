@@ -8,6 +8,7 @@
  * Created: 2026
  */
 import { useEffect, useState } from 'react'
+import { toast } from 'react-toastify'
 
 import { toApiError } from '../api/client'
 import { activateUser, getPendingActivations } from '../api/usersApi'
@@ -26,6 +27,8 @@ import {
   TH,
   TR,
 } from '../Components/PageControls'
+import Pagination from '../Components/Pagination'
+import usePagination from '../hooks/usePagination'
 
 /* Formats the date an account registered. */
 function formatDate(value) {
@@ -77,8 +80,8 @@ function PendingRow({ account, busy, onActivate }) {
 export default function PendingActivations() {
   const [accounts, setAccounts] = useState([])
   const [loading, setLoading] = useState(true)
+  // Only the load failure lives on the page; action outcomes go to a toast.
   const [error, setError] = useState('')
-  const [notice, setNotice] = useState('')
   const [busyNic, setBusyNic] = useState(null)
 
   useEffect(() => {
@@ -117,20 +120,21 @@ export default function PendingActivations() {
    */
   async function handleActivate(account) {
     setBusyNic(account.nic)
-    setError('')
-    setNotice('')
 
     try {
       const updated = await activateUser(account.nic)
 
       setAccounts((current) => current.filter((item) => item.nic !== updated.nic))
-      setNotice(`${updated.fullName} can now sign in.`)
+      toast.success(`${updated.fullName} can now sign in.`)
     } catch (failure) {
-      setError(toApiError(failure).message)
+      toast.error(toApiError(failure).message)
     } finally {
       setBusyNic(null)
     }
   }
+
+  // Paged in the browser: no endpoint on the Web API takes a page parameter.
+  const pagination = usePagination(accounts)
 
   return (
     <>
@@ -144,7 +148,6 @@ export default function PendingActivations() {
       </PageHeader>
 
       <Banner tone="error">{error}</Banner>
-      <Banner tone="success">{notice}</Banner>
 
       {loading ? (
         <LoadingState label="Loading pending activations..." />
@@ -176,7 +179,7 @@ export default function PendingActivations() {
                 </tr>
               </thead>
               <tbody>
-                {accounts.map((account) => (
+                {pagination.pageItems.map((account) => (
                   <PendingRow
                     key={account.nic}
                     account={account}
@@ -187,6 +190,15 @@ export default function PendingActivations() {
               </tbody>
             </TableWrap>
           )}
+
+          {accounts.length > 0 ? (
+            <Pagination
+              {...pagination}
+              onPageChange={pagination.setPage}
+              onPageSizeChange={pagination.setPageSize}
+              noun="accounts"
+            />
+          ) : null}
         </Panel>
       )}
     </>

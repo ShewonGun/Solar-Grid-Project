@@ -9,6 +9,7 @@
  * Created: 2026
  */
 import { useEffect, useState } from 'react'
+import { toast } from 'react-toastify'
 
 import { getCurrentUser } from '../api/authApi'
 import { toApiError } from '../api/client'
@@ -72,8 +73,8 @@ export default function Profile() {
 
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
+  // Only the load failure lives on the page; action outcomes go to a toast.
   const [error, setError] = useState('')
-  const [notice, setNotice] = useState('')
   const [editing, setEditing] = useState(false)
   const [changingPassword, setChangingPassword] = useState(false)
   // Bumped after a save so the details reload with the change in them.
@@ -111,8 +112,7 @@ export default function Profile() {
 
   /* Reloads the profile and reports what changed after a dialog saves. */
   function handleSaved(message) {
-    setNotice(message)
-    setError('')
+    toast.success(message)
     setReloadToken((current) => current + 1)
   }
 
@@ -142,7 +142,6 @@ export default function Profile() {
       </PageHeader>
 
       <Banner tone="error">{error}</Banner>
-      <Banner tone="success">{notice}</Banner>
 
       <div className="grid gap-5 lg:grid-cols-2">
         <Panel title="Profile" flush>

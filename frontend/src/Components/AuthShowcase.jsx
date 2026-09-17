@@ -14,6 +14,7 @@ import { Link } from 'react-router-dom'
 import solarOne from '../assets/Solar-Image-1.jpg'
 import solarTwo from '../assets/Solar-Image-2.jpg'
 import solarThree from '../assets/Solar-Image-3.jpg'
+import { IconSun } from './Icons'
 
 /* The slides, in the order they are shown. */
 const SLIDES = [
@@ -24,21 +25,6 @@ const SLIDES = [
 
 /** How long each slide is held before the next one fades in. */
 const SLIDE_DURATION_MS = 6000
-
-/* Square sun mark used as the product logo. */
-function SunMark({ className = '' }) {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true" className={className} fill="none">
-      <circle cx="12" cy="12" r="4.2" fill="currentColor" />
-      <path
-        d="M12 1.8v3.1m0 14.2v3.1M1.8 12h3.1m14.2 0h3.1M4.8 4.8l2.2 2.2m10 10l2.2 2.2M19.2 4.8L17 7m-10 10l-2.2 2.2"
-        stroke="currentColor"
-        strokeWidth="1.6"
-        strokeLinecap="square"
-      />
-    </svg>
-  )
-}
 
 /*
  * Reports whether the visitor has asked for reduced motion, and keeps up with
@@ -107,14 +93,14 @@ export default function AuthShowcase({ headline }) {
 
       {/* Scrim - keeps the white overlay text readable over a bright sky. */}
       <div
-        className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-950/25 to-slate-950/40"
+        className="absolute inset-0 bg-linear-to-t from-slate-950/85 via-slate-950/25 to-slate-950/40"
         aria-hidden="true"
       />
 
       <div className="relative flex h-full flex-col justify-between p-12">
         <Link to="/" className="flex w-fit items-center gap-3 text-white">
           <span className="grid h-9 w-9 place-items-center rounded-xs bg-amber-400 text-slate-900">
-            <SunMark className="h-5 w-5" />
+            <IconSun className="h-5 w-5" />
           </span>
           <span className="text-[15px] font-medium tracking-tight">Smart Solar Microgrid</span>
         </Link>

@@ -10,6 +10,7 @@
  */
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
+import { toast } from 'react-toastify'
 
 import { toApiError } from '../api/client'
 import { deleteSlot, getStationSlots, setSlotAvailability } from '../api/slotsApi'
@@ -33,7 +34,9 @@ import {
   Toolbar,
   TR,
 } from '../Components/PageControls'
+import Pagination from '../Components/Pagination'
 import SlotFormModal from '../Components/SlotFormModal'
+import usePagination from '../hooks/usePagination'
 import { formatDateTime, formatTimeRange } from '../utils/reservationRules'
 
 /** Slot statuses the API can return, for the filter control. */
@@ -129,8 +132,8 @@ export default function StationSlots() {
   const [filters, setFilters] = useState(EMPTY_FILTERS)
   const [applied, setApplied] = useState(EMPTY_FILTERS)
   const [loading, setLoading] = useState(true)
+  // Only the load failure lives on the page; action outcomes go to a toast.
   const [error, setError] = useState('')
-  const [notice, setNotice] = useState('')
   const [busyId, setBusyId] = useState(null)
   // Which slot the dialog is editing: an id, 'new' to open one, or null.
   const [editing, setEditing] = useState(null)
@@ -200,8 +203,7 @@ export default function StationSlots() {
 
   /* Reloads the list and reports what changed after the dialog saves. */
   function handleSaved(message) {
-    setNotice(message)
-    setError('')
+    toast.success(message)
     setReloadToken((current) => current + 1)
   }
 
@@ -229,20 +231,18 @@ export default function StationSlots() {
    */
   async function handleToggleAvailability(slot) {
     setBusyId(slot.id)
-    setError('')
-    setNotice('')
 
     try {
       const updated = await setSlotAvailability(slot.id, slot.status !== 'Available')
 
       setSlots((current) => current.map((item) => (item.id === updated.id ? updated : item)))
-      setNotice(
+      toast.success(
         `Battery slot ${updated.batterySlotNumber} is now ${
           updated.status === 'Available' ? 'available' : 'held out of service'
         }.`,
       )
     } catch (failure) {
-      setError(toApiError(failure).message)
+      toast.error(toApiError(failure).message)
     } finally {
       setBusyId(null)
     }
@@ -253,22 +253,23 @@ export default function StationSlots() {
     const slot = deleting
 
     setBusyId(slot.id)
-    setError('')
-    setNotice('')
 
     try {
       await deleteSlot(slot.id)
 
       setSlots((current) => current.filter((item) => item.id !== slot.id))
-      setNotice(`Battery slot ${slot.batterySlotNumber} removed.`)
+      toast.success(`Battery slot ${slot.batterySlotNumber} removed.`)
       setDeleting(null)
     } catch (failure) {
-      setError(toApiError(failure).message)
+      toast.error(toApiError(failure).message)
       setDeleting(null)
     } finally {
       setBusyId(null)
     }
   }
+
+  // Paged in the browser: no endpoint on the Web API takes a page parameter.
+  const pagination = usePagination(slots)
 
   return (
     <>
@@ -292,7 +293,6 @@ export default function StationSlots() {
       </PageHeader>
 
       <Banner tone="error">{error}</Banner>
-      <Banner tone="success">{notice}</Banner>
 
       {/* A deactivated node refuses new slots, so say it once at the top. */}
       {station && !station.isActive ? (
@@ -380,7 +380,7 @@ export default function StationSlots() {
                 </tr>
               </thead>
               <tbody>
-                {slots.map((slot) => (
+                {pagination.pageItems.map((slot) => (
                   <SlotRow
                     key={slot.id}
                     slot={slot}
@@ -393,6 +393,15 @@ export default function StationSlots() {
               </tbody>
             </TableWrap>
           )}
+
+          {slots.length > 0 ? (
+            <Pagination
+              {...pagination}
+              onPageChange={pagination.setPage}
+              onPageSizeChange={pagination.setPageSize}
+              noun="slots"
+            />
+          ) : null}
         </Panel>
       )}
 

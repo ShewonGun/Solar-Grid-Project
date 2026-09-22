@@ -77,6 +77,7 @@ object Routes {
     const val OPERATOR_HOME = "operator/home"
     const val OPERATOR_SCAN = "operator/scan"
     const val OPERATOR_RESULT = "operator/result"
+    const val OPERATOR_NODES_MAP = "operator/nodes-map"
 
     /** Optional argument naming the booking the QR screen should open on. */
     const val ARG_RESERVATION_ID = "reservationId"
@@ -326,7 +327,17 @@ fun SmartGridNavHost(navController: NavHostController = rememberNavController())
                         operatorViewModel.reset()
                         navController.navigate(Routes.OPERATOR_SCAN)
                     },
+                    onNearbyNodes = { navController.navigate(Routes.OPERATOR_NODES_MAP) },
                     onSignOut = { repository.logout() }
+                )
+            }
+
+            composable(Routes.OPERATOR_NODES_MAP) {
+                // Scoped to this destination so the node list is re-read on each visit.
+                val mapViewModel: NodesMapViewModel = viewModel(factory = AppViewModelFactory)
+                NodesMapScreen(
+                    viewModel = mapViewModel,
+                    onBack = { navController.popBackStack() }
                 )
             }
 

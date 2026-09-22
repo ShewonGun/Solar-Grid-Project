@@ -8,6 +8,7 @@
  * ==========================================================================*/
 package com.example.smartgrid_mobile.ui.operator
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,6 +25,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.Badge
+import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.Map
 import androidx.compose.material.icons.filled.QrCodeScanner
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -37,6 +40,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.smartgrid_mobile.data.remote.UserDto
@@ -52,6 +56,7 @@ import com.example.smartgrid_mobile.ui.common.SectionLabel
 fun OperatorHomeScreen(
     user: UserDto?,
     onScanQr: () -> Unit,
+    onNearbyNodes: () -> Unit,
     onSignOut: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -92,6 +97,19 @@ fun OperatorHomeScreen(
 
             PrimaryButton(text = "Scan transaction QR", onClick = onScanQr)
 
+            // ---- Grid nodes -------------------------------------------------
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                SectionLabel("Grid nodes")
+                SectionCard {
+                    ActionRow(
+                        icon = Icons.Default.Map,
+                        title = "Nearby nodes",
+                        subtitle = "View microgrid hubs on the map",
+                        onClick = onNearbyNodes
+                    )
+                }
+            }
+
             // ---- How the job works ---------------------------------------
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 SectionLabel("How it works")
@@ -127,6 +145,48 @@ fun OperatorHomeScreen(
                 }
             }
         }
+    }
+}
+
+/** Tappable list row used for the grid-node actions on this screen. */
+@Composable
+private fun ActionRow(
+    icon: ImageVector,
+    title: String,
+    subtitle: String,
+    onClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+            .padding(vertical = 10.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            icon,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.size(22.dp)
+        )
+        Spacer(Modifier.width(14.dp))
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.Medium
+            )
+            Text(
+                text = subtitle,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+        Icon(
+            Icons.Default.ChevronRight,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant
+        )
     }
 }
 

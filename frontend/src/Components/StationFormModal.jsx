@@ -17,6 +17,33 @@ import LocationPicker from './LocationPicker'
 import { Banner, Button, Modal } from './PageControls'
 import { isFormValid, validateRequired } from '../utils/validation'
 
+/** Days offered in the schedule builder, in week order. */
+const DAYS = [
+  { value: 'Mon', label: 'Monday' },
+  { value: 'Tue', label: 'Tuesday' },
+  { value: 'Wed', label: 'Wednesday' },
+  { value: 'Thu', label: 'Thursday' },
+  { value: 'Fri', label: 'Friday' },
+  { value: 'Sat', label: 'Saturday' },
+  { value: 'Sun', label: 'Sunday' },
+]
+
+/** What the builder starts from - every day, a typical daytime window. */
+const DEFAULT_SCHEDULE = { fromDay: 'Mon', toDay: 'Sun', openTime: '06:00', closeTime: '22:00' }
+
+/*
+ * Turns the builder's day range and time range into the text the API stores,
+ * e.g. "Mon-Sun 06:00-22:00" - or "Sat 09:00-13:00" when the range is a single
+ * day, since a day repeated on both ends would read oddly.
+ */
+function composeSchedule({ fromDay, toDay, openTime, closeTime }) {
+  const dayPart = fromDay === toDay ? fromDay : `${fromDay}-${toDay}`
+  return `${dayPart} ${openTime}-${closeTime}`
+}
+
+const CONTROL_CLASSES =
+  'w-full rounded-xs border border-slate-300 bg-white px-2.5 py-2 text-sm text-slate-900 outline-none transition-colors hover:border-slate-400 focus:border-slate-900 focus:ring-1 focus:ring-slate-900 disabled:bg-slate-50 disabled:text-slate-400'
+
 const EMPTY_FORM = {
   stationName: '',
   latitude: '',
@@ -110,7 +137,12 @@ function toForm(station) {
 export default function StationFormModal({ stationId, onClose, onSaved }) {
   const isEditing = Boolean(stationId)
 
-  const [form, setForm] = useState(EMPTY_FORM)
+  // A brand-new node starts with the builder's default schedule already
+  // composed, so submitting without touching it saves something sensible
+  // rather than a blank string.
+  const [form, setForm] = useState(() =>
+    isEditing ? EMPTY_FORM : { ...EMPTY_FORM, operatingSchedule: composeSchedule(DEFAULT_SCHEDULE) },
+  )
   const [errors, setErrors] = useState({})
   const [apiError, setApiError] = useState('')
   const [loading, setLoading] = useState(isEditing)
@@ -122,6 +154,14 @@ export default function StationFormModal({ stationId, onClose, onSaved }) {
   // re-centres on whatever is currently in the latitude/longitude fields
   // rather than staying wherever it was left after an earlier switch.
   const [mapResetKey, setMapResetKey] = useState(0)
+
+  // Whether the schedule comes from the day/time builder or typed text.
+  // Editing starts on the typed text, because an existing schedule can be any
+  // free-form string and there is no safe way to read it back into the
+  // builder's day/time fields; registering a new node starts on the builder,
+  // since there is nothing yet to lose by defaulting to the easier path.
+  const [scheduleMode, setScheduleMode] = useState(isEditing ? 'manual' : 'build')
+  const [schedule, setSchedule] = useState(DEFAULT_SCHEDULE)
 
   useEffect(() => {
     // Nothing to load when registering a new node.
@@ -189,6 +229,28 @@ export default function StationFormModal({ stationId, onClose, onSaved }) {
   function handleSwitchToMap() {
     setLocationMode('map')
     setMapResetKey((current) => current + 1)
+  }
+
+  /*
+   * Switches to the day/time builder, replacing whatever text is there now
+   * with the builder's own default - there is no reliable way to read an
+   * arbitrary existing string back into day and time fields.
+   */
+  function handleSwitchToBuildSchedule() {
+    setScheduleMode('build')
+    setSchedule(DEFAULT_SCHEDULE)
+    setForm((current) => ({ ...current, operatingSchedule: composeSchedule(DEFAULT_SCHEDULE) }))
+    setErrors((current) => ({ ...current, operatingSchedule: '' }))
+  }
+
+  /* Applies one day/time change from the builder and recomposes the schedule text. */
+  function handleScheduleFieldChange(event) {
+    const { name, value } = event.target
+    const next = { ...schedule, [name]: value }
+
+    setSchedule(next)
+    setForm((current) => ({ ...current, operatingSchedule: composeSchedule(next) }))
+    setErrors((current) => ({ ...current, operatingSchedule: '' }))
   }
 
   /*
@@ -397,18 +459,123 @@ export default function StationFormModal({ stationId, onClose, onSaved }) {
               />
             </div>
 
-            <TextField
-              label="Operating schedule"
-              name="operatingSchedule"
-              type="text"
-              maxLength={200}
-              placeholder="Mon-Sun 06:00-22:00"
-              value={form.operatingSchedule}
-              onChange={handleChange}
-              error={errors.operatingSchedule}
-              optional
-              disabled={busy}
-            />
+            <div>
+              <div className="mb-2 flex items-center justify-between gap-3">
+                <span className="text-xs font-medium uppercase tracking-[0.08em] text-slate-600">
+                  Operating schedule
+                </span>
+
+                {/* Switches how the text below is produced; the underlying
+                    operatingSchedule value is the same either way. */}
+                <div className="flex rounded-xs border border-slate-300 p-0.5 text-xs">
+                  <button
+                    type="button"
+                    disabled={busy}
+                    onClick={handleSwitchToBuildSchedule}
+                    className={`rounded-xs px-2.5 py-1 font-medium transition-colors ${
+                      scheduleMode === 'build'
+                        ? 'bg-slate-900 text-white'
+                        : 'text-slate-500 hover:text-slate-900'
+                    }`}
+                  >
+                    Build schedule
+                  </button>
+                  <button
+                    type="button"
+                    disabled={busy}
+                    onClick={() => setScheduleMode('manual')}
+                    className={`rounded-xs px-2.5 py-1 font-medium transition-colors ${
+                      scheduleMode === 'manual'
+                        ? 'bg-slate-900 text-white'
+                        : 'text-slate-500 hover:text-slate-900'
+                    }`}
+                  >
+                    Type manually
+                  </button>
+                </div>
+              </div>
+
+              {scheduleMode === 'build' ? (
+                <div>
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <label className="block">
+                      <span className="mb-1 block text-[11px] text-slate-500">From day</span>
+                      <select
+                        name="fromDay"
+                        value={schedule.fromDay}
+                        onChange={handleScheduleFieldChange}
+                        disabled={busy}
+                        className={CONTROL_CLASSES}
+                      >
+                        {DAYS.map((day) => (
+                          <option key={day.value} value={day.value}>
+                            {day.label}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+
+                    <label className="block">
+                      <span className="mb-1 block text-[11px] text-slate-500">To day</span>
+                      <select
+                        name="toDay"
+                        value={schedule.toDay}
+                        onChange={handleScheduleFieldChange}
+                        disabled={busy}
+                        className={CONTROL_CLASSES}
+                      >
+                        {DAYS.map((day) => (
+                          <option key={day.value} value={day.value}>
+                            {day.label}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+
+                    <label className="block">
+                      <span className="mb-1 block text-[11px] text-slate-500">Opens</span>
+                      <input
+                        type="time"
+                        name="openTime"
+                        value={schedule.openTime}
+                        onChange={handleScheduleFieldChange}
+                        disabled={busy}
+                        className={CONTROL_CLASSES}
+                      />
+                    </label>
+
+                    <label className="block">
+                      <span className="mb-1 block text-[11px] text-slate-500">Closes</span>
+                      <input
+                        type="time"
+                        name="closeTime"
+                        value={schedule.closeTime}
+                        onChange={handleScheduleFieldChange}
+                        disabled={busy}
+                        className={CONTROL_CLASSES}
+                      />
+                    </label>
+                  </div>
+
+                  <p className="mt-1.5 text-xs leading-relaxed text-slate-400">
+                    Saves as{' '}
+                    <span className="font-medium text-slate-600">{form.operatingSchedule}</span>.
+                  </p>
+                </div>
+              ) : (
+                <TextField
+                  label=""
+                  name="operatingSchedule"
+                  type="text"
+                  maxLength={200}
+                  placeholder="Mon-Sun 06:00-22:00"
+                  value={form.operatingSchedule}
+                  onChange={handleChange}
+                  error={errors.operatingSchedule}
+                  disabled={busy}
+                />
+              )}
+            </div>
           </div>
 
           <div className="mt-7 flex justify-end gap-2 border-t border-slate-200 pt-5">

@@ -67,7 +67,7 @@ export default function Pagination({
   return (
     <nav
       aria-label="Pagination"
-      className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 bg-slate-50/70 px-4 py-2.5"
+      className="flex flex-col items-center gap-3 border-t border-slate-200 bg-slate-50/70 px-4 py-3 text-center sm:flex-row sm:flex-wrap sm:justify-between sm:py-2.5 sm:text-left"
     >
       <p className="text-xs text-slate-500">
         {total === 0 ? (
@@ -82,7 +82,7 @@ export default function Pagination({
         )}
       </p>
 
-      <div className="flex items-center gap-3">
+      <div className="flex flex-wrap items-center justify-center gap-3 sm:justify-start">
         <label className="flex items-center gap-1.5 text-xs text-slate-500">
           Rows
           <select
@@ -99,7 +99,7 @@ export default function Pagination({
         </label>
 
         {showControls ? (
-          <div className="flex items-center gap-1">
+          <div className="flex flex-wrap items-center justify-center gap-1">
             <button
               type="button"
               onClick={() => onPageChange(page - 1)}

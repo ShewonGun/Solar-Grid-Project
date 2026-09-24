@@ -14,69 +14,18 @@ import { toApiError } from '../api/client'
 import { activateUser, getPendingActivations } from '../api/usersApi'
 import {
   Banner,
-  Button,
   ButtonLink,
   EmptyState,
   LoadingState,
   PageHeader,
   Panel,
-  RowActions,
-  StatusPill,
   TableWrap,
-  TD,
   TH,
-  TR,
 } from '../Components/PageControls'
+import { PendingCard, PendingRow } from '../Components/PendingRow'
 import Pagination from '../Components/Pagination'
 import usePagination from '../hooks/usePagination'
 import { newestFirst } from '../utils/sorting'
-
-/* Formats the date an account registered. */
-function formatDate(value) {
-  return new Date(value).toLocaleDateString(undefined, {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-  })
-}
-
-/* One row of the pending-activation queue. */
-function PendingRow({ account, busy, onActivate }) {
-  return (
-    <TR>
-      <TD className="text-slate-900">
-        <span className="block font-medium">{account.fullName}</span>
-        <span className="mt-0.5 block text-xs tabular-nums text-slate-400">
-          NIC {account.nic}
-        </span>
-      </TD>
-      <TD>
-        <span className="block">{account.email}</span>
-        {account.phone ? (
-          <span className="mt-0.5 block text-xs tabular-nums text-slate-400">
-            {account.phone}
-          </span>
-        ) : null}
-      </TD>
-      <TD numeric>
-        {account.solarCapacityKW === null || account.solarCapacityKW === undefined
-          ? <span className="text-slate-300">Not given</span>
-          : `${account.solarCapacityKW} kW`}
-      </TD>
-      <TD className="tabular-nums">{formatDate(account.createdAt)}</TD>
-      <TD>
-        <StatusPill tone="warning">Pending activation</StatusPill>
-      </TD>
-      <TD>
-        <RowActions>
-          <Button size="sm" disabled={busy} onClick={() => onActivate(account)}>
-            {busy ? 'Activating...' : 'Activate'}
-          </Button>
-        </RowActions>
-      </TD>
-    </TR>
-  )
-}
 
 export default function PendingActivations() {
   const [accounts, setAccounts] = useState([])
@@ -172,28 +121,47 @@ export default function PendingActivations() {
               </ButtonLink>
             </EmptyState>
           ) : (
-            <TableWrap minWidth="56rem">
-              <thead>
-                <tr>
-                  <TH>Prosumer</TH>
-                  <TH>Contact</TH>
-                  <TH align="right">Solar array</TH>
-                  <TH>Registered</TH>
-                  <TH>Status</TH>
-                  <TH align="right">Actions</TH>
-                </tr>
-              </thead>
-              <tbody>
+            <>
+              {/* Table at "lg" and above; a purpose-built card list below it -
+                  see PendingRow.jsx for why this page gets its own card rather
+                  than the generic label/value stacking every other table
+                  falls back to. */}
+              <div className="hidden lg:block">
+                <TableWrap minWidth="56rem">
+                  <thead>
+                    <tr>
+                      <TH>Prosumer</TH>
+                      <TH>Contact</TH>
+                      <TH align="right">Solar array</TH>
+                      <TH>Registered</TH>
+                      <TH>Status</TH>
+                      <TH align="right">Actions</TH>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {pagination.pageItems.map((account) => (
+                      <PendingRow
+                        key={account.nic}
+                        account={account}
+                        busy={busyNic === account.nic}
+                        onActivate={handleActivate}
+                      />
+                    ))}
+                  </tbody>
+                </TableWrap>
+              </div>
+
+              <div className="grid gap-3 p-4 lg:hidden">
                 {pagination.pageItems.map((account) => (
-                  <PendingRow
+                  <PendingCard
                     key={account.nic}
                     account={account}
                     busy={busyNic === account.nic}
                     onActivate={handleActivate}
                   />
                 ))}
-              </tbody>
-            </TableWrap>
+              </div>
+            </>
           )}
 
           {accounts.length > 0 ? (

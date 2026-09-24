@@ -17,3 +17,67 @@ body {
   text-rendering: optimizeLegibility;
   scrollbar-gutter: stable;
 }
+
+/*
+ * Every data table in the console (TableWrap in PageControls.jsx) carries this
+ * class. Below the "md" breakpoint it stops being a table at all and becomes a
+ * stack of cards, one per row - a table forced to scroll sideways on a phone
+ * is unreadable, and this is the standard fix: hide the header, turn each row
+ * into a bordered block, and label each cell with the column heading it would
+ * otherwise have lost. The label text comes from the `label` prop on <TD>,
+ * rendered here through the cell's own data-label attribute; a cell with no
+ * label (the actions column - buttons need no caption) is left alone.
+ */
+@media (width < 48rem) {
+  /* TableWrap sets an inline min-width so the table scrolls sideways above
+     this breakpoint; !important is the only way to override an inline style,
+     and without this the "card" below would just be a very wide table cell. */
+  .responsive-table {
+    min-width: 0 !important;
+  }
+
+  .responsive-table thead {
+    display: none;
+  }
+
+  .responsive-table,
+  .responsive-table tbody,
+  .responsive-table tr {
+    display: block;
+    width: 100%;
+  }
+
+  .responsive-table tr {
+    margin-bottom: 0.75rem;
+    border: 1px solid var(--color-slate-200);
+    border-radius: var(--radius-xs);
+  }
+
+  .responsive-table tr:last-child {
+    margin-bottom: 0;
+  }
+
+  .responsive-table td {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    text-align: right;
+    border-bottom: 1px solid var(--color-slate-100);
+  }
+
+  .responsive-table td:last-child {
+    border-bottom: none;
+  }
+
+  .responsive-table td[data-label]::before {
+    content: attr(data-label);
+    flex-shrink: 0;
+    text-align: left;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--color-slate-500);
+  }
+}

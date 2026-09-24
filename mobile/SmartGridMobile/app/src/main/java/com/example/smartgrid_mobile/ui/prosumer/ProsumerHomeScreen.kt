@@ -97,7 +97,7 @@ fun ProsumerHomeScreen(
         modifier = modifier.fillMaxSize(),
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text("SmartGrid", fontWeight = FontWeight.SemiBold) },
+                title = { Text("VoltShare", fontWeight = FontWeight.SemiBold) },
                 // Matches the page background so the header card below leads the eye.
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.background

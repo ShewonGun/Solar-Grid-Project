@@ -23,96 +23,22 @@ import {
   LoadingState,
   PageHeader,
   Panel,
-  RowActions,
-  StatusPill,
   TableWrap,
-  TD,
   TH,
   Toolbar,
-  TR,
 } from '../Components/PageControls'
 import ConfirmDialog from '../Components/ConfirmDialog'
 import Pagination from '../Components/Pagination'
+import { ReservationCard, ReservationRow } from '../Components/ReservationRow'
 import ReservationFormModal from '../Components/ReservationFormModal'
 import usePagination from '../hooks/usePagination'
 import { newestFirst } from '../utils/sorting'
-import { MIN_NOTICE_HOURS, formatDateTime, modificationState } from '../utils/reservationRules'
+import { MIN_NOTICE_HOURS, formatDateTime } from '../utils/reservationRules'
 
 /** The statuses the API can return, for the filter control. */
 const STATUSES = ['Pending', 'Approved', 'Completed', 'Cancelled']
 
-/*
- * Status colours are a secondary cue only - every pill also spells the status
- * out, because approved-green and cancelled-red are nearly identical to a
- * reader with deuteranopia.
- */
-const STATUS_TONES = {
-  Pending: 'warning',
-  Approved: 'active',
-  Completed: 'inactive',
-  Cancelled: 'danger',
-}
-
 const EMPTY_FILTERS = { status: '', stationId: '', prosumerNic: '', from: '', to: '' }
-
-/* One row of the reservations table. */
-function ReservationRow({ reservation, stationName, busy, onApprove, onCancel, onEdit }) {
-  const { allowed, reason } = modificationState(reservation)
-  const isPending = reservation.status === 'Pending'
-
-  return (
-    <TR>
-      <TD className="text-slate-900">
-        <span className="block font-medium tabular-nums">
-          {formatDateTime(reservation.reservationStart)}
-        </span>
-        <span className="mt-0.5 block text-xs text-slate-400">{stationName}</span>
-      </TD>
-      <TD className="tabular-nums">{reservation.prosumerNic}</TD>
-      <TD>{reservation.type === 'DropOff' ? 'Drop-off' : 'Charging'}</TD>
-      <TD numeric>{reservation.energyKWh} kWh</TD>
-      <TD>
-        <StatusPill tone={STATUS_TONES[reservation.status]}>{reservation.status}</StatusPill>
-      </TD>
-      <TD>
-        <div className="flex flex-col items-end gap-1">
-          <RowActions>
-            {isPending ? (
-              <Button size="sm" disabled={busy} onClick={() => onApprove(reservation)}>
-                Approve
-              </Button>
-            ) : null}
-
-            <Button
-              variant="secondary"
-              size="sm"
-              disabled={busy || !allowed}
-              onClick={() => onEdit(reservation)}
-            >
-              Edit
-            </Button>
-
-            <Button
-              variant="danger"
-              size="sm"
-              disabled={busy || !allowed}
-              onClick={() => onCancel(reservation)}
-            >
-              Cancel
-            </Button>
-          </RowActions>
-
-          {/* Says why the actions are unavailable, rather than silently greying out. */}
-          {allowed ? null : (
-            <span className="max-w-xs text-right text-[11px] leading-snug text-slate-400">
-              {reason}
-            </span>
-          )}
-        </div>
-      </TD>
-    </TR>
-  )
-}
 
 export default function Reservations() {
   const [reservations, setReservations] = useState([])
@@ -301,7 +227,7 @@ export default function Reservations() {
               name="status"
               value={filters.status}
               onChange={handleFilterChange}
-              className="w-36"
+              className="sm:w-36"
             >
               <option value="">Any status</option>
               {STATUSES.map((status) => (
@@ -317,7 +243,7 @@ export default function Reservations() {
               name="stationId"
               value={filters.stationId}
               onChange={handleFilterChange}
-              className="w-44"
+              className="sm:w-44"
             >
               <option value="">Any node</option>
               {stations.map((station) => (
@@ -334,7 +260,7 @@ export default function Reservations() {
               value={filters.prosumerNic}
               onChange={handleFilterChange}
               placeholder="200012345678"
-              className="w-40"
+              className="sm:w-40"
             />
 
             <FilterField
@@ -343,7 +269,7 @@ export default function Reservations() {
               name="from"
               value={filters.from}
               onChange={handleFilterChange}
-              className="w-36"
+              className="sm:w-36"
             />
 
             <FilterField
@@ -352,7 +278,7 @@ export default function Reservations() {
               name="to"
               value={filters.to}
               onChange={handleFilterChange}
-              className="w-36"
+              className="sm:w-36"
             />
 
             <div className="flex h-9 items-center gap-1.5">
@@ -380,20 +306,45 @@ export default function Reservations() {
               </Button>
             </EmptyState>
           ) : (
-            <TableWrap minWidth="62rem">
-              <thead>
-                <tr>
-                  <TH>Starts</TH>
-                  <TH>Prosumer</TH>
-                  <TH>Type</TH>
-                  <TH align="right">Energy</TH>
-                  <TH>Status</TH>
-                  <TH align="right">Actions</TH>
-                </tr>
-              </thead>
-              <tbody>
+            <>
+              {/* Table at "lg" and above; a purpose-built card list below it -
+                  see ReservationRow.jsx for why this page gets its own card
+                  rather than the generic label/value stacking every other
+                  table falls back to. */}
+              <div className="hidden lg:block">
+                <TableWrap minWidth="62rem">
+                  <thead>
+                    <tr>
+                      <TH>Starts</TH>
+                      <TH>Prosumer</TH>
+                      <TH>Type</TH>
+                      <TH align="right">Energy</TH>
+                      <TH>Status</TH>
+                      <TH align="right">Actions</TH>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {pagination.pageItems.map((reservation) => (
+                      <ReservationRow
+                        key={reservation.id}
+                        reservation={reservation}
+                        stationName={stationNames.get(reservation.stationId) ?? 'Unknown node'}
+                        busy={busyId === reservation.id}
+                        onApprove={handleApprove}
+                        onCancel={(item) => {
+                          setCancelReason('')
+                          setCancelling(item)
+                        }}
+                        onEdit={(item) => setEditing(item.id)}
+                      />
+                    ))}
+                  </tbody>
+                </TableWrap>
+              </div>
+
+              <div className="grid gap-3 p-4 lg:hidden">
                 {pagination.pageItems.map((reservation) => (
-                  <ReservationRow
+                  <ReservationCard
                     key={reservation.id}
                     reservation={reservation}
                     stationName={stationNames.get(reservation.stationId) ?? 'Unknown node'}
@@ -406,8 +357,8 @@ export default function Reservations() {
                     onEdit={(item) => setEditing(item.id)}
                   />
                 ))}
-              </tbody>
-            </TableWrap>
+              </div>
+            </>
           )}
 
           {reservations.length > 0 ? (

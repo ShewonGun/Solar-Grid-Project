@@ -8,6 +8,7 @@
  * ==========================================================================*/
 package com.example.smartgrid_mobile.ui.auth
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -15,12 +16,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Bolt
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.MaterialTheme
@@ -33,15 +34,17 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.smartgrid_mobile.R
 import com.example.smartgrid_mobile.ui.common.BannerTone
 import com.example.smartgrid_mobile.ui.common.FormField
-import com.example.smartgrid_mobile.ui.common.IconBadge
 import com.example.smartgrid_mobile.ui.common.MessageBanner
 import com.example.smartgrid_mobile.ui.common.PasswordField
 import com.example.smartgrid_mobile.ui.common.PrimaryButton
@@ -148,15 +151,15 @@ private fun BrandHero() {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(6.dp)
         ) {
-            IconBadge(
-                icon = Icons.Default.Bolt,
-                container = MaterialTheme.colorScheme.surface,
-                tint = MaterialTheme.colorScheme.primary,
-                size = 64.dp
+            Image(
+                painter = painterResource(R.drawable.voltshare_mark),
+                contentDescription = null,
+                contentScale = ContentScale.Fit,
+                modifier = Modifier.size(72.dp)
             )
             Spacer(Modifier.height(6.dp))
             Text(
-                text = "SmartGrid",
+                text = "VoltShare",
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold
             )

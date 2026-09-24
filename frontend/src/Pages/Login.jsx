@@ -9,7 +9,7 @@
  * Created: 2026
  */
 import { useState } from 'react'
-import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 
 import { login } from '../api/authApi'
 import { toApiError } from '../api/client'
@@ -45,8 +45,6 @@ export default function Login() {
 
   // A page the user was sent away from before signing in, if any.
   const redirectTo = location.state?.from
-  // Message carried over from another page, e.g. after registering an account.
-  const notice = location.state?.notice
 
   /* Keeps one field in state and clears its error as soon as the user edits it. */
   function handleChange(event) {
@@ -106,20 +104,8 @@ export default function Login() {
       title="Sign in"
       subtitle="Back-office officers and grid operators use this console to run the microgrid."
       headline="Trade the sunshine your rooftop does not need."
-      footer={
-        <p>
-          New solar prosumer?{' '}
-          <Link
-            to="/signup"
-            className="font-medium text-slate-900 underline decoration-amber-400 decoration-2 underline-offset-4 transition-colors hover:decoration-slate-900"
-          >
-            Create an account
-          </Link>
-        </p>
-      }
     >
       <form onSubmit={handleSubmit} noValidate className="space-y-5">
-        {notice ? <StatusBanner tone="success">{notice}</StatusBanner> : null}
         <StatusBanner tone="error">{apiError}</StatusBanner>
 
         <TextField

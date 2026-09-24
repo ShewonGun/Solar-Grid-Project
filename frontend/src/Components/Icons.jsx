@@ -19,6 +19,7 @@ import {
   LuLayoutDashboard,
   LuLoaderCircle,
   LuLogOut,
+  LuMenu,
   LuPlus,
   LuSearch,
   LuSun,
@@ -115,4 +116,9 @@ export function IconSun(props) {
 /* Spinner for a button that is waiting on the Web API; pair with animate-spin. */
 export function IconSpinner(props) {
   return <Glyph as={LuLoaderCircle} {...props} />
+}
+
+/* Hamburger menu - opens the navigation drawer on a small screen. */
+export function IconMenu(props) {
+  return <Glyph as={LuMenu} {...props} />
 }

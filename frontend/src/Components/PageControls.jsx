@@ -28,7 +28,11 @@ export function PageHeader({ title, description, children }) {
           <p className="mt-1 max-w-2xl text-sm leading-relaxed text-slate-500">{description}</p>
         ) : null}
       </div>
-      {children ? <div className="flex shrink-0 items-center gap-2">{children}</div> : null}
+      {children ? (
+        <div className="flex w-full flex-wrap shrink-0 items-center gap-2 sm:w-auto">
+          {children}
+        </div>
+      ) : null}
     </header>
   )
 }
@@ -60,7 +64,7 @@ export function Panel({ title, meta, actions, flush = false, className = '', chi
 /* Strip above a table for search and filter controls. */
 export function Toolbar({ children, onSubmit }) {
   const content = (
-    <div className="flex flex-wrap items-end gap-3 border-b border-slate-200 bg-slate-50/70 px-4 py-3">
+    <div className="flex flex-col items-stretch gap-3 border-b border-slate-200 bg-slate-50/70 px-4 py-3 sm:flex-row sm:flex-wrap sm:items-end">
       {children}
     </div>
   )
@@ -87,7 +91,7 @@ export function FilterField({
   ...props
 }) {
   return (
-    <label className={`flex flex-col gap-1 ${className}`}>
+    <label className={`flex w-full flex-col gap-1 sm:w-auto ${className}`}>
       <span className="text-[11px] font-medium uppercase tracking-[0.07em] text-slate-500">
         {label}
       </span>
@@ -111,11 +115,15 @@ export function FilterField({
 
 /* ------------------------------------------------------------------ tables */
 
-/* Scroll container that keeps a wide table inside its panel. */
+/*
+ * Scroll container that keeps a wide table inside its panel on a screen wide
+ * enough to show one - below the "responsive-table" breakpoint in index.css,
+ * the table becomes a stack of cards instead, and `minWidth` stops applying.
+ */
 export function TableWrap({ minWidth = '60rem', children }) {
   return (
     <div className="overflow-x-auto">
-      <table className="w-full text-left text-sm" style={{ minWidth }}>
+      <table className="responsive-table w-full text-left text-sm" style={{ minWidth }}>
         {children}
       </table>
     </div>
@@ -138,11 +146,15 @@ export function TH({ align = 'left', className = '', children }) {
 
 /*
  * Table cell. `numeric` right-aligns the value and switches on tabular figures
- * so a column of numbers lines up digit for digit.
+ * so a column of numbers lines up digit for digit. `label` names the column
+ * for the card layout a phone-width screen switches to (index.css reads it
+ * back off the cell as data-label); leave it out on a cell that needs no
+ * caption there, such as a row of action buttons.
  */
-export function TD({ numeric = false, className = '', children, ...props }) {
+export function TD({ numeric = false, label, className = '', children, ...props }) {
   return (
     <td
+      data-label={label}
       className={`border-b border-slate-100 px-4 py-2.5 align-middle text-slate-600 ${
         numeric ? 'text-right tabular-nums' : ''
       } ${className}`}
@@ -169,7 +181,7 @@ export function RowActions({ children }) {
 
 const BUTTON_VARIANTS = {
   primary:
-    'border border-slate-900 bg-slate-900 text-white hover:border-slate-700 hover:bg-slate-700 focus-visible:ring-slate-900 disabled:border-slate-300 disabled:bg-slate-300',
+    'border border-slate-800 bg-slate-800 text-white hover:border-slate-700 hover:bg-slate-700 focus-visible:ring-slate-900 disabled:border-slate-300 disabled:bg-slate-300',
   secondary:
     'border border-slate-300 bg-white text-slate-700 hover:border-slate-400 hover:bg-slate-50 hover:text-slate-900 focus-visible:ring-slate-400 disabled:text-slate-300',
   danger:

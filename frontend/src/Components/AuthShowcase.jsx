@@ -1,7 +1,7 @@
 /*
  * File: AuthShowcase.jsx
- * Purpose: The image panel that fills the left 70% of the Login and Signup
- *          pages. It cross-fades through the three solar array photos,
+ * Purpose: The image panel that fills the left 70% of the console's sign-in
+ *          screen. It cross-fades through the three solar array photos,
  *          lays a dark scrim over them so the branding stays readable on a
  *          bright sky, and lets the user step between slides. Falls back to a
  *          single still image when the visitor prefers reduced motion.

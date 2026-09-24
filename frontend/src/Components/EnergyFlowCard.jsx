@@ -111,50 +111,61 @@ export default function EnergyFlowCard({ reservations, start, end }) {
         </p>
       ) : (
         <>
-          <div className="flex items-end gap-1" style={{ height: `${PLOT_HEIGHT}px` }}>
-            {days.map((day) => {
-              const dayTotal = day.dropOffKWh + day.chargingKWh
-              const dropOffHeight = (day.dropOffKWh / peak) * PLOT_HEIGHT
-              const chargingHeight = (day.chargingKWh / peak) * PLOT_HEIGHT
+          {/* A three-week span squeezed onto a phone leaves each bar a couple
+              of pixels wide - unreadable. Below that width this scrolls
+              sideways instead, at a floor of ~14px per day, rather than
+              shrinking bars past the point they mean anything. Bars and day
+              labels share this one scroll container so they stay aligned. */}
+          <div className="overflow-x-auto">
+            <div style={{ minWidth: `${Math.max(days.length * 14, 100)}px` }}>
+              <div className="flex items-end gap-1" style={{ height: `${PLOT_HEIGHT}px` }}>
+                {days.map((day) => {
+                  const dayTotal = day.dropOffKWh + day.chargingKWh
+                  const dropOffHeight = (day.dropOffKWh / peak) * PLOT_HEIGHT
+                  const chargingHeight = (day.chargingKWh / peak) * PLOT_HEIGHT
 
-              return (
-                <div
-                  key={day.iso}
-                  className="flex flex-1 flex-col items-center justify-end"
-                  title={`${day.label}: ${day.dropOffKWh.toFixed(1)} kWh drop-off, ${day.chargingKWh.toFixed(1)} kWh charging`}
-                >
-                  <div
-                    className={`w-full ${dayTotal > 0 ? '' : 'bg-slate-100'}`}
-                    style={{ height: `${dayTotal > 0 ? Math.max(dropOffHeight + chargingHeight, 2) : 2}px` }}
-                  >
-                    {dayTotal > 0 ? (
-                      <div className="flex h-full w-full flex-col justify-end">
-                        <div
-                          className="w-full bg-slate-300"
-                          style={{ height: `${chargingHeight}px` }}
-                        />
-                        <div
-                          className="w-full bg-slate-700"
-                          style={{ height: `${dropOffHeight}px` }}
-                        />
+                  return (
+                    <div
+                      key={day.iso}
+                      className="flex flex-1 flex-col items-center justify-end"
+                      title={`${day.label}: ${day.dropOffKWh.toFixed(1)} kWh drop-off, ${day.chargingKWh.toFixed(1)} kWh charging`}
+                    >
+                      <div
+                        className={`w-full ${dayTotal > 0 ? '' : 'bg-slate-100'}`}
+                        style={{
+                          height: `${dayTotal > 0 ? Math.max(dropOffHeight + chargingHeight, 2) : 2}px`,
+                        }}
+                      >
+                        {dayTotal > 0 ? (
+                          <div className="flex h-full w-full flex-col justify-end">
+                            <div
+                              className="w-full bg-slate-300"
+                              style={{ height: `${chargingHeight}px` }}
+                            />
+                            <div
+                              className="w-full bg-slate-700"
+                              style={{ height: `${dropOffHeight}px` }}
+                            />
+                          </div>
+                        ) : null}
                       </div>
-                    ) : null}
-                  </div>
-                </div>
-              )
-            })}
-          </div>
+                    </div>
+                  )
+                })}
+              </div>
 
-          {/* Day labels, thinned out so a three-week span does not overlap. */}
-          <div className="mt-2 flex gap-1 border-t border-slate-200 pt-2">
-            {days.map((day, index) => (
-              <span
-                key={day.iso}
-                className="flex-1 text-center text-[10px] text-slate-400"
-              >
-                {index % 2 === 0 ? day.label : ''}
-              </span>
-            ))}
+              {/* Day labels, thinned out so a three-week span does not overlap. */}
+              <div className="mt-2 flex gap-1 border-t border-slate-200 pt-2">
+                {days.map((day, index) => (
+                  <span
+                    key={day.iso}
+                    className="flex-1 text-center text-[10px] text-slate-400"
+                  >
+                    {index % 2 === 0 ? day.label : ''}
+                  </span>
+                ))}
+              </div>
+            </div>
           </div>
         </>
       )}

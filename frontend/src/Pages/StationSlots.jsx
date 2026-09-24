@@ -25,20 +25,17 @@ import {
   LoadingState,
   PageHeader,
   Panel,
-  RowActions,
-  StatusPill,
   TableWrap,
-  TD,
   TH,
   Toolbar,
-  TR,
 } from '../Components/PageControls'
 import ConfirmDialog from '../Components/ConfirmDialog'
 import Pagination from '../Components/Pagination'
+import { SlotCard, SlotRow } from '../Components/SlotRow'
 import SlotFormModal from '../Components/SlotFormModal'
 import usePagination from '../hooks/usePagination'
 import { newestFirst } from '../utils/sorting'
-import { formatDateTime, formatTimeRange } from '../utils/reservationRules'
+import { formatDateTime } from '../utils/reservationRules'
 
 /** Slot statuses the API can return, for the filter control. */
 const STATUSES = [
@@ -47,85 +44,7 @@ const STATUSES = [
   { value: 'Unavailable', label: 'Unavailable' },
 ]
 
-/*
- * Status colours are a secondary cue only - every pill also spells the status
- * out, so the table never depends on telling two colours apart.
- */
-const STATUS_TONES = {
-  Available: 'active',
-  Reserved: 'warning',
-  Unavailable: 'inactive',
-}
-
 const EMPTY_FILTERS = { status: '', from: '', to: '' }
-
-/* One row of the battery slot table. */
-function SlotRow({ slot, busy, onEdit, onRequestHold, onRelease, onDelete }) {
-  // A reserved slot is locked by the service until its booking is cancelled.
-  const isReserved = slot.status === 'Reserved'
-  const isAvailable = slot.status === 'Available'
-
-  return (
-    <TR>
-      <TD numeric className="font-medium text-slate-900">
-        {slot.batterySlotNumber}
-      </TD>
-      <TD className="text-slate-900">
-        <span className="block font-medium tabular-nums">{formatDateTime(slot.startTime)}</span>
-        <span className="mt-0.5 block text-xs tabular-nums text-slate-400">
-          {formatTimeRange(slot.startTime, slot.endTime)}
-        </span>
-      </TD>
-      <TD numeric>{slot.capacityKWh} kWh</TD>
-      <TD>
-        <StatusPill tone={STATUS_TONES[slot.status]}>{slot.status}</StatusPill>
-      </TD>
-      <TD className="tabular-nums">
-        {slot.updatedBy || <span className="text-slate-300">-</span>}
-      </TD>
-      <TD>
-        <div className="flex flex-col items-end gap-1">
-          <RowActions>
-            <Button
-              variant="secondary"
-              size="sm"
-              disabled={busy || isReserved}
-              onClick={() => onEdit(slot)}
-            >
-              Edit
-            </Button>
-
-            {/* Holding a slot needs confirming; releasing one back for booking
-                does not, since it is the reversible, low-risk direction. */}
-            <Button
-              variant="secondary"
-              size="sm"
-              disabled={busy || isReserved}
-              onClick={() => (isAvailable ? onRequestHold(slot) : onRelease(slot))}
-            >
-              {isAvailable ? 'Hold' : 'Release'}
-            </Button>
-
-            <Button
-              variant="danger"
-              size="sm"
-              disabled={busy || isReserved}
-              onClick={() => onDelete(slot)}
-            >
-              Delete
-            </Button>
-          </RowActions>
-
-          {isReserved ? (
-            <span className="text-[11px] leading-snug text-slate-400">
-              Reserved - cancel the booking first
-            </span>
-          ) : null}
-        </div>
-      </TD>
-    </TR>
-  )
-}
 
 export default function StationSlots() {
   const { id } = useParams()
@@ -335,7 +254,7 @@ export default function StationSlots() {
               name="status"
               value={filters.status}
               onChange={handleFilterChange}
-              className="w-40"
+              className="sm:w-40"
             >
               <option value="">Any status</option>
               {STATUSES.map((status) => (
@@ -351,7 +270,7 @@ export default function StationSlots() {
               name="from"
               value={filters.from}
               onChange={handleFilterChange}
-              className="w-36"
+              className="sm:w-36"
             />
 
             <FilterField
@@ -360,7 +279,7 @@ export default function StationSlots() {
               name="to"
               value={filters.to}
               onChange={handleFilterChange}
-              className="w-36"
+              className="sm:w-36"
             />
 
             <div className="flex h-9 items-center gap-1.5">
@@ -390,20 +309,42 @@ export default function StationSlots() {
               ) : null}
             </EmptyState>
           ) : (
-            <TableWrap minWidth="58rem">
-              <thead>
-                <tr>
-                  <TH align="right">Battery</TH>
-                  <TH>Window</TH>
-                  <TH align="right">Capacity</TH>
-                  <TH>Status</TH>
-                  <TH>Updated by</TH>
-                  <TH align="right">Actions</TH>
-                </tr>
-              </thead>
-              <tbody>
+            <>
+              {/* Table at "lg" and above; a purpose-built card list below it -
+                  see SlotRow.jsx for why this page gets its own card rather
+                  than the generic label/value stacking every other table
+                  falls back to. */}
+              <div className="hidden lg:block">
+                <TableWrap minWidth="58rem">
+                  <thead>
+                    <tr>
+                      <TH align="right">Battery</TH>
+                      <TH>Window</TH>
+                      <TH align="right">Capacity</TH>
+                      <TH>Status</TH>
+                      <TH>Updated by</TH>
+                      <TH align="right">Actions</TH>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {pagination.pageItems.map((slot) => (
+                      <SlotRow
+                        key={slot.id}
+                        slot={slot}
+                        busy={busyId === slot.id}
+                        onEdit={(item) => setEditing(item.id)}
+                        onRequestHold={setHolding}
+                        onRelease={handleRelease}
+                        onDelete={setDeleting}
+                      />
+                    ))}
+                  </tbody>
+                </TableWrap>
+              </div>
+
+              <div className="grid gap-3 p-4 lg:hidden">
                 {pagination.pageItems.map((slot) => (
-                  <SlotRow
+                  <SlotCard
                     key={slot.id}
                     slot={slot}
                     busy={busyId === slot.id}
@@ -413,8 +354,8 @@ export default function StationSlots() {
                     onDelete={setDeleting}
                   />
                 ))}
-              </tbody>
-            </TableWrap>
+              </div>
+            </>
           )}
 
           {slots.length > 0 ? (

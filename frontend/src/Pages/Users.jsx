@@ -23,17 +23,14 @@ import {
   LoadingState,
   PageHeader,
   Panel,
-  RowActions,
-  StatusPill,
   TableWrap,
-  TD,
   TH,
   Toolbar,
-  TR,
 } from '../Components/PageControls'
 import ConfirmDialog from '../Components/ConfirmDialog'
 import Pagination from '../Components/Pagination'
 import UserFormModal from '../Components/UserFormModal'
+import { UserCard, UserRow } from '../Components/UserRow'
 import usePagination from '../hooks/usePagination'
 import { newestFirst } from '../utils/sorting'
 
@@ -52,89 +49,7 @@ const STATUSES = [
   { value: 'Deactivated', label: 'Deactivated' },
 ]
 
-/*
- * Status colours are a secondary cue only - every pill also spells the status
- * out, because several of these are hard to tell apart for a reader with
- * red-green colour blindness.
- */
-const STATUS_TONES = {
-  Active: 'active',
-  PendingActivation: 'warning',
-  DeactivationRequested: 'warning',
-  Deactivated: 'danger',
-}
-
-const STATUS_LABELS = {
-  Active: 'Active',
-  PendingActivation: 'Pending activation',
-  DeactivationRequested: 'Deactivation requested',
-  Deactivated: 'Deactivated',
-}
-
-const ROLE_LABELS = {
-  Backoffice: 'Back-office officer',
-  GridOperator: 'Grid operator',
-  Prosumer: 'Solar prosumer',
-}
-
 const EMPTY_FILTERS = { role: '', status: '', search: '' }
-
-/* One row of the users table. */
-function UserRow({ user, isSelf, busy, onEdit, onActivate, onDeactivate }) {
-  const isActive = user.status === 'Active'
-  const canActivate = !isActive
-  // The API refuses to let an officer deactivate their own account.
-  const canDeactivate = user.status !== 'Deactivated' && !isSelf
-
-  return (
-    <TR>
-      <TD className="text-slate-900">
-        <span className="block font-medium">{user.fullName}</span>
-        <span className="mt-0.5 block text-xs tabular-nums text-slate-400">NIC {user.nic}</span>
-      </TD>
-      <TD>
-        <span className="block">{user.email}</span>
-        {user.phone ? (
-          <span className="mt-0.5 block text-xs tabular-nums text-slate-400">{user.phone}</span>
-        ) : null}
-      </TD>
-      <TD>{ROLE_LABELS[user.role]}</TD>
-      <TD>
-        <StatusPill tone={STATUS_TONES[user.status]}>{STATUS_LABELS[user.status]}</StatusPill>
-      </TD>
-      <TD>
-        <div className="flex flex-col items-end gap-1">
-          <RowActions>
-            <Button variant="secondary" size="sm" onClick={() => onEdit(user)}>
-              Edit
-            </Button>
-
-            {canActivate ? (
-              <Button size="sm" disabled={busy} onClick={() => onActivate(user)}>
-                Activate
-              </Button>
-            ) : null}
-
-            {canDeactivate ? (
-              <Button
-                variant="danger"
-                size="sm"
-                disabled={busy}
-                onClick={() => onDeactivate(user)}
-              >
-                Deactivate
-              </Button>
-            ) : null}
-          </RowActions>
-
-          {isSelf ? (
-            <span className="text-[11px] text-slate-400">Your own account</span>
-          ) : null}
-        </div>
-      </TD>
-    </TR>
-  )
-}
 
 export default function Users() {
   const { user: signedInUser } = useSession()
@@ -291,7 +206,7 @@ export default function Users() {
               value={filters.search}
               onChange={handleFilterChange}
               placeholder="Name, NIC or email"
-              className="w-56"
+              className="sm:w-56"
             />
 
             <FilterField
@@ -300,7 +215,7 @@ export default function Users() {
               name="role"
               value={filters.role}
               onChange={handleFilterChange}
-              className="w-44"
+              className="sm:w-44"
             >
               <option value="">Any role</option>
               {ROLES.map((role) => (
@@ -316,7 +231,7 @@ export default function Users() {
               name="status"
               value={filters.status}
               onChange={handleFilterChange}
-              className="w-48"
+              className="sm:w-48"
             >
               <option value="">Any status</option>
               {STATUSES.map((status) => (
@@ -351,19 +266,41 @@ export default function Users() {
               </Button>
             </EmptyState>
           ) : (
-            <TableWrap minWidth="58rem">
-              <thead>
-                <tr>
-                  <TH>Name</TH>
-                  <TH>Contact</TH>
-                  <TH>Role</TH>
-                  <TH>Status</TH>
-                  <TH align="right">Actions</TH>
-                </tr>
-              </thead>
-              <tbody>
+            <>
+              {/* Table at "lg" and above; a purpose-built card list below it -
+                  see UserRow.jsx for why this page gets its own card rather
+                  than the generic label/value stacking every other table
+                  falls back to. */}
+              <div className="hidden lg:block">
+                <TableWrap minWidth="58rem">
+                  <thead>
+                    <tr>
+                      <TH>Name</TH>
+                      <TH>Contact</TH>
+                      <TH>Role</TH>
+                      <TH>Status</TH>
+                      <TH align="right">Actions</TH>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {pagination.pageItems.map((user) => (
+                      <UserRow
+                        key={user.nic}
+                        user={user}
+                        isSelf={user.nic === signedInUser?.nic}
+                        busy={busyNic === user.nic}
+                        onEdit={(item) => setEditing(item.nic)}
+                        onActivate={handleActivate}
+                        onDeactivate={setDeactivating}
+                      />
+                    ))}
+                  </tbody>
+                </TableWrap>
+              </div>
+
+              <div className="grid gap-3 p-4 lg:hidden">
                 {pagination.pageItems.map((user) => (
-                  <UserRow
+                  <UserCard
                     key={user.nic}
                     user={user}
                     isSelf={user.nic === signedInUser?.nic}
@@ -373,8 +310,8 @@ export default function Users() {
                     onDeactivate={setDeactivating}
                   />
                 ))}
-              </tbody>
-            </TableWrap>
+              </div>
+            </>
           )}
 
           {users.length > 0 ? (

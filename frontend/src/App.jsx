@@ -8,7 +8,6 @@ import Login from './Pages/Login'
 import PendingActivations from './Pages/PendingActivations'
 import Profile from './Pages/Profile'
 import Reservations from './Pages/Reservations'
-import Signup from './Pages/Signup'
 import StationSlots from './Pages/StationSlots'
 import Stations from './Pages/Stations'
 import Users from './Pages/Users'
@@ -37,7 +36,6 @@ export default function App() {
         {/* Public routes. */}
         <Route path="/" element={<LandingRedirect />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
 
         {/* Signed-in routes, framed by the app shell. */}
         <Route element={<ProtectedRoute roles={STAFF} />}>

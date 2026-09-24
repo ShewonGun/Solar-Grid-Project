@@ -38,7 +38,7 @@ internal suspend fun <T> apiCall(
         }
     } catch (e: IOException) {
         ApiResult.Failure(
-            "Cannot reach the SmartGrid service. Check that the API is running and " +
+            "Cannot reach the VoltShare service. Check that the API is running and " +
                 "that this device can see it.",
             null
         )

@@ -16,12 +16,15 @@ import { useEffect, useRef, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 
 import useSession from '../auth/useSession'
-import BrandMark, { BrandLockup } from './Brand'
+import { BrandLockup } from './Brand'
+import ConfirmDialog from './ConfirmDialog'
 import {
   IconCalendar,
   IconChevronRight,
   IconClock,
+  IconClose,
   IconDashboard,
+  IconMenu,
   IconNode,
   IconSignOut,
   IconUserCircle,
@@ -87,6 +90,7 @@ const CRUMB_LABELS = {
   users: 'Users',
   'pending-activations': 'Pending activations',
   slots: 'Battery slots',
+  profile: 'Profile',
 }
 
 /* Returns the user's initials for the identity block. */
@@ -111,14 +115,19 @@ function crumbsFor(pathname) {
     .filter(Boolean)
 }
 
-/* One navigation row, with its icon and active treatment. */
-function NavItem({ item }) {
+/*
+ * One navigation row, with its icon and active treatment. `onNavigate` is only
+ * given by the mobile drawer, which closes itself once a destination is
+ * picked; the always-visible desktop sidebar has nothing to close.
+ */
+function NavItem({ item, onNavigate }) {
   const ItemIcon = item.icon
 
   return (
     <NavLink
       to={item.to}
       end={item.end}
+      onClick={onNavigate}
       className={({ isActive }) =>
         `flex items-center gap-2.5 border-l-2 py-2.5 pl-3.5 pr-3 text-sm transition-colors ${
           isActive
@@ -133,8 +142,58 @@ function NavItem({ item }) {
   )
 }
 
+/*
+ * The sidebar's full content - logo, nav list and sign-out row - shared by the
+ * always-visible desktop sidebar and the mobile drawer that slides over the
+ * page. `onNavigate` fires when a nav link is chosen and `onClose`, given only
+ * by the drawer, adds an explicit close button beside the logo.
+ */
+function SidebarContent({ sections, onSignOutClick, onNavigate, onClose }) {
+  return (
+    <>
+      <div className="flex h-14 shrink-0 items-center justify-between border-b border-slate-800 px-4 text-white">
+        <Link to="/" className="flex items-center" onClick={onNavigate}>
+          <BrandLockup markClassName="h-8 w-8" textClassName="text-base text-white" />
+        </Link>
+
+        {onClose ? (
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close menu"
+            className="grid h-8 w-8 shrink-0 place-items-center rounded-xs text-slate-400 transition-colors hover:bg-slate-800 hover:text-white"
+          >
+            <IconClose className="h-4.5 w-4.5" />
+          </button>
+        ) : null}
+      </div>
+
+      {/* One flat list, no section headings - the icons and labels carry
+          enough meaning on their own. */}
+      <nav className="min-h-0 flex-1 overflow-y-auto py-5">
+        {sections.flatMap((section) => section.items).map((item) => (
+          <NavItem key={item.to} item={item} onNavigate={onNavigate} />
+        ))}
+      </nav>
+
+      {/* Sign out sits at the very foot of the list, styled like a nav row so
+          it reads as part of the same list rather than a bolted-on extra. */}
+      <div className="shrink-0 border-t border-slate-800 py-2">
+        <button
+          type="button"
+          onClick={onSignOutClick}
+          className="flex w-full items-center gap-2.5 border-l-2 border-transparent py-2.5 pl-3.5 pr-3 text-sm text-slate-400 transition-colors hover:bg-slate-800/50 hover:text-slate-100"
+        >
+          <IconSignOut className="h-4 w-4 shrink-0" />
+          Sign out
+        </button>
+      </div>
+    </>
+  )
+}
+
 /* The signed-in user, with a menu holding the sign-out action. */
-function UserMenu({ user, role, onSignOut }) {
+function UserMenu({ user, role, onRequestSignOut }) {
   const [open, setOpen] = useState(false)
   const containerRef = useRef(null)
 
@@ -159,7 +218,7 @@ function UserMenu({ user, role, onSignOut }) {
         aria-haspopup="menu"
         className="flex items-center gap-2.5 rounded-xs border border-transparent py-1 pl-1 pr-2 transition-colors hover:border-slate-200 hover:bg-slate-50"
       >
-        <span className="grid h-7 w-7 shrink-0 place-items-center rounded-xs bg-slate-900 text-[11px] font-semibold text-white">
+        <span className="grid h-7 w-7 shrink-0 place-items-center rounded-xs bg-slate-800 text-[11px] font-semibold text-white">
           {initialsOf(user?.fullName)}
         </span>
         <span className="hidden text-left sm:block">
@@ -195,7 +254,10 @@ function UserMenu({ user, role, onSignOut }) {
           <button
             type="button"
             role="menuitem"
-            onClick={onSignOut}
+            onClick={() => {
+              setOpen(false)
+              onRequestSignOut()
+            }}
             className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-900"
           >
             <IconSignOut className="h-4 w-4" />
@@ -212,8 +274,28 @@ export default function AppShell() {
   const navigate = useNavigate()
   const location = useLocation()
 
+  // Whether the sign-out confirmation is open - one dialog shared by the
+  // sidebar's sign-out row and the top-bar user menu's sign-out item.
+  const [confirmingSignOut, setConfirmingSignOut] = useState(false)
+
+  // Whether the mobile navigation drawer is open. The desktop sidebar is
+  // always visible and never touches this.
+  const [mobileNavOpen, setMobileNavOpen] = useState(false)
+
+  useEffect(() => {
+    /* Closes the drawer on Escape, same as any other overlay in the console. */
+    function handleKeyDown(event) {
+      if (event.key === 'Escape') {
+        setMobileNavOpen(false)
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [])
+
   /* Signs the user out and returns them to the login page. */
-  function handleSignOut() {
+  function handleConfirmSignOut() {
     signOut()
     navigate('/login', { replace: true })
   }
@@ -235,46 +317,33 @@ export default function AppShell() {
       {/* Side navigation - fixed height, never scrolls as a unit; only its own
           nav list scrolls if the items ever outgrow the viewport. */}
       <aside className="hidden h-screen w-60 shrink-0 flex-col border-r border-slate-800 bg-slate-900 lg:flex">
-        <Link
-          to="/"
-          className="flex h-14 shrink-0 items-center border-b border-slate-800 px-4 text-white"
-        >
-          <BrandLockup markClassName="h-8 w-8" textClassName="text-base text-white" />
-        </Link>
-
-        {/* One flat list, no section headings - the icons and labels carry
-            enough meaning on their own. */}
-        <nav className="min-h-0 flex-1 overflow-y-auto py-5">
-          {sections.flatMap((section) => section.items).map((item) => (
-            <NavItem key={item.to} item={item} />
-          ))}
-        </nav>
-
-        {/* Sign out sits at the very foot of the sidebar, styled like a nav row
-            so it reads as part of the same list rather than a bolted-on extra. */}
-        <div className="shrink-0 border-t border-slate-800 py-2">
-          <button
-            type="button"
-            onClick={handleSignOut}
-            className="flex w-full items-center gap-2.5 border-l-2 border-transparent py-2.5 pl-3.5 pr-3 text-sm text-slate-400 transition-colors hover:bg-slate-800/50 hover:text-slate-100"
-          >
-            <IconSignOut className="h-4 w-4 shrink-0" />
-            Sign out
-          </button>
-        </div>
+        <SidebarContent sections={sections} onSignOutClick={() => setConfirmingSignOut(true)} />
       </aside>
 
       <div className="flex h-screen min-w-0 flex-1 flex-col">
         {/* Top bar - fixed: it sits above main's scroll area rather than
             scrolling with the page, so it stays put without needing "sticky". */}
         <header className="flex h-14 shrink-0 items-center justify-between gap-4 border-b border-slate-200 bg-white px-4 sm:px-6">
-          <div className="flex min-w-0 items-center gap-2.5">
-            {/* Compact logo for small screens, where the sidebar is hidden. */}
-            <Link to="/" className="flex items-center lg:hidden">
-              <BrandMark className="h-9 w-9" />
+          <div className="flex min-w-0 items-center gap-2">
+            {/* Opens the navigation drawer, where the sidebar is hidden. */}
+            <button
+              type="button"
+              onClick={() => setMobileNavOpen(true)}
+              aria-label="Open menu"
+              aria-expanded={mobileNavOpen}
+              className="grid h-9 w-9 shrink-0 place-items-center rounded-xs text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900 lg:hidden"
+            >
+              <IconMenu className="h-5 w-5" />
+            </button>
+
+            {/* Small screens show the app's own name here rather than the
+                breadcrumb - the page name is redundant with the PageHeader
+                every screen already leads with, right below this bar. */}
+            <Link to="/" className="flex min-w-0 shrink-0 items-center lg:hidden">
+              <BrandLockup markClassName="h-8 w-8" textClassName="text-base text-slate-900" />
             </Link>
 
-            <nav aria-label="Breadcrumb" className="flex min-w-0 items-center gap-1.5">
+            <nav aria-label="Breadcrumb" className="hidden min-w-0 items-center gap-1.5 lg:flex">
               <span className="hidden text-sm text-slate-400 sm:inline">Console</span>
               {crumbs.map((crumb, index) => (
                 <span key={crumb} className="flex min-w-0 items-center gap-1.5">
@@ -294,31 +363,12 @@ export default function AppShell() {
             </nav>
           </div>
 
-          <UserMenu user={user} role={role} onSignOut={handleSignOut} />
+          <UserMenu
+            user={user}
+            role={role}
+            onRequestSignOut={() => setConfirmingSignOut(true)}
+          />
         </header>
-
-        {/* Navigation as a fixed scrolling strip on small screens. */}
-        <nav className="flex shrink-0 gap-1 overflow-x-auto border-b border-slate-200 bg-white px-3 py-2 lg:hidden">
-          {sections.flatMap((section) =>
-            section.items.map((item) => (
-              <NavLink
-                key={item.to}
-                to={item.to}
-                end={item.end}
-                className={({ isActive }) =>
-                  `flex items-center gap-1.5 whitespace-nowrap rounded-xs px-2.5 py-1.5 text-xs transition-colors ${
-                    isActive
-                      ? 'bg-slate-900 font-medium text-white'
-                      : 'text-slate-500 hover:bg-slate-100 hover:text-slate-900'
-                  }`
-                }
-              >
-                <item.icon className="h-3.5 w-3.5" />
-                {item.label}
-              </NavLink>
-            )),
-          )}
-        </nav>
 
         {/* The one scrolling region in the shell. */}
         <main className="min-h-0 flex-1 overflow-y-auto px-4 py-6 sm:px-6 lg:px-8">
@@ -327,6 +377,55 @@ export default function AppShell() {
           </div>
         </main>
       </div>
+
+      {/* Mobile navigation drawer - a full copy of the sidebar that slides in
+          over the page, rather than the cramped horizontal strip a phone-width
+          screen would otherwise be limited to. Always mounted (not just when
+          open) so the slide is a real transition rather than an instant swap;
+          pointer-events are dropped while closed so the invisible backdrop
+          cannot intercept taps meant for the page underneath. */}
+      <div
+        className={`fixed inset-0 z-40 lg:hidden ${mobileNavOpen ? '' : 'pointer-events-none'}`}
+      >
+        <div
+          aria-hidden="true"
+          onClick={() => setMobileNavOpen(false)}
+          className={`absolute inset-0 bg-slate-900/50 transition-opacity duration-200 ${
+            mobileNavOpen ? 'opacity-100' : 'opacity-0'
+          }`}
+        />
+
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="Navigation"
+          className={`absolute inset-y-0 left-0 flex w-72 max-w-[85vw] flex-col bg-slate-900 shadow-xl transition-transform duration-200 ${
+            mobileNavOpen ? 'translate-x-0' : '-translate-x-full'
+          }`}
+        >
+          <SidebarContent
+            sections={sections}
+            onSignOutClick={() => {
+              setMobileNavOpen(false)
+              setConfirmingSignOut(true)
+            }}
+            onNavigate={() => setMobileNavOpen(false)}
+            onClose={() => setMobileNavOpen(false)}
+          />
+        </div>
+      </div>
+
+      {confirmingSignOut ? (
+        <ConfirmDialog
+          title="Sign out?"
+          description="You'll need to sign in again to continue."
+          confirmLabel="Sign out"
+          cancelLabel="Stay signed in"
+          tone="primary"
+          onConfirm={handleConfirmSignOut}
+          onClose={() => setConfirmingSignOut(false)}
+        />
+      ) : null}
     </div>
   )
 }

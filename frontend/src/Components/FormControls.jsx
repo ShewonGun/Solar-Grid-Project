@@ -1,10 +1,10 @@
 /*
  * File: FormControls.jsx
- * Purpose: Small presentational form building blocks shared by the Login and
- *          Signup pages - a labelled text field, a password field with a
- *          show/hide toggle, a status banner for API messages and a submit
- *          button with a busy state. All of them use the tight corner radius
- *          and flat borders that define the console's minimal look.
+ * Purpose: Small presentational form building blocks used on the Login page -
+ *          a labelled text field, a password field with a show/hide toggle, a
+ *          status banner for API messages and a submit button with a busy
+ *          state. All of them use the tight corner radius and flat borders
+ *          that define the console's minimal look.
  * Author:  <your name>
  * Created: 2026
  */

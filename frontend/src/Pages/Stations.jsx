@@ -18,89 +18,21 @@ import { IconPlus, IconSearch } from '../Components/Icons'
 import {
   Banner,
   Button,
-  ButtonLink,
   EmptyState,
   FilterField,
   LoadingState,
   PageHeader,
   Panel,
-  RowActions,
-  StatusPill,
   TableWrap,
-  TD,
   TH,
   Toolbar,
-  TR,
 } from '../Components/PageControls'
 import ConfirmDialog from '../Components/ConfirmDialog'
 import Pagination from '../Components/Pagination'
+import { StationCard, StationRow } from '../Components/StationRow'
 import StationFormModal from '../Components/StationFormModal'
 import usePagination from '../hooks/usePagination'
 import { newestFirst } from '../utils/sorting'
-
-/* Formats a coordinate pair for the table. */
-function formatLocation(station) {
-  return `${station.latitude.toFixed(4)}, ${station.longitude.toFixed(4)}`
-}
-
-/* One row of the stations table. */
-function StationRow({ station, canManage, busy, onRequestDeactivate, onActivate, onEdit, onDelete }) {
-  return (
-    <TR>
-      <TD className="text-slate-900">
-        <span className="block font-medium">{station.stationName}</span>
-        <span className="mt-0.5 block text-xs tabular-nums text-slate-400">
-          {formatLocation(station)}
-        </span>
-      </TD>
-      <TD numeric>{station.capacityKWh} kWh</TD>
-      <TD numeric>{station.totalBatterySlots}</TD>
-      <TD>
-        {station.operatingSchedule || <span className="text-slate-300">Not set</span>}
-      </TD>
-      <TD>
-        <StatusPill tone={station.isActive ? 'active' : 'inactive'}>
-          {station.isActive ? 'Active' : 'Inactive'}
-        </StatusPill>
-      </TD>
-      <TD>
-        <RowActions>
-          <ButtonLink to={`/stations/${station.id}/slots`} variant="secondary" size="sm">
-            Slots
-          </ButtonLink>
-
-          {canManage ? (
-            <>
-              <Button variant="secondary" size="sm" onClick={() => onEdit(station)}>
-                Edit
-              </Button>
-              {/* Deactivating needs confirming; reactivating does not, since it
-                  is the reversible, low-risk direction. */}
-              <Button
-                variant={station.isActive ? 'danger' : 'secondary'}
-                size="sm"
-                disabled={busy}
-                onClick={() =>
-                  station.isActive ? onRequestDeactivate(station) : onActivate(station)
-                }
-              >
-                {station.isActive ? 'Deactivate' : 'Activate'}
-              </Button>
-              <Button
-                variant="danger"
-                size="sm"
-                disabled={busy}
-                onClick={() => onDelete(station)}
-              >
-                Delete
-              </Button>
-            </>
-          ) : null}
-        </RowActions>
-      </TD>
-    </TR>
-  )
-}
 
 export default function Stations() {
   const { role } = useSession()
@@ -270,7 +202,7 @@ export default function Stations() {
               value={search}
               onChange={(event) => setSearch(event.target.value)}
               placeholder="Node name"
-              className="w-56"
+              className="sm:w-56"
             />
 
             <label className="flex h-9 items-center gap-2 text-sm text-slate-600">
@@ -307,20 +239,43 @@ export default function Stations() {
               ) : null}
             </EmptyState>
           ) : (
-            <TableWrap minWidth="58rem">
-              <thead>
-                <tr>
-                  <TH>Node</TH>
-                  <TH align="right">Capacity</TH>
-                  <TH align="right">Slots</TH>
-                  <TH>Schedule</TH>
-                  <TH>Status</TH>
-                  <TH align="right">Actions</TH>
-                </tr>
-              </thead>
-              <tbody>
+            <>
+              {/* Table at "lg" and above; a purpose-built card list below it -
+                  see StationRow.jsx for why this page gets its own card rather
+                  than the generic label/value stacking every other table
+                  falls back to. */}
+              <div className="hidden lg:block">
+                <TableWrap minWidth="58rem">
+                  <thead>
+                    <tr>
+                      <TH>Node</TH>
+                      <TH align="right">Capacity</TH>
+                      <TH align="right">Slots</TH>
+                      <TH>Schedule</TH>
+                      <TH>Status</TH>
+                      <TH align="right">Actions</TH>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {pagination.pageItems.map((station) => (
+                      <StationRow
+                        key={station.id}
+                        station={station}
+                        canManage={canManage}
+                        busy={busyId === station.id}
+                        onRequestDeactivate={setDeactivating}
+                        onActivate={handleActivate}
+                        onEdit={(item) => setEditing(item.id)}
+                        onDelete={setDeleting}
+                      />
+                    ))}
+                  </tbody>
+                </TableWrap>
+              </div>
+
+              <div className="grid gap-3 p-4 lg:hidden">
                 {pagination.pageItems.map((station) => (
-                  <StationRow
+                  <StationCard
                     key={station.id}
                     station={station}
                     canManage={canManage}
@@ -331,8 +286,8 @@ export default function Stations() {
                     onDelete={setDeleting}
                   />
                 ))}
-              </tbody>
-            </TableWrap>
+              </div>
+            </>
           )}
 
           {visibleStations.length > 0 ? (

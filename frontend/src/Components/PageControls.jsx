@@ -387,7 +387,7 @@ export function Modal({ title, description, size = 'md', onClose, children }) {
             <IconClose className="h-4 w-4" />
           </Button>
         </header>
-        <div className="overflow-y-auto px-5 py-5">{children}</div>
+        <div className="modal-scroll overflow-y-auto px-5 py-5">{children}</div>
       </div>
     </div>
   )

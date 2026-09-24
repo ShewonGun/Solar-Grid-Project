@@ -19,6 +19,26 @@ body {
 }
 
 /*
+ * Every scrolling area in the console - horizontal (TableWrap's table
+ * container, EnergyFlowCard's chart) or vertical (the sidebar nav, the main
+ * page content, a modal's body, the auth layout) - still scrolls by touch,
+ * trackpad, click-drag or the keyboard. This just stops the browser drawing
+ * a visible scrollbar for any of it, site-wide.
+ */
+.overflow-x-auto,
+.overflow-y-auto,
+.modal-scroll {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* legacy Edge */
+}
+
+.overflow-x-auto::-webkit-scrollbar,
+.overflow-y-auto::-webkit-scrollbar,
+.modal-scroll::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, current Edge */
+}
+
+/*
  * Every data table in the console (TableWrap in PageControls.jsx) carries this
  * class. Below the "md" breakpoint it stops being a table at all and becomes a
  * stack of cards, one per row - a table forced to scroll sideways on a phone

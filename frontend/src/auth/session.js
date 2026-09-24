@@ -64,7 +64,9 @@ function isExpired(expiresAt) {
 
 /*
  * Maps a user role returned by the API to the home route for that role, so
- * login lands each user on the screens they are allowed to use.
+ * login lands each user on the screens they are allowed to use. Login turns
+ * prosumers away before a session is ever written, so only staff roles reach
+ * this function in practice.
  */
 export function homeRouteForRole(role) {
   switch (role) {
@@ -73,6 +75,6 @@ export function homeRouteForRole(role) {
     case 'GridOperator':
       return '/operator'
     default:
-      return '/prosumer'
+      return '/login'
   }
 }

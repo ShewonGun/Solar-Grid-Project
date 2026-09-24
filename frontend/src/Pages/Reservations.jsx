@@ -9,7 +9,7 @@
  * Created: 2026
  */
 import { useEffect, useMemo, useState } from 'react'
-import { toast } from 'react-toastify'
+import toast from 'react-hot-toast'
 
 import { toApiError } from '../api/client'
 import { approveReservation, cancelReservation, searchReservations } from '../api/reservationsApi'
@@ -21,7 +21,6 @@ import {
   EmptyState,
   FilterField,
   LoadingState,
-  Modal,
   PageHeader,
   Panel,
   RowActions,
@@ -32,6 +31,7 @@ import {
   Toolbar,
   TR,
 } from '../Components/PageControls'
+import ConfirmDialog from '../Components/ConfirmDialog'
 import Pagination from '../Components/Pagination'
 import ReservationFormModal from '../Components/ReservationFormModal'
 import usePagination from '../hooks/usePagination'
@@ -422,11 +422,16 @@ export default function Reservations() {
       )}
 
       {cancelling ? (
-        <Modal
+        <ConfirmDialog
           title="Cancel this reservation?"
           description={`Booking for NIC ${cancelling.prosumerNic} starting ${formatDateTime(
             cancelling.reservationStart,
           )}. The battery slot is released back for booking.`}
+          confirmLabel="Cancel reservation"
+          pendingLabel="Cancelling..."
+          cancelLabel="Keep booking"
+          busy={busyId === cancelling.id}
+          onConfirm={handleConfirmCancel}
           onClose={() => setCancelling(null)}
         >
           <label className="block">
@@ -441,20 +446,7 @@ export default function Reservations() {
               className="mt-1 w-full rounded-xs border border-slate-300 px-2.5 py-2 text-sm outline-none transition-colors placeholder:text-slate-400 hover:border-slate-400 focus:border-slate-900 focus:ring-1 focus:ring-slate-900"
             />
           </label>
-
-          <div className="mt-5 flex justify-end gap-2">
-            <Button variant="secondary" onClick={() => setCancelling(null)}>
-              Keep booking
-            </Button>
-            <Button
-              variant="danger"
-              disabled={busyId === cancelling.id}
-              onClick={handleConfirmCancel}
-            >
-              {busyId === cancelling.id ? 'Cancelling...' : 'Cancel reservation'}
-            </Button>
-          </div>
-        </Modal>
+        </ConfirmDialog>
       ) : null}
 
       {editing ? (

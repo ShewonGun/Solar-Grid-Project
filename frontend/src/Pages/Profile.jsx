@@ -9,7 +9,7 @@
  * Created: 2026
  */
 import { useEffect, useState } from 'react'
-import { toast } from 'react-toastify'
+import toast from 'react-hot-toast'
 
 import { getCurrentUser } from '../api/authApi'
 import { toApiError } from '../api/client'

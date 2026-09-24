@@ -8,7 +8,7 @@
  * Created: 2026
  */
 import { useEffect, useMemo, useState } from 'react'
-import { toast } from 'react-toastify'
+import toast from 'react-hot-toast'
 
 import { toApiError } from '../api/client'
 import { activateUser, getPendingActivations } from '../api/usersApi'

@@ -20,6 +20,9 @@ import { isFormValid, validatePassword, validateRequired } from '../utils/valida
 
 const EMPTY_FORM = { identifier: '', password: '' }
 
+// Only these roles may use the web console; prosumers use the mobile app instead.
+const STAFF_ROLES = ['Backoffice', 'GridOperator']
+
 /*
  * Checks the whole form and returns a message per field. The API re-validates
  * everything; this only saves the user a round trip.
@@ -80,6 +83,11 @@ export default function Login() {
 
     try {
       const session = await login(form.identifier.trim(), form.password)
+
+      if (!STAFF_ROLES.includes(session.user.role)) {
+        setApiError('This console is for back-office officers and grid operators. Prosumers should use the mobile app.')
+        return
+      }
 
       writeSession(session)
       navigate(redirectTo ?? homeRouteForRole(session.user.role), { replace: true })

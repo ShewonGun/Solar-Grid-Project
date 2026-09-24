@@ -32,6 +32,20 @@ export async function getStationSlots(stationId, { from, to, status } = {}) {
   return data
 }
 
+/*
+ * Fetches every slot across a set of stations, one request per station run in
+ * parallel. There is no endpoint that returns slots for every node in one
+ * call, so the dashboard's cross-node cards (utilisation, inventory) call this
+ * once and derive both from the same data rather than each fetching it again.
+ */
+export async function getSlotsForStations(stationIds, params = {}) {
+  const results = await Promise.all(
+    stationIds.map((stationId) => getStationSlots(stationId, params)),
+  )
+
+  return results.flat()
+}
+
 /* GET api/slots/{id} - a single slot. */
 export async function getSlot(id) {
   const { data } = await apiClient.get(`/slots/${id}`)

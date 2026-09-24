@@ -12,11 +12,16 @@ import { useEffect, useState } from 'react'
 
 import { toApiError } from '../api/client'
 import { getDashboardCounts, searchReservations } from '../api/reservationsApi'
+import { getSlotsForStations } from '../api/slotsApi'
 import { getStations } from '../api/stationsApi'
 import { getPendingActivations } from '../api/usersApi'
 import useSession from '../auth/useSession'
 import { StatTile, WeekBookingsChart } from '../Components/DashboardParts'
+import EnergyFlowCard from '../Components/EnergyFlowCard'
 import { IconCalendar, IconClock, IconNode } from '../Components/Icons'
+import NodesMapCard from '../Components/NodesMapCard'
+import NodeUtilizationCard from '../Components/NodeUtilizationCard'
+import SlotInventoryCard from '../Components/SlotInventoryCard'
 import {
   Banner,
   ButtonLink,
@@ -29,6 +34,13 @@ import {
 
 /** Days in the reservation window the API enforces (MaxDaysAhead). */
 const BOOKING_WINDOW_DAYS = 7
+
+/*
+ * How far back the energy-flow card looks for Completed history. The 7-day
+ * booking window only ever holds future bookings, so a trend needs its own,
+ * wider range rather than reusing that window.
+ */
+const FLOW_HISTORY_DAYS = 14
 
 /*
  * Status colours are never the only signal - every pill also carries its status
@@ -107,13 +119,26 @@ export default function Dashboard() {
       const windowEnd = new Date(windowStart)
       windowEnd.setDate(windowEnd.getDate() + BOOKING_WINDOW_DAYS)
 
+      const flowStart = new Date(windowStart)
+      flowStart.setDate(flowStart.getDate() - FLOW_HISTORY_DAYS)
+
       try {
-        const [counts, stations, upcoming, pendingAccounts] = await Promise.all([
+        const [counts, stations, upcoming, pendingAccounts, flowReservations] = await Promise.all([
           getDashboardCounts(),
           getStations(),
           searchReservations({ from: windowStart, to: windowEnd }),
           isBackoffice ? getPendingActivations() : Promise.resolve([]),
+          // A wider range than `upcoming`: history needs Completed bookings the
+          // 7-day-forward window never holds.
+          searchReservations({ from: flowStart, to: windowEnd }),
         ])
+
+        // Depends on the station list above, so it runs as its own step rather
+        // than joining the Promise.all it needs the result of.
+        const slots = await getSlotsForStations(
+          stations.map((station) => station.id),
+          { from: windowStart, to: windowEnd },
+        )
 
         if (!cancelled) {
           setData({
@@ -121,6 +146,10 @@ export default function Dashboard() {
             stations,
             upcoming,
             pendingAccounts,
+            flowReservations,
+            flowStart,
+            windowEnd,
+            slots,
             days: bucketByDay(upcoming, windowStart),
           })
           setError('')
@@ -156,7 +185,17 @@ export default function Dashboard() {
     )
   }
 
-  const { counts, stations, upcoming, pendingAccounts, days } = data
+  const {
+    counts,
+    stations,
+    upcoming,
+    pendingAccounts,
+    flowReservations,
+    flowStart,
+    windowEnd,
+    slots,
+    days,
+  } = data
   const activeStations = stations.filter((station) => station.isActive).length
 
   // The soonest few bookings; the reservations screen carries the full list.
@@ -261,6 +300,19 @@ export default function Dashboard() {
             </ul>
           )}
         </Panel>
+      </div>
+
+      <div className="mt-5">
+        <EnergyFlowCard reservations={flowReservations} start={flowStart} end={windowEnd} />
+      </div>
+
+      <div className="mt-5 grid gap-5 lg:grid-cols-2">
+        <NodeUtilizationCard stations={stations} slots={slots} />
+        <SlotInventoryCard slots={slots} />
+      </div>
+
+      <div className="mt-5">
+        <NodesMapCard stations={stations} />
       </div>
 
       {/* Accounts waiting for a Back-office officer to activate them. */}

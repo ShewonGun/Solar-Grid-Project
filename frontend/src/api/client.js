@@ -19,7 +19,7 @@ import { clearSession, readSession } from '../auth/session'
  */
 export const SESSION_CHANGED_EVENT = 'smartmicrogrid:session-changed'
 
-const baseURL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5062/api'
+const baseURL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8081/api'
 
 export const apiClient = axios.create({
   baseURL,

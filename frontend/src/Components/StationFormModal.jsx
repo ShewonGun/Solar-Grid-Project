@@ -13,6 +13,7 @@ import { useEffect, useState } from 'react'
 import { toApiError } from '../api/client'
 import { createStation, getStation, updateStation } from '../api/stationsApi'
 import { TextField } from './FormControls'
+import LocationPicker from './LocationPicker'
 import { Banner, Button, Modal } from './PageControls'
 import { isFormValid, validateRequired } from '../utils/validation'
 
@@ -115,6 +116,13 @@ export default function StationFormModal({ stationId, onClose, onSaved }) {
   const [loading, setLoading] = useState(isEditing)
   const [busy, setBusy] = useState(false)
 
+  // Whether the location comes from typed numbers or a map click.
+  const [locationMode, setLocationMode] = useState('manual')
+  // Bumped every time the map picker is (re)opened, so it remounts and
+  // re-centres on whatever is currently in the latitude/longitude fields
+  // rather than staying wherever it was left after an earlier switch.
+  const [mapResetKey, setMapResetKey] = useState(0)
+
   useEffect(() => {
     // Nothing to load when registering a new node.
     if (!isEditing) {
@@ -166,6 +174,24 @@ export default function StationFormModal({ stationId, onClose, onSaved }) {
   }
 
   /*
+   * Fills latitude and longitude from a map click or a marker drag. Both
+   * fields update together, since a single point on the map always sets both
+   * at once - there is no "half a location" the way manual entry allows
+   * mid-typing.
+   */
+  function handleLocationPicked({ lat, lng }) {
+    setForm((current) => ({ ...current, latitude: String(lat), longitude: String(lng) }))
+    setErrors((current) => ({ ...current, latitude: '', longitude: '' }))
+    setApiError('')
+  }
+
+  /* Switches to the map picker, reopening it centred on whatever is typed now. */
+  function handleSwitchToMap() {
+    setLocationMode('map')
+    setMapResetKey((current) => current + 1)
+  }
+
+  /*
    * Validates the form and saves the node through the Web API. Validation
    * messages the service sends back are merged onto the matching fields.
    */
@@ -207,6 +233,16 @@ export default function StationFormModal({ stationId, onClose, onSaved }) {
     }
   }
 
+  // The current latitude/longitude as a point for the map, or null when
+  // either field is blank or not yet a real number.
+  const pickedLocation =
+    form.latitude.trim() !== '' &&
+    form.longitude.trim() !== '' &&
+    Number.isFinite(Number(form.latitude)) &&
+    Number.isFinite(Number(form.longitude))
+      ? { lat: Number(form.latitude), lng: Number(form.longitude) }
+      : null
+
   return (
     <Modal
       title={isEditing ? 'Edit microgrid node' : 'Register microgrid node'}
@@ -235,38 +271,97 @@ export default function StationFormModal({ stationId, onClose, onSaved }) {
               disabled={busy}
             />
 
-            <div className="grid gap-5 sm:grid-cols-2">
-              <TextField
-                label="Latitude"
-                name="latitude"
-                type="number"
-                step="any"
-                min="-90"
-                max="90"
-                inputMode="decimal"
-                placeholder="6.9061"
-                value={form.latitude}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                error={errors.latitude}
-                disabled={busy}
-              />
+            <div>
+              <div className="mb-2 flex items-center justify-between gap-3">
+                <span className="text-xs font-medium uppercase tracking-[0.08em] text-slate-600">
+                  Location
+                </span>
 
-              <TextField
-                label="Longitude"
-                name="longitude"
-                type="number"
-                step="any"
-                min="-180"
-                max="180"
-                inputMode="decimal"
-                placeholder="79.9696"
-                value={form.longitude}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                error={errors.longitude}
-                disabled={busy}
-              />
+                {/* Switches how the location below is set; the underlying
+                    latitude/longitude values are the same either way. */}
+                <div className="flex rounded-xs border border-slate-300 p-0.5 text-xs">
+                  <button
+                    type="button"
+                    disabled={busy}
+                    onClick={() => setLocationMode('manual')}
+                    className={`rounded-xs px-2.5 py-1 font-medium transition-colors ${
+                      locationMode === 'manual'
+                        ? 'bg-slate-900 text-white'
+                        : 'text-slate-500 hover:text-slate-900'
+                    }`}
+                  >
+                    Enter manually
+                  </button>
+                  <button
+                    type="button"
+                    disabled={busy}
+                    onClick={handleSwitchToMap}
+                    className={`rounded-xs px-2.5 py-1 font-medium transition-colors ${
+                      locationMode === 'map'
+                        ? 'bg-slate-900 text-white'
+                        : 'text-slate-500 hover:text-slate-900'
+                    }`}
+                  >
+                    Pick on map
+                  </button>
+                </div>
+              </div>
+
+              {locationMode === 'manual' ? (
+                <div className="grid gap-5 sm:grid-cols-2">
+                  <TextField
+                    label="Latitude"
+                    name="latitude"
+                    type="number"
+                    step="any"
+                    min="-90"
+                    max="90"
+                    inputMode="decimal"
+                    placeholder="6.9061"
+                    value={form.latitude}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    error={errors.latitude}
+                    disabled={busy}
+                  />
+
+                  <TextField
+                    label="Longitude"
+                    name="longitude"
+                    type="number"
+                    step="any"
+                    min="-180"
+                    max="180"
+                    inputMode="decimal"
+                    placeholder="79.9696"
+                    value={form.longitude}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    error={errors.longitude}
+                    disabled={busy}
+                  />
+                </div>
+              ) : (
+                <div>
+                  <LocationPicker
+                    key={mapResetKey}
+                    value={pickedLocation}
+                    onChange={handleLocationPicked}
+                  />
+
+                  {errors.latitude || errors.longitude ? (
+                    <p className="mt-1.5 text-xs text-red-600">
+                      {errors.latitude || errors.longitude}
+                    </p>
+                  ) : (
+                    <p className="mt-1.5 text-xs leading-relaxed text-slate-400">
+                      {pickedLocation
+                        ? `Selected ${pickedLocation.lat.toFixed(4)}, ${pickedLocation.lng.toFixed(4)}. Click the map or drag the pin to adjust it.`
+                        : 'Click the map to set the node’s location.'}
+                    </p>
+                  )}
+                </div>
+              )}
             </div>
 
             <div className="grid gap-5 sm:grid-cols-2">

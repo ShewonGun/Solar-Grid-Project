@@ -9,7 +9,7 @@
  * Created: 2026
  */
 import { useEffect, useMemo, useState } from 'react'
-import { toast } from 'react-toastify'
+import toast from 'react-hot-toast'
 
 import { toApiError } from '../api/client'
 import { deleteStation, getStations, setStationActive } from '../api/stationsApi'
@@ -22,7 +22,6 @@ import {
   EmptyState,
   FilterField,
   LoadingState,
-  Modal,
   PageHeader,
   Panel,
   RowActions,
@@ -33,6 +32,7 @@ import {
   Toolbar,
   TR,
 } from '../Components/PageControls'
+import ConfirmDialog from '../Components/ConfirmDialog'
 import Pagination from '../Components/Pagination'
 import StationFormModal from '../Components/StationFormModal'
 import usePagination from '../hooks/usePagination'
@@ -44,7 +44,7 @@ function formatLocation(station) {
 }
 
 /* One row of the stations table. */
-function StationRow({ station, canManage, busy, onToggleActive, onEdit, onDelete }) {
+function StationRow({ station, canManage, busy, onRequestDeactivate, onActivate, onEdit, onDelete }) {
   return (
     <TR>
       <TD className="text-slate-900">
@@ -74,11 +74,15 @@ function StationRow({ station, canManage, busy, onToggleActive, onEdit, onDelete
               <Button variant="secondary" size="sm" onClick={() => onEdit(station)}>
                 Edit
               </Button>
+              {/* Deactivating needs confirming; reactivating does not, since it
+                  is the reversible, low-risk direction. */}
               <Button
                 variant={station.isActive ? 'danger' : 'secondary'}
                 size="sm"
                 disabled={busy}
-                onClick={() => onToggleActive(station)}
+                onClick={() =>
+                  station.isActive ? onRequestDeactivate(station) : onActivate(station)
+                }
               >
                 {station.isActive ? 'Deactivate' : 'Activate'}
               </Button>
@@ -113,6 +117,8 @@ export default function Stations() {
   const [editing, setEditing] = useState(null)
   // The node awaiting delete confirmation.
   const [deleting, setDeleting] = useState(null)
+  // The node awaiting deactivate confirmation.
+  const [deactivating, setDeactivating] = useState(null)
   // Bumped after a save so the list reloads with the change in it.
   const [reloadToken, setReloadToken] = useState(0)
 
@@ -156,23 +162,42 @@ export default function Stations() {
     setReloadToken((current) => current + 1)
   }
 
-  /*
-   * Activates or deactivates one node. The API decides whether it is allowed -
-   * a node with active reservations comes back as a conflict, which is shown
-   * to the user unchanged.
-   */
-  async function handleToggleActive(station) {
+  /* Reactivates a node. This direction needs no confirmation - it only ever
+   * puts capability back, never takes it away. */
+  async function handleActivate(station) {
     setBusyId(station.id)
 
     try {
-      const updated = await setStationActive(station.id, !station.isActive)
+      const updated = await setStationActive(station.id, true)
 
       setStations((current) =>
         current.map((item) => (item.id === updated.id ? updated : item)),
       )
-      toast.success(`${updated.stationName} is now ${updated.isActive ? 'active' : 'inactive'}.`)
+      toast.success(`${updated.stationName} is now active.`)
     } catch (failure) {
       toast.error(toApiError(failure).message)
+    } finally {
+      setBusyId(null)
+    }
+  }
+
+  /* Deactivates the node chosen in the dialog. */
+  async function handleConfirmDeactivate() {
+    const station = deactivating
+
+    setBusyId(station.id)
+
+    try {
+      const updated = await setStationActive(station.id, false)
+
+      setStations((current) =>
+        current.map((item) => (item.id === updated.id ? updated : item)),
+      )
+      toast.success(`${updated.stationName} is now inactive.`)
+      setDeactivating(null)
+    } catch (failure) {
+      toast.error(toApiError(failure).message)
+      setDeactivating(null)
     } finally {
       setBusyId(null)
     }
@@ -300,7 +325,8 @@ export default function Stations() {
                     station={station}
                     canManage={canManage}
                     busy={busyId === station.id}
-                    onToggleActive={handleToggleActive}
+                    onRequestDeactivate={setDeactivating}
+                    onActivate={handleActivate}
                     onEdit={(item) => setEditing(item.id)}
                     onDelete={setDeleting}
                   />
@@ -321,29 +347,35 @@ export default function Stations() {
       )}
 
       {deleting ? (
-        <Modal
+        <ConfirmDialog
           title="Delete this microgrid node?"
           description={`${deleting.stationName} and its battery slots are removed. This cannot be undone.`}
+          confirmLabel="Delete node"
+          pendingLabel="Deleting..."
+          cancelLabel="Keep node"
+          busy={busyId === deleting.id}
+          onConfirm={handleConfirmDelete}
           onClose={() => setDeleting(null)}
         >
           <Banner tone="info">
             A node that any reservation still refers to cannot be deleted. Deactivate it instead to
             take it out of service while keeping its booking history.
           </Banner>
+        </ConfirmDialog>
+      ) : null}
 
-          <div className="flex justify-end gap-2">
-            <Button variant="secondary" onClick={() => setDeleting(null)}>
-              Keep node
-            </Button>
-            <Button
-              variant="danger"
-              disabled={busyId === deleting.id}
-              onClick={handleConfirmDelete}
-            >
-              {busyId === deleting.id ? 'Deleting...' : 'Delete node'}
-            </Button>
-          </div>
-        </Modal>
+      {deactivating ? (
+        <ConfirmDialog
+          title="Deactivate this node?"
+          description={`${deactivating.stationName}'s battery slots stop taking bookings until it is activated again. Existing reservations are not affected.`}
+          confirmLabel="Deactivate node"
+          pendingLabel="Deactivating..."
+          cancelLabel="Keep active"
+          tone="primary"
+          busy={busyId === deactivating.id}
+          onConfirm={handleConfirmDeactivate}
+          onClose={() => setDeactivating(null)}
+        />
       ) : null}
 
       {editing ? (

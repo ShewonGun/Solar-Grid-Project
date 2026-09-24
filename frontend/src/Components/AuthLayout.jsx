@@ -11,7 +11,7 @@
 import { Link } from 'react-router-dom'
 
 import AuthShowcase from './AuthShowcase'
-import { IconSun } from './Icons'
+import { BrandLockup } from './Brand'
 
 /*
  * Renders the photo panel beside the given form. `title` and `subtitle` head
@@ -29,11 +29,8 @@ export default function AuthLayout({ title, subtitle, headline, footer, children
       <main className="flex w-full overflow-y-auto px-6 py-12 sm:px-10 lg:w-[30%] lg:px-10">
         <div className="m-auto w-full max-w-sm lg:max-w-none">
           {/* Compact logo for small screens, where the photo panel is hidden. */}
-          <Link to="/" className="mb-10 flex items-center gap-2.5 lg:hidden">
-            <span className="grid h-8 w-8 place-items-center rounded-xs bg-amber-400 text-slate-900">
-              <IconSun className="h-4 w-4" />
-            </span>
-            <span className="text-sm font-medium tracking-tight">Smart Solar Microgrid</span>
+          <Link to="/" className="mb-10 flex items-center lg:hidden">
+            <BrandLockup markClassName="h-10 w-10" textClassName="text-base text-slate-900" />
           </Link>
 
           <h1 className="text-2xl font-medium leading-tight tracking-tight text-slate-900">

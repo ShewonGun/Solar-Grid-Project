@@ -4,7 +4,11 @@
  *          top bar carrying the breadcrumb trail and the signed-in user, and
  *          the content area. The navigation only lists the areas the user's
  *          role may open, which matches the roles the Web API enforces on the
- *          matching endpoints.
+ *          matching endpoints. The sidebar and top bar are pinned to the
+ *          viewport - the outer frame never scrolls, only the content pane
+ *          under <main> does - which is the standard fixed-shell layout of an
+ *          enterprise console (the sidebar and header never leave view no
+ *          matter how long a table gets).
  * Author:  <your name>
  * Created: 2026
  */
@@ -12,6 +16,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 
 import useSession from '../auth/useSession'
+import BrandMark, { BrandLockup } from './Brand'
 import {
   IconCalendar,
   IconChevronRight,
@@ -19,7 +24,6 @@ import {
   IconDashboard,
   IconNode,
   IconSignOut,
-  IconSun,
   IconUserCircle,
   IconUsers,
 } from './Icons'
@@ -116,10 +120,10 @@ function NavItem({ item }) {
       to={item.to}
       end={item.end}
       className={({ isActive }) =>
-        `flex items-center gap-2.5 border-l-2 py-2 pl-3.5 pr-3 text-sm transition-colors ${
+        `flex items-center gap-2.5 border-l-2 py-2.5 pl-3.5 pr-3 text-sm transition-colors ${
           isActive
-            ? 'border-amber-400 bg-slate-800/80 font-medium text-white'
-            : 'border-transparent text-slate-400 hover:bg-slate-800/40 hover:text-slate-100'
+            ? 'border-amber-400 bg-slate-800 font-medium text-white'
+            : 'border-transparent text-slate-400 hover:bg-slate-800/50 hover:text-slate-100'
         }`
       }
     >
@@ -223,47 +227,51 @@ export default function AppShell() {
   const crumbs = crumbsFor(location.pathname)
 
   return (
-    <div className="flex min-h-screen bg-slate-50 text-slate-900">
-      {/* Side navigation. */}
-      <aside className="hidden w-60 shrink-0 flex-col border-r border-slate-800 bg-slate-900 lg:flex">
+    // h-screen + overflow-hidden locks the whole frame to the viewport, so
+    // nothing here scrolls as a page. Only <main> below is left free to grow,
+    // via min-h-0 (flex children default to min-height: auto, which would
+    // otherwise stretch this container instead of letting main scroll inside it).
+    <div className="flex h-screen overflow-hidden bg-slate-50 text-slate-900">
+      {/* Side navigation - fixed height, never scrolls as a unit; only its own
+          nav list scrolls if the items ever outgrow the viewport. */}
+      <aside className="hidden h-screen w-60 shrink-0 flex-col border-r border-slate-800 bg-slate-900 lg:flex">
         <Link
           to="/"
-          className="flex h-14 items-center gap-2.5 border-b border-slate-800 px-4 text-white"
+          className="flex h-14 shrink-0 items-center border-b border-slate-800 px-4 text-white"
         >
-          <span className="grid h-7 w-7 shrink-0 place-items-center rounded-xs bg-amber-400 text-slate-900">
-            <IconSun className="h-4 w-4" />
-          </span>
-          <span className="truncate text-sm font-semibold tracking-tight">Smart Microgrid</span>
+          <BrandLockup markClassName="h-8 w-8" textClassName="text-base text-white" />
         </Link>
 
-        <nav className="flex-1 overflow-y-auto py-4">
-          {sections.map((section) => (
-            <div key={section.label} className="mb-5 last:mb-0">
-              <p className="mb-1 px-4 text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-500">
-                {section.label}
-              </p>
-              {section.items.map((item) => (
-                <NavItem key={item.to} item={item} />
-              ))}
-            </div>
+        {/* One flat list, no section headings - the icons and labels carry
+            enough meaning on their own. */}
+        <nav className="min-h-0 flex-1 overflow-y-auto py-5">
+          {sections.flatMap((section) => section.items).map((item) => (
+            <NavItem key={item.to} item={item} />
           ))}
         </nav>
 
-        <div className="border-t border-slate-800 px-4 py-3">
-          <p className="text-[11px] text-slate-500">Smart Solar Microgrid</p>
-          <p className="text-[11px] text-slate-600">SE4040 &middot; 2026</p>
+        {/* Sign out sits at the very foot of the sidebar, styled like a nav row
+            so it reads as part of the same list rather than a bolted-on extra. */}
+        <div className="shrink-0 border-t border-slate-800 py-2">
+          <button
+            type="button"
+            onClick={handleSignOut}
+            className="flex w-full items-center gap-2.5 border-l-2 border-transparent py-2.5 pl-3.5 pr-3 text-sm text-slate-400 transition-colors hover:bg-slate-800/50 hover:text-slate-100"
+          >
+            <IconSignOut className="h-4 w-4 shrink-0" />
+            Sign out
+          </button>
         </div>
       </aside>
 
-      <div className="flex min-w-0 flex-1 flex-col">
-        {/* Top bar: breadcrumbs on the left, the signed-in user on the right. */}
-        <header className="sticky top-0 z-20 flex h-14 items-center justify-between gap-4 border-b border-slate-200 bg-white/95 px-4 backdrop-blur sm:px-6">
+      <div className="flex h-screen min-w-0 flex-1 flex-col">
+        {/* Top bar - fixed: it sits above main's scroll area rather than
+            scrolling with the page, so it stays put without needing "sticky". */}
+        <header className="flex h-14 shrink-0 items-center justify-between gap-4 border-b border-slate-200 bg-white px-4 sm:px-6">
           <div className="flex min-w-0 items-center gap-2.5">
             {/* Compact logo for small screens, where the sidebar is hidden. */}
-            <Link to="/" className="flex items-center gap-2 lg:hidden">
-              <span className="grid h-7 w-7 place-items-center rounded-xs bg-amber-400 text-slate-900">
-                <IconSun className="h-4 w-4" />
-              </span>
+            <Link to="/" className="flex items-center lg:hidden">
+              <BrandMark className="h-9 w-9" />
             </Link>
 
             <nav aria-label="Breadcrumb" className="flex min-w-0 items-center gap-1.5">
@@ -289,8 +297,8 @@ export default function AppShell() {
           <UserMenu user={user} role={role} onSignOut={handleSignOut} />
         </header>
 
-        {/* Navigation as a scrolling strip on small screens. */}
-        <nav className="flex gap-1 overflow-x-auto border-b border-slate-200 bg-white px-3 py-2 lg:hidden">
+        {/* Navigation as a fixed scrolling strip on small screens. */}
+        <nav className="flex shrink-0 gap-1 overflow-x-auto border-b border-slate-200 bg-white px-3 py-2 lg:hidden">
           {sections.flatMap((section) =>
             section.items.map((item) => (
               <NavLink
@@ -312,7 +320,8 @@ export default function AppShell() {
           )}
         </nav>
 
-        <main className="flex-1 px-4 py-6 sm:px-6 lg:px-8">
+        {/* The one scrolling region in the shell. */}
+        <main className="min-h-0 flex-1 overflow-y-auto px-4 py-6 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-7xl">
             <Outlet />
           </div>

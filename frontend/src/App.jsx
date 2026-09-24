@@ -1,5 +1,5 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
-import { ToastContainer } from 'react-toastify'
+import { Toaster } from 'react-hot-toast'
 
 import AppShell from './Components/AppShell'
 import ProtectedRoute from './Components/ProtectedRoute'
@@ -28,19 +28,6 @@ function LandingRedirect() {
   const session = readSession()
 
   return <Navigate to={session ? homeRouteForRole(session.user.role) : '/login'} replace />
-}
-
-/*
- * Temporary placeholder for screens that are not built yet, so navigation and
- * the role redirects work end to end while the rest is written.
- */
-function ComingSoon({ title }) {
-  return (
-    <div className="border-l-2 border-amber-400 pl-4">
-      <h1 className="text-xl font-medium tracking-tight text-slate-900">{title}</h1>
-      <p className="mt-1 text-sm text-slate-400">This screen is not built yet.</p>
-    </div>
-  )
 }
 
 export default function App() {
@@ -74,25 +61,35 @@ export default function App() {
           </Route>
         </Route>
 
-        {/* Prosumers use the mobile app; the web console has nothing for them. */}
-        <Route element={<ProtectedRoute />}>
-          <Route path="/prosumer" element={<ComingSoon title="Prosumer home" />} />
-        </Route>
+        {/* Prosumers use the mobile app only; Login turns them away before a
+            session is ever created, so there is no prosumer route here. */}
 
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
 
       {/* Toasts report the outcome of an action the user just took. Conditions
           that persist - a list that failed to load, an invalid form field -
-          stay on the page itself, where they cannot time out unread. */}
-      <ToastContainer
+          stay on the page itself, where they cannot time out unread.
+          react-hot-toast ships no CSS of its own, so the console's own square
+          corners and Outfit type are set here rather than in a stylesheet. */}
+      <Toaster
         position="top-right"
-        autoClose={4000}
-        newestOnTop
-        closeOnClick
-        pauseOnFocusLoss={false}
-        draggable={false}
-        theme="light"
+        reverseOrder
+        toastOptions={{
+          duration: 4000,
+          style: {
+            fontFamily: 'var(--font-sans)',
+            fontSize: '0.875rem',
+            lineHeight: 1.5,
+            color: '#0f172a',
+            border: '1px solid #cbd5e1',
+            borderRadius: 'var(--radius-xs)',
+            boxShadow: '0 4px 12px rgb(15 23 42 / 0.1)',
+            padding: '0.75rem 0.875rem',
+          },
+          success: { iconTheme: { primary: '#047857', secondary: '#ffffff' } },
+          error: { iconTheme: { primary: '#b91c1c', secondary: '#ffffff' } },
+        }}
       />
     </BrowserRouter>
   )

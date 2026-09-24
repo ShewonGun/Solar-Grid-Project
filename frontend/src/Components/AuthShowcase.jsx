@@ -14,7 +14,7 @@ import { Link } from 'react-router-dom'
 import solarOne from '../assets/Solar-Image-1.jpg'
 import solarTwo from '../assets/Solar-Image-2.jpg'
 import solarThree from '../assets/Solar-Image-3.jpg'
-import { IconSun } from './Icons'
+import { BrandLockup } from './Brand'
 
 /* The slides, in the order they are shown. */
 const SLIDES = [
@@ -98,11 +98,8 @@ export default function AuthShowcase({ headline }) {
       />
 
       <div className="relative flex h-full flex-col justify-between p-12">
-        <Link to="/" className="flex w-fit items-center gap-3 text-white">
-          <span className="grid h-9 w-9 place-items-center rounded-xs bg-amber-400 text-slate-900">
-            <IconSun className="h-5 w-5" />
-          </span>
-          <span className="text-[15px] font-medium tracking-tight">Smart Solar Microgrid</span>
+        <Link to="/" className="flex w-fit items-center text-white">
+          <BrandLockup markClassName="h-12 w-12" textClassName="text-xl text-white" />
         </Link>
 
         <div>
@@ -115,7 +112,7 @@ export default function AuthShowcase({ headline }) {
 
           <div className="mt-10 flex items-center justify-between border-t border-white/15 pt-5">
             <p className="text-xs tracking-wide text-slate-300">
-              SE4040 Enterprise Application Development &middot; 2026
+              Smart Solar Microgrid &middot; 2026
             </p>
 
             {/* Slide indicators, square to match the rest of the UI. */}

@@ -10,7 +10,7 @@
  */
 import { useEffect, useMemo, useState } from 'react'
 import { useParams } from 'react-router-dom'
-import { toast } from 'react-toastify'
+import toast from 'react-hot-toast'
 
 import { toApiError } from '../api/client'
 import { deleteSlot, getStationSlots, setSlotAvailability } from '../api/slotsApi'
@@ -23,7 +23,6 @@ import {
   EmptyState,
   FilterField,
   LoadingState,
-  Modal,
   PageHeader,
   Panel,
   RowActions,
@@ -34,6 +33,7 @@ import {
   Toolbar,
   TR,
 } from '../Components/PageControls'
+import ConfirmDialog from '../Components/ConfirmDialog'
 import Pagination from '../Components/Pagination'
 import SlotFormModal from '../Components/SlotFormModal'
 import usePagination from '../hooks/usePagination'
@@ -60,7 +60,7 @@ const STATUS_TONES = {
 const EMPTY_FILTERS = { status: '', from: '', to: '' }
 
 /* One row of the battery slot table. */
-function SlotRow({ slot, busy, onEdit, onToggleAvailability, onDelete }) {
+function SlotRow({ slot, busy, onEdit, onRequestHold, onRelease, onDelete }) {
   // A reserved slot is locked by the service until its booking is cancelled.
   const isReserved = slot.status === 'Reserved'
   const isAvailable = slot.status === 'Available'
@@ -95,11 +95,13 @@ function SlotRow({ slot, busy, onEdit, onToggleAvailability, onDelete }) {
               Edit
             </Button>
 
+            {/* Holding a slot needs confirming; releasing one back for booking
+                does not, since it is the reversible, low-risk direction. */}
             <Button
               variant="secondary"
               size="sm"
               disabled={busy || isReserved}
-              onClick={() => onToggleAvailability(slot)}
+              onClick={() => (isAvailable ? onRequestHold(slot) : onRelease(slot))}
             >
               {isAvailable ? 'Hold' : 'Release'}
             </Button>
@@ -140,6 +142,8 @@ export default function StationSlots() {
   const [editing, setEditing] = useState(null)
   // The slot awaiting delete confirmation.
   const [deleting, setDeleting] = useState(null)
+  // The slot awaiting hold confirmation.
+  const [holding, setHolding] = useState(null)
   // Bumped after a change so the list reloads with it in.
   const [reloadToken, setReloadToken] = useState(0)
 
@@ -226,24 +230,37 @@ export default function StationSlots() {
     setApplied(EMPTY_FILTERS)
   }
 
-  /*
-   * Takes a slot out of service or puts it back. The API refuses either on a
-   * slot a prosumer has already reserved.
-   */
-  async function handleToggleAvailability(slot) {
+  /* Puts a held slot back into service. The API refuses this on a reserved slot. */
+  async function handleRelease(slot) {
     setBusyId(slot.id)
 
     try {
-      const updated = await setSlotAvailability(slot.id, slot.status !== 'Available')
+      const updated = await setSlotAvailability(slot.id, true)
 
       setSlots((current) => current.map((item) => (item.id === updated.id ? updated : item)))
-      toast.success(
-        `Battery slot ${updated.batterySlotNumber} is now ${
-          updated.status === 'Available' ? 'available' : 'held out of service'
-        }.`,
-      )
+      toast.success(`Battery slot ${updated.batterySlotNumber} is available again.`)
     } catch (failure) {
       toast.error(toApiError(failure).message)
+    } finally {
+      setBusyId(null)
+    }
+  }
+
+  /* Holds the slot chosen in the dialog, taking it out of service. */
+  async function handleConfirmHold() {
+    const slot = holding
+
+    setBusyId(slot.id)
+
+    try {
+      const updated = await setSlotAvailability(slot.id, false)
+
+      setSlots((current) => current.map((item) => (item.id === updated.id ? updated : item)))
+      toast.success(`Battery slot ${updated.batterySlotNumber} held out of service.`)
+      setHolding(null)
+    } catch (failure) {
+      toast.error(toApiError(failure).message)
+      setHolding(null)
     } finally {
       setBusyId(null)
     }
@@ -391,7 +408,8 @@ export default function StationSlots() {
                     slot={slot}
                     busy={busyId === slot.id}
                     onEdit={(item) => setEditing(item.id)}
-                    onToggleAvailability={handleToggleAvailability}
+                    onRequestHold={setHolding}
+                    onRelease={handleRelease}
                     onDelete={setDeleting}
                   />
                 ))}
@@ -411,26 +429,34 @@ export default function StationSlots() {
       )}
 
       {deleting ? (
-        <Modal
+        <ConfirmDialog
           title="Delete this battery slot?"
           description={`Battery ${deleting.batterySlotNumber}, ${formatDateTime(
             deleting.startTime,
           )}. This cannot be undone.`}
+          confirmLabel="Delete slot"
+          pendingLabel="Deleting..."
+          cancelLabel="Keep slot"
+          busy={busyId === deleting.id}
+          onConfirm={handleConfirmDelete}
           onClose={() => setDeleting(null)}
-        >
-          <div className="flex justify-end gap-2">
-            <Button variant="secondary" onClick={() => setDeleting(null)}>
-              Keep slot
-            </Button>
-            <Button
-              variant="danger"
-              disabled={busyId === deleting.id}
-              onClick={handleConfirmDelete}
-            >
-              {busyId === deleting.id ? 'Deleting...' : 'Delete slot'}
-            </Button>
-          </div>
-        </Modal>
+        />
+      ) : null}
+
+      {holding ? (
+        <ConfirmDialog
+          title="Hold this battery slot?"
+          description={`Battery ${holding.batterySlotNumber}, ${formatDateTime(
+            holding.startTime,
+          )}. It will not be bookable until you release it again.`}
+          confirmLabel="Hold slot"
+          pendingLabel="Holding..."
+          cancelLabel="Keep available"
+          tone="primary"
+          busy={busyId === holding.id}
+          onConfirm={handleConfirmHold}
+          onClose={() => setHolding(null)}
+        />
       ) : null}
 
       {editing && station ? (

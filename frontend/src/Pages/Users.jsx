@@ -9,7 +9,7 @@
  * Created: 2026
  */
 import { useEffect, useMemo, useState } from 'react'
-import { toast } from 'react-toastify'
+import toast from 'react-hot-toast'
 
 import { toApiError } from '../api/client'
 import { activateUser, deactivateUser, getUsers } from '../api/usersApi'
@@ -21,7 +21,6 @@ import {
   EmptyState,
   FilterField,
   LoadingState,
-  Modal,
   PageHeader,
   Panel,
   RowActions,
@@ -32,6 +31,7 @@ import {
   Toolbar,
   TR,
 } from '../Components/PageControls'
+import ConfirmDialog from '../Components/ConfirmDialog'
 import Pagination from '../Components/Pagination'
 import UserFormModal from '../Components/UserFormModal'
 import usePagination from '../hooks/usePagination'
@@ -389,9 +389,14 @@ export default function Users() {
       )}
 
       {deactivating ? (
-        <Modal
+        <ConfirmDialog
           title="Deactivate this account?"
           description={`${deactivating.fullName} will not be able to sign in. Only a back-office officer can reactivate the account afterwards.`}
+          confirmLabel="Deactivate account"
+          pendingLabel="Deactivating..."
+          cancelLabel="Keep active"
+          busy={busyNic === deactivating.nic}
+          onConfirm={handleConfirmDeactivate}
           onClose={() => setDeactivating(null)}
         >
           {deactivating.role === 'Prosumer' ? (
@@ -400,20 +405,7 @@ export default function Users() {
               battery slots released back for booking.
             </Banner>
           ) : null}
-
-          <div className="flex justify-end gap-2">
-            <Button variant="secondary" onClick={() => setDeactivating(null)}>
-              Keep active
-            </Button>
-            <Button
-              variant="danger"
-              disabled={busyNic === deactivating.nic}
-              onClick={handleConfirmDeactivate}
-            >
-              {busyNic === deactivating.nic ? 'Deactivating...' : 'Deactivate account'}
-            </Button>
-          </div>
-        </Modal>
+        </ConfirmDialog>
       ) : null}
 
       {editing ? (

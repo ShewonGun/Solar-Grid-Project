@@ -37,13 +37,15 @@ namespace SmartMicrogrid.Api.Controllers
         private bool IsProsumer => User.IsInRole(AppRoles.Prosumer);
 
         // GET api/reservations - searches reservations; prosumers only see their own.
+        // completedBy lets a Grid Operator ask for only the transfers they personally finalised.
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ReservationResponse>>> Search(
             [FromQuery] string? prosumerNic, [FromQuery] string? stationId, [FromQuery] ReservationStatus? status,
-            [FromQuery] DateTime? from, [FromQuery] DateTime? to, CancellationToken cancellationToken)
+            [FromQuery] string? completedBy, [FromQuery] DateTime? from, [FromQuery] DateTime? to,
+            CancellationToken cancellationToken)
         {
             var scopedNic = IsProsumer ? User.GetNic() : prosumerNic;
-            var reservations = await _reservationService.SearchAsync(scopedNic, stationId, status, from, to, cancellationToken);
+            var reservations = await _reservationService.SearchAsync(scopedNic, stationId, status, completedBy, from, to, cancellationToken);
             return Ok(reservations.Select(ToResponse));
         }
 

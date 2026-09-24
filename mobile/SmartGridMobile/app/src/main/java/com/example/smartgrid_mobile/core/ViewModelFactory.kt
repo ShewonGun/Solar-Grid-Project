@@ -15,6 +15,7 @@ import com.example.smartgrid_mobile.ui.booking.BookingSummaryViewModel
 import com.example.smartgrid_mobile.ui.booking.BookingViewModel
 import com.example.smartgrid_mobile.ui.booking.MyBookingsViewModel
 import com.example.smartgrid_mobile.ui.map.NodesMapViewModel
+import com.example.smartgrid_mobile.ui.operator.OperatorHistoryViewModel
 import com.example.smartgrid_mobile.ui.operator.OperatorViewModel
 import com.example.smartgrid_mobile.ui.prosumer.ProsumerViewModel
 import com.example.smartgrid_mobile.ui.qr.TransactionQrViewModel
@@ -43,6 +44,12 @@ object AppViewModelFactory : ViewModelProvider.Factory {
 
             modelClass.isAssignableFrom(OperatorViewModel::class.java) ->
                 OperatorViewModel(ServiceLocator.operatorRepository) as T
+
+            modelClass.isAssignableFrom(OperatorHistoryViewModel::class.java) ->
+                OperatorHistoryViewModel(
+                    ServiceLocator.operatorRepository,
+                    ServiceLocator.sessionStore
+                ) as T
 
             modelClass.isAssignableFrom(NodesMapViewModel::class.java) ->
                 NodesMapViewModel(

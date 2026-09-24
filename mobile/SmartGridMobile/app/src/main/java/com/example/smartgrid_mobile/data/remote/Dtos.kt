@@ -180,7 +180,11 @@ data class ReservationDto(
     val reservationEnd: String?,
     val status: String?,
     val qrToken: String?,
-    val cancellationReason: String?
+    val cancellationReason: String?,
+    // Not cached in SQLite (only used by grid-operator history, which reads live), so both
+    // default to null for the local-cache construction path in ReservationCache.
+    val completedBy: String? = null,
+    val completedAt: String? = null
 )
 
 /**

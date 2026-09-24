@@ -64,6 +64,13 @@ interface SmartGridApi {
     @POST("reservations/complete")
     suspend fun completeTransfer(@Body body: QrTokenRequest): Response<ReservationDto>
 
+    /** Staff only: reservations the named operator has personally completed, most recent first. */
+    @GET("reservations")
+    suspend fun getCompletedByOperator(
+        @Query("completedBy") completedBy: String,
+        @Query("status") status: String = ReservationStatuses.COMPLETED
+    ): Response<List<ReservationDto>>
+
     /** Active grid nodes within radiusKm of a point, nearest first, for the map. */
     @GET("stations/nearby")
     suspend fun getNearbyStations(

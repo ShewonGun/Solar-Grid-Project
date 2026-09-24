@@ -28,4 +28,8 @@ class OperatorRepository(private val api: SmartGridApi) {
     /** Lists the grid nodes, used to name the node on a verified booking. */
     suspend fun stations(): ApiResult<List<StationDto>> =
         apiCall({ api.getStations() })
+
+    /** This operator's own completed transfers, most recent first. */
+    suspend fun completedHistory(operatorNic: String): ApiResult<List<ReservationDto>> =
+        apiCall({ api.getCompletedByOperator(completedBy = operatorNic) })
 }

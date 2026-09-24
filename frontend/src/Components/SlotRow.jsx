@@ -74,7 +74,7 @@ export function SlotRow({ slot, busy, onEdit, onRequestHold, onRelease, onDelete
 
   return (
     <TR>
-      <TD label="Battery" numeric className="font-medium text-slate-900">
+      <TD label="Battery" className="text-center font-medium tabular-nums text-slate-900">
         {slot.batterySlotNumber}
       </TD>
       <TD label="Window" className="text-slate-900">

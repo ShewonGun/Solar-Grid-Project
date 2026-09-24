@@ -59,8 +59,8 @@ namespace SmartMicrogrid.Api.Services
                 .FirstOrDefaultAsync(cancellationToken);
         }
 
-        // Searches reservations by prosumer, station, status and start-date range, newest first.
-        public async Task<List<EnergyReservation>> SearchAsync(string? prosumerNic = null, string? stationId = null, ReservationStatus? status = null, DateTime? from = null, DateTime? to = null, CancellationToken cancellationToken = default)
+        // Searches reservations by prosumer, station, status, completing operator and start-date range, newest first.
+        public async Task<List<EnergyReservation>> SearchAsync(string? prosumerNic = null, string? stationId = null, ReservationStatus? status = null, string? completedBy = null, DateTime? from = null, DateTime? to = null, CancellationToken cancellationToken = default)
         {
             var f = Builders<EnergyReservation>.Filter;
             var filter = f.Empty;
@@ -77,6 +77,10 @@ namespace SmartMicrogrid.Api.Services
 
             if (status.HasValue)
                 filter &= f.Eq(r => r.Status, status.Value);
+
+            // Lets a Grid Operator ask for only the transfers they personally finalised.
+            if (!string.IsNullOrWhiteSpace(completedBy))
+                filter &= f.Eq(r => r.CompletedBy, UserService.NormalizeNic(completedBy));
 
             if (from.HasValue)
                 filter &= f.Gte(r => r.ReservationStart, ValidationHelper.ToUtc(from.Value));

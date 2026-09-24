@@ -318,7 +318,7 @@ export default function StationSlots() {
                 <TableWrap minWidth="58rem">
                   <thead>
                     <tr>
-                      <TH align="right">Battery</TH>
+                      <TH className="text-center">Battery</TH>
                       <TH>Window</TH>
                       <TH align="right">Capacity</TH>
                       <TH>Status</TH>

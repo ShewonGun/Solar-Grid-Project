@@ -16,8 +16,8 @@ namespace SmartMicrogrid.Api.Services.Interfaces
         // Returns a single reservation by id, or null if it does not exist.
         Task<EnergyReservation?> GetByIdAsync(string id, CancellationToken cancellationToken = default);
 
-        // Searches reservations by prosumer, station, status and start-date range.
-        Task<List<EnergyReservation>> SearchAsync(string? prosumerNic = null, string? stationId = null, ReservationStatus? status = null, DateTime? from = null, DateTime? to = null, CancellationToken cancellationToken = default);
+        // Searches reservations by prosumer, station, status, completing operator and start-date range.
+        Task<List<EnergyReservation>> SearchAsync(string? prosumerNic = null, string? stationId = null, ReservationStatus? status = null, string? completedBy = null, DateTime? from = null, DateTime? to = null, CancellationToken cancellationToken = default);
 
         // Returns a prosumer's current and pending bookings.
         Task<List<EnergyReservation>> GetUpcomingAsync(string prosumerNic, CancellationToken cancellationToken = default);

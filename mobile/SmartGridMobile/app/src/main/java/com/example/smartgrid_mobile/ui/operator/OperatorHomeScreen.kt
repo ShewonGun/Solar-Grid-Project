@@ -26,6 +26,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.Badge
 import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Map
 import androidx.compose.material.icons.filled.QrCodeScanner
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -57,6 +58,7 @@ fun OperatorHomeScreen(
     user: UserDto?,
     onScanQr: () -> Unit,
     onNearbyNodes: () -> Unit,
+    onHistory: () -> Unit,
     onSignOut: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -106,6 +108,19 @@ fun OperatorHomeScreen(
                         title = "Nearby nodes",
                         subtitle = "View microgrid hubs on the map",
                         onClick = onNearbyNodes
+                    )
+                }
+            }
+
+            // ---- Activity ---------------------------------------------------
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                SectionLabel("Activity")
+                SectionCard {
+                    ActionRow(
+                        icon = Icons.Default.History,
+                        title = "Completed transfers",
+                        subtitle = "Jobs you've scanned and finalised",
+                        onClick = onHistory
                     )
                 }
             }

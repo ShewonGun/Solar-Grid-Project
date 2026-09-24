@@ -42,6 +42,8 @@ import com.example.smartgrid_mobile.ui.booking.MyBookingsScreen
 import com.example.smartgrid_mobile.ui.booking.MyBookingsViewModel
 import com.example.smartgrid_mobile.ui.map.NodesMapScreen
 import com.example.smartgrid_mobile.ui.map.NodesMapViewModel
+import com.example.smartgrid_mobile.ui.operator.OperatorHistoryScreen
+import com.example.smartgrid_mobile.ui.operator.OperatorHistoryViewModel
 import com.example.smartgrid_mobile.ui.operator.OperatorHomeScreen
 import com.example.smartgrid_mobile.ui.operator.OperatorViewModel
 import com.example.smartgrid_mobile.ui.operator.ScanQrScreen
@@ -78,6 +80,7 @@ object Routes {
     const val OPERATOR_SCAN = "operator/scan"
     const val OPERATOR_RESULT = "operator/result"
     const val OPERATOR_NODES_MAP = "operator/nodes-map"
+    const val OPERATOR_HISTORY = "operator/history"
 
     /** Optional argument naming the booking the QR screen should open on. */
     const val ARG_RESERVATION_ID = "reservationId"
@@ -328,7 +331,18 @@ fun SmartGridNavHost(navController: NavHostController = rememberNavController())
                         navController.navigate(Routes.OPERATOR_SCAN)
                     },
                     onNearbyNodes = { navController.navigate(Routes.OPERATOR_NODES_MAP) },
+                    onHistory = { navController.navigate(Routes.OPERATOR_HISTORY) },
                     onSignOut = { repository.logout() }
+                )
+            }
+
+            composable(Routes.OPERATOR_HISTORY) {
+                // Scoped to this destination so the completed list is re-read on each visit.
+                val historyViewModel: OperatorHistoryViewModel =
+                    viewModel(factory = AppViewModelFactory)
+                OperatorHistoryScreen(
+                    viewModel = historyViewModel,
+                    onBack = { navController.popBackStack() }
                 )
             }
 

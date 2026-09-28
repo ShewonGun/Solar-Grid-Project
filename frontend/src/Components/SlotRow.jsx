@@ -6,8 +6,8 @@
  *          pull from the same slot object and the same handlers, so
  *          StationSlots.jsx renders whichever the viewport calls for without
  *          duplicating any logic.
- * Author:  <your name>
- * Created: 2026
+ * Author:  Shewon Gunarathne
+ * Created: 2026-09-24
  */
 import { Button, RowActions, StatusPill, TD, TR } from './PageControls'
 import { formatDateTime, formatTimeRange } from '../utils/reservationRules'

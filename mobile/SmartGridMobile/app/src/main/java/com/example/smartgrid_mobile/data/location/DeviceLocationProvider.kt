@@ -3,8 +3,8 @@
  * Purpose     : Reads the device's last known position through Play Services so
  *               the node map can centre on the prosumer and ask the Web API for
  *               the nodes nearest to them. Location is optional throughout.
- * Author      : SmartGrid Mobile Team
- * Created     : 2026-09-17
+ * Author      : Shewon Gunarathne
+ * Created     : 2026-09-23
  * ==========================================================================*/
 package com.example.smartgrid_mobile.data.location
 

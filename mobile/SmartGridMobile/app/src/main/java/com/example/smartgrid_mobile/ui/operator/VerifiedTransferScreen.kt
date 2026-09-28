@@ -3,8 +3,8 @@
  * Purpose     : Shows the booking the Web API returned for a scanned QR code so
  *               the grid operator can check it against the prosumer in front of
  *               them, then finalise the energy transfer as done.
- * Author      : SmartGrid Mobile Team
- * Created     : 2026-09-17
+ * Author      : Shewon Gunarathne
+ * Created     : 2026-09-24
  * ==========================================================================*/
 package com.example.smartgrid_mobile.ui.operator
 

@@ -3,8 +3,8 @@
  * Purpose: Represents a bookable time window on one battery storage slot of a
  *          solar station. Grid Operators update slot availability. Maps to the
  *          "EnergyBookingSlots" collection named in the marking scheme.
- * Author:  <your name>
- * Created: 2026
+ * Author:  Shewon Gunarathne
+ * Created: 2026-09-23
  */
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;

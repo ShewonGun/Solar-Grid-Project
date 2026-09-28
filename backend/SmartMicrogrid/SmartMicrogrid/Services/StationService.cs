@@ -5,8 +5,8 @@
  *          updating, activating/deactivating and deleting stations.
  *          Station management is Backoffice only, and a station cannot be
  *          deactivated while it has active energy reservations.
- * Author:  <your name>
- * Created: 2026
+ * Author:  Shewon Gunarathne
+ * Created: 2026-09-24
  */
 using MongoDB.Driver;
 using SmartMicrogrid.Api.Data;

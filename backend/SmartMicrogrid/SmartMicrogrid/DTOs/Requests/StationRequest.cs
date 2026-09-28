@@ -2,8 +2,8 @@
  * File: StationRequest.cs
  * Purpose: Request body for creating (POST api/stations) and updating
  *          (PUT api/stations/{id}) a solar station.
- * Author:  <your name>
- * Created: 2026
+ * Author:  Shewon Gunarathne
+ * Created: 2026-09-23
  */
 using System.ComponentModel.DataAnnotations;
 using SmartMicrogrid.Api.Models;

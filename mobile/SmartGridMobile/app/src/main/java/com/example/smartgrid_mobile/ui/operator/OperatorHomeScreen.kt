@@ -3,8 +3,8 @@
  * Purpose     : Landing screen for Grid Operator and Backoffice accounts on the
  *               mobile client. Opens the QR scanner used to verify a prosumer's
  *               transaction code and finalise the energy transfer.
- * Author      : SmartGrid Mobile Team
- * Created     : 2026-09-17
+ * Author      : Shewon Gunarathne
+ * Created     : 2026-09-23
  * ==========================================================================*/
 package com.example.smartgrid_mobile.ui.operator
 

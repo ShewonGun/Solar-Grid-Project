@@ -3,7 +3,7 @@
  * Purpose     : Lists the energy transfers this Grid Operator has personally
  *               scanned and finalised, most recent first, so they can look
  *               back on their own completed jobs without asking Backoffice.
- * Author      : SmartGrid Mobile Team
+ * Author      : Shewon Gunarathne
  * Created     : 2026-09-24
  * ==========================================================================*/
 package com.example.smartgrid_mobile.ui.operator

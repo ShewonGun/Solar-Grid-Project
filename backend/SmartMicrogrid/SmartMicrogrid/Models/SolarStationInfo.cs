@@ -3,8 +3,8 @@
  * Purpose: Represents a solar microgrid hub/node - GPS location, capacity
  *          in kW/h, and available battery storage slots. Maps to the
  *          "SolarStationInfo" collection named in the marking scheme.
- * Author:  <your name>
- * Created: 2026
+ * Author:  Shewon Gunarathne
+ * Created: 2026-09-24
  */
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;

@@ -2,8 +2,8 @@
  * File: IEnergyBookingSlotService.cs
  * Purpose: Contract for managing energy booking slots and reserving/releasing
  *          them atomically. Implemented by EnergyBookingSlotService.
- * Author:  <your name>
- * Created: 2026
+ * Author:  Shewon Gunarathne
+ * Created: 2026-09-23
  */
 using SmartMicrogrid.Api.Models;
 using SmartMicrogrid.Api.Models.Enums;

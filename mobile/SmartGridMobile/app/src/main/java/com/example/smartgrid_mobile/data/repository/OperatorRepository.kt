@@ -4,8 +4,8 @@
  *               transaction QR code and finalising the energy transfer behind it.
  *               Whether a token is genuine, unused and in date is decided by the
  *               Web API, never by this app.
- * Author      : SmartGrid Mobile Team
- * Created     : 2026-09-17
+ * Author      : Shewon Gunarathne
+ * Created     : 2026-09-24
  * ==========================================================================*/
 package com.example.smartgrid_mobile.data.repository
 

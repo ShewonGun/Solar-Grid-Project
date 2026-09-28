@@ -3,8 +3,8 @@
  * Purpose: Solar station (microgrid node) endpoints - Backoffice station
  *          management on the web, and station listings and the nearby-stations
  *          map on mobile. Business rules live in StationService.
- * Author:  <your name>
- * Created: 2026
+ * Author:  Shewon Gunarathne
+ * Created: 2026-09-24
  */
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

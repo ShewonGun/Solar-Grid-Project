@@ -3,8 +3,8 @@
  * Purpose     : Stores the grid nodes last returned by the Web API in SQLite so
  *               the map, the booking filters and every node name still render
  *               when the service cannot be reached. Read-through cache only.
- * Author      : SmartGrid Mobile Team
- * Created     : 2026-09-17
+ * Author      : Shewon Gunarathne
+ * Created     : 2026-09-24
  * ==========================================================================*/
 package com.example.smartgrid_mobile.data.local
 

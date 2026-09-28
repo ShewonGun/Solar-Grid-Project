@@ -2,8 +2,8 @@
  * File: CreateSlotRequest.cs
  * Purpose: Request body for POST api/slots, used by Backoffice and Grid
  *          Operators to open a booking window on a station's battery slot.
- * Author:  <your name>
- * Created: 2026
+ * Author:  Shewon Gunarathne
+ * Created: 2026-09-23
  */
 using System.ComponentModel.DataAnnotations;
 using SmartMicrogrid.Api.Models;

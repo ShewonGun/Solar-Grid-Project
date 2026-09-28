@@ -4,8 +4,8 @@
  *          reservation can be made against, and the per-station slot
  *          management a Grid Operator uses. The service decides what counts as
  *          bookable; this module only carries the request and reply.
- * Author:  <your name>
- * Created: 2026
+ * Author:  Shewon Gunarathne
+ * Created: 2026-09-24
  */
 import { apiClient } from './client'
 

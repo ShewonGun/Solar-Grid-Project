@@ -3,8 +3,8 @@
  * Purpose     : Drives grid operator mode: takes the token read from a prosumer's
  *               QR code, verifies it against the Web API and finalises the energy
  *               transfer. Every decision about the token belongs to the service.
- * Author      : SmartGrid Mobile Team
- * Created     : 2026-09-17
+ * Author      : Shewon Gunarathne
+ * Created     : 2026-09-23
  * ==========================================================================*/
 package com.example.smartgrid_mobile.ui.operator
 

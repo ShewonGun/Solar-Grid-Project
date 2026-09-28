@@ -4,8 +4,8 @@
  *          updates for Backoffice and Grid Operators, and the list of
  *          bookable slots for prosumers. Business rules live in
  *          EnergyBookingSlotService.
- * Author:  <your name>
- * Created: 2026
+ * Author:  Shewon Gunarathne
+ * Created: 2026-09-23
  */
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

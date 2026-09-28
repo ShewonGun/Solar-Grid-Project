@@ -3,8 +3,8 @@
  * Purpose     : Backs the nearby grid nodes map. Asks the Web API for the nodes
  *               around the device when a location is available, and falls back
  *               to the full node list when it is not.
- * Author      : SmartGrid Mobile Team
- * Created     : 2026-09-17
+ * Author      : Shewon Gunarathne
+ * Created     : 2026-09-24
  * ==========================================================================*/
 package com.example.smartgrid_mobile.ui.map
 

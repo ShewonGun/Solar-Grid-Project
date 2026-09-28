@@ -3,8 +3,8 @@
  * Purpose     : Camera screen where a grid operator scans the prosumer's
  *               transaction QR code. Decoding happens on device; the token is
  *               then sent to the Web API, which decides whether it is valid.
- * Author      : SmartGrid Mobile Team
- * Created     : 2026-09-17
+ * Author      : Shewon Gunarathne
+ * Created     : 2026-09-24
  * ==========================================================================*/
 package com.example.smartgrid_mobile.ui.operator
 

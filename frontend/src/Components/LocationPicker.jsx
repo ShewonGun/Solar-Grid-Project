@@ -6,8 +6,8 @@
  *          { lat, lng } numbers; the caller decides what to do with them - in
  *          StationFormModal, filling the same fields manual entry uses, so the
  *          two ways of setting a location stay one source of truth.
- * Author:  <your name>
- * Created: 2026
+ * Author:  Shewon Gunarathne
+ * Created: 2026-09-23
  */
 import { APIProvider, Map, Marker } from '@vis.gl/react-google-maps'
 

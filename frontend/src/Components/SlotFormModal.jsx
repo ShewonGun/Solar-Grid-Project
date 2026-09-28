@@ -5,8 +5,8 @@
  *          edit. The node supplies the limits shown here (how many battery
  *          slots it has, how much it holds); the Web API re-checks them, along
  *          with the overlap rule it alone can see.
- * Author:  <your name>
- * Created: 2026
+ * Author:  Shewon Gunarathne
+ * Created: 2026-09-24
  */
 import { useEffect, useState } from 'react'
 

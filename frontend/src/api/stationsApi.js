@@ -5,8 +5,8 @@
  *          rule (validation, the block on deactivating a node that still has
  *          active reservations) lives in the service; this module only carries
  *          the request and hands back the reply.
- * Author:  <your name>
- * Created: 2026
+ * Author:  Shewon Gunarathne
+ * Created: 2026-09-23
  */
 import { apiClient } from './client'
 

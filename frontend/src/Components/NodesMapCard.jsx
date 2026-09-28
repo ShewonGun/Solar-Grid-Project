@@ -6,8 +6,8 @@
  *          already loaded - no separate request. Selecting one opens a small
  *          panel with the node's details and a link through to its battery
  *          slots.
- * Author:  <your name>
- * Created: 2026
+ * Author:  Shewon Gunarathne
+ * Created: 2026-09-24
  */
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'

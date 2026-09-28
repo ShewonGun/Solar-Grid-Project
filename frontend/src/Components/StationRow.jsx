@@ -10,8 +10,8 @@
  *          buttons free to wrap onto their own line. Both pull from the same
  *          station object and the same handlers, so Stations.jsx renders
  *          whichever one the viewport calls for without duplicating any logic.
- * Author:  <your name>
- * Created: 2026
+ * Author:  Shewon Gunarathne
+ * Created: 2026-09-23
  */
 import { Button, ButtonLink, RowActions, StatusPill, TD, TR } from './PageControls'
 

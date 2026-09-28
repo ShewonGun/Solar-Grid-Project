@@ -5,8 +5,8 @@
  *          Back-office officer register, edit, activate and deactivate them.
  *          Deactivation is refused by the Web API while a node still has active
  *          energy reservations; that refusal is shown as the service sends it.
- * Author:  <your name>
- * Created: 2026
+ * Author:  Shewon Gunarathne
+ * Created: 2026-09-23
  */
 import { useEffect, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'

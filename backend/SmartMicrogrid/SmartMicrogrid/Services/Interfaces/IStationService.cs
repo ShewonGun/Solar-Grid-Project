@@ -2,8 +2,8 @@
  * File: IStationService.cs
  * Purpose: Contract for managing solar microgrid stations. Implemented by
  *          StationService.
- * Author:  <your name>
- * Created: 2026
+ * Author:  Shewon Gunarathne
+ * Created: 2026-09-24
  */
 using SmartMicrogrid.Api.DTOs.Responses;
 using SmartMicrogrid.Api.Models;

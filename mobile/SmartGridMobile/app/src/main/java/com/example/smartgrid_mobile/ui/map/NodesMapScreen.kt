@@ -3,8 +3,8 @@
  * Purpose     : Plots the solar grid nodes on a Google Map from the coordinates
  *               held by the Web API, and shows a node's details when its marker
  *               or list row is selected. Location access is optional.
- * Author      : SmartGrid Mobile Team
- * Created     : 2026-09-17
+ * Author      : Shewon Gunarathne
+ * Created     : 2026-09-23
  * ==========================================================================*/
 package com.example.smartgrid_mobile.ui.map
 

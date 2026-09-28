@@ -3,8 +3,8 @@
  * Purpose     : CameraX frame analyser that decodes QR codes with ZXing. Reads
  *               the luminance plane of each frame and reports the first code it
  *               recognises; the token is then checked by the Web API.
- * Author      : SmartGrid Mobile Team
- * Created     : 2026-09-17
+ * Author      : Shewon Gunarathne
+ * Created     : 2026-09-23
  * ==========================================================================*/
 package com.example.smartgrid_mobile.ui.operator
 

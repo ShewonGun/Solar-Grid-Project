@@ -1,8 +1,8 @@
 /*
  * File: SlotStatus.cs
  * Purpose: Availability states of an energy booking slot.
- * Author:  <your name>
- * Created: 2026
+ * Author:  Shewon Gunarathne
+ * Created: 2026-09-24
  */
 namespace SmartMicrogrid.Api.Models.Enums
 {

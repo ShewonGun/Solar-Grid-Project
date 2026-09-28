@@ -5,8 +5,8 @@
  *          and remove slots. A slot that a prosumer has already reserved is
  *          locked by the Web API - it cannot be edited, held or deleted until
  *          the reservation is cancelled, and this screen says so.
- * Author:  <your name>
- * Created: 2026
+ * Author:  Shewon Gunarathne
+ * Created: 2026-09-24
  */
 import { useEffect, useMemo, useState } from 'react'
 import { useParams } from 'react-router-dom'

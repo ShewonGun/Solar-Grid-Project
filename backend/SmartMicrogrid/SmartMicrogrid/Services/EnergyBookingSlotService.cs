@@ -6,8 +6,8 @@
  *          cannot overlap on the same battery slot, and reserved slots cannot
  *          be edited or deleted. Also provides atomic reserve/release used by
  *          the reservation service to prevent double booking.
- * Author:  <your name>
- * Created: 2026
+ * Author:  Shewon Gunarathne
+ * Created: 2026-09-23
  */
 using MongoDB.Driver;
 using SmartMicrogrid.Api.Data;

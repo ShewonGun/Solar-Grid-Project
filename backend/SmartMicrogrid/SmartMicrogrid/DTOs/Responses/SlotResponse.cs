@@ -1,8 +1,8 @@
 /*
  * File: SlotResponse.cs
  * Purpose: Energy booking slot details returned to the web and mobile apps.
- * Author:  <your name>
- * Created: 2026
+ * Author:  Shewon Gunarathne
+ * Created: 2026-09-23
  */
 using SmartMicrogrid.Api.Models;
 using SmartMicrogrid.Api.Models.Enums;

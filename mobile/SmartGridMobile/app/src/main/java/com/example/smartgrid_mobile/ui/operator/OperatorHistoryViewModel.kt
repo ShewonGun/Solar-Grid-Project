@@ -4,8 +4,8 @@
  *               loads the reservations this operator has personally scanned and
  *               finalised, most recent first, plus the node names to show
  *               alongside them.
- * Author      : SmartGrid Mobile Team
- * Created     : 2026-09-24
+ * Author      : Shewon Gunarathne
+ * Created     : 2026-09-23
  * ==========================================================================*/
 package com.example.smartgrid_mobile.ui.operator
 

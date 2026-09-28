@@ -2,8 +2,8 @@
  * File: NearbyStationResponse.cs
  * Purpose: A station plotted on the mobile map, with its distance from the
  *          prosumer's current location.
- * Author:  <your name>
- * Created: 2026
+ * Author:  Shewon Gunarathne
+ * Created: 2026-09-24
  */
 using SmartMicrogrid.Api.Models;
 

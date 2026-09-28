@@ -2,8 +2,8 @@
  * File: UpdateSlotRequest.cs
  * Purpose: Request body for PUT api/slots/{id}. The station a slot belongs to
  *          cannot be changed.
- * Author:  <your name>
- * Created: 2026
+ * Author:  Shewon Gunarathne
+ * Created: 2026-09-24
  */
 using System.ComponentModel.DataAnnotations;
 using SmartMicrogrid.Api.Models;

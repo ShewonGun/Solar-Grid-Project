@@ -40,6 +40,17 @@ namespace SmartMicrogrid.Api.Controllers
             return Ok(users.Select(UserResponse.FromUser));
         }
 
+        // GET api/users/prosumers/directory - active prosumers' NIC and name, for the reservation-
+        // creation NIC picker; Staff so a Grid Operator can also book on a prosumer's behalf.
+        [Authorize(Roles = AppRoles.Staff)]
+        [HttpGet("prosumers/directory")]
+        public async Task<ActionResult<IEnumerable<ProsumerDirectoryEntry>>> GetProsumerDirectory(
+            [FromQuery] string? search, CancellationToken cancellationToken)
+        {
+            var prosumers = await _userService.GetAllAsync(UserRole.Prosumer, AccountStatus.Active, search, cancellationToken);
+            return Ok(prosumers.Select(ProsumerDirectoryEntry.FromUser));
+        }
+
         // GET api/users/pending-activations - prosumer accounts waiting for activation; Backoffice only.
         [Authorize(Roles = AppRoles.Backoffice)]
         [HttpGet("pending-activations")]

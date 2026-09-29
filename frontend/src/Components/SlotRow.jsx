@@ -10,7 +10,7 @@
  * Created: 2026-09-24
  */
 import { Button, RowActions, StatusPill, TD, TR } from './PageControls'
-import { formatDateTime, formatTimeRange } from '../utils/reservationRules'
+import { formatSlotWindow } from '../utils/reservationRules'
 
 /*
  * Status colours are a secondary cue only - every pill also spells the status
@@ -77,11 +77,8 @@ export function SlotRow({ slot, busy, onEdit, onRequestHold, onRelease, onDelete
       <TD label="Battery" className="text-center font-medium tabular-nums text-slate-900">
         {slot.batterySlotNumber}
       </TD>
-      <TD label="Window" className="text-slate-900">
-        <span className="block font-medium tabular-nums">{formatDateTime(slot.startTime)}</span>
-        <span className="mt-0.5 block text-xs tabular-nums text-slate-400">
-          {formatTimeRange(slot.startTime, slot.endTime)}
-        </span>
+      <TD label="Window" className="font-medium tabular-nums text-slate-900">
+        {formatSlotWindow(slot.startTime, slot.endTime)}
       </TD>
       <TD label="Capacity" numeric>{slot.capacityKWh} kWh</TD>
       <TD label="Status">
@@ -125,14 +122,13 @@ export function SlotCard({ slot, busy, onEdit, onRequestHold, onRelease, onDelet
         <div className="min-w-0">
           <p className="text-sm font-medium text-slate-900">Battery {slot.batterySlotNumber}</p>
           <p className="mt-0.5 text-xs tabular-nums text-slate-400">
-            {formatDateTime(slot.startTime)}
+            {formatSlotWindow(slot.startTime, slot.endTime)}
           </p>
         </div>
         <StatusPill tone={STATUS_TONES[slot.status]}>{slot.status}</StatusPill>
       </div>
 
       <div className="mt-3 grid grid-cols-2 gap-3 border-t border-slate-100 pt-3">
-        <CardStat label="Window" wide value={formatTimeRange(slot.startTime, slot.endTime)} />
         <CardStat label="Capacity" value={`${slot.capacityKWh} kWh`} />
         <CardStat
           label="Updated by"

@@ -77,3 +77,28 @@ export function formatTimeRange(startTime, endTime) {
     endTime,
   ).toLocaleTimeString(undefined, options)}`
 }
+
+/*
+ * Formats a slot's whole window on one line, e.g. "24 Sep, 14:00 - 16:00".
+ * Unlike stacking formatDateTime above formatTimeRange, this never repeats
+ * the start time in two different type weights, where the end time - the
+ * only new information in the second line - is easy to miss. The end date is
+ * only added when it differs from the start date, so a slot that crosses
+ * midnight reads as "24 Sep, 23:00 - 25 Sep, 01:00" instead of looking like
+ * it ends before it starts.
+ */
+export function formatSlotWindow(startTime, endTime) {
+  const dateOptions = { day: '2-digit', month: 'short' }
+  const timeOptions = { hour: '2-digit', minute: '2-digit' }
+
+  const start = new Date(startTime)
+  const end = new Date(endTime)
+  const startDate = start.toLocaleDateString(undefined, dateOptions)
+  const endDate = end.toLocaleDateString(undefined, dateOptions)
+  const startPart = start.toLocaleTimeString(undefined, timeOptions)
+  const endPart = end.toLocaleTimeString(undefined, timeOptions)
+
+  const endLabel = endDate === startDate ? endPart : `${endDate}, ${endPart}`
+
+  return `${startDate}, ${startPart} - ${endLabel}`
+}

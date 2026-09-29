@@ -18,6 +18,7 @@ import {
 } from '../api/reservationsApi'
 import { getBookableSlots } from '../api/slotsApi'
 import { getStations } from '../api/stationsApi'
+import { getProsumerDirectory } from '../api/usersApi'
 import { TextField } from './FormControls'
 import { Banner, Button, Modal } from './PageControls'
 import { isFormValid, validateNic } from '../utils/validation'
@@ -68,6 +69,7 @@ export default function ReservationFormModal({ reservationId, onClose, onSaved }
   const [reservation, setReservation] = useState(null)
   const [slots, setSlots] = useState([])
   const [stations, setStations] = useState([])
+  const [prosumers, setProsumers] = useState([])
   const [errors, setErrors] = useState({})
   const [apiError, setApiError] = useState('')
   const [loading, setLoading] = useState(true)
@@ -82,9 +84,11 @@ export default function ReservationFormModal({ reservationId, onClose, onSaved }
      */
     async function loadForm() {
       try {
-        const [bookable, stationList, existing] = await Promise.all([
+        const [bookable, stationList, prosumerList, existing] = await Promise.all([
           getBookableSlots(),
           getStations(),
+          // Only needed to create a booking; the prosumer is fixed once one exists.
+          isEditing ? Promise.resolve([]) : getProsumerDirectory(),
           isEditing ? getReservation(reservationId) : Promise.resolve(null),
         ])
 
@@ -94,6 +98,7 @@ export default function ReservationFormModal({ reservationId, onClose, onSaved }
 
         setSlots(bookable)
         setStations(stationList)
+        setProsumers(prosumerList)
 
         if (existing) {
           setReservation(existing)
@@ -249,18 +254,29 @@ export default function ReservationFormModal({ reservationId, onClose, onSaved }
                 </p>
               </div>
             ) : (
-              <TextField
-                label="Prosumer NIC"
-                name="prosumerNic"
-                type="text"
-                autoFocus
-                placeholder="200012345678"
-                value={form.prosumerNic}
-                onChange={handleChange}
-                error={errors.prosumerNic}
-                hint="The account must be an active prosumer."
-                disabled={busy}
-              />
+              <>
+                <TextField
+                  label="Prosumer NIC"
+                  name="prosumerNic"
+                  type="text"
+                  list="prosumer-nic-options"
+                  autoComplete="off"
+                  autoFocus
+                  placeholder="Start typing a name or NIC..."
+                  value={form.prosumerNic}
+                  onChange={handleChange}
+                  error={errors.prosumerNic}
+                  hint="Pick a prosumer from the list, or type a NIC directly."
+                  disabled={busy}
+                />
+                <datalist id="prosumer-nic-options">
+                  {prosumers.map((prosumer) => (
+                    <option key={prosumer.nic} value={prosumer.nic}>
+                      {prosumer.fullName}
+                    </option>
+                  ))}
+                </datalist>
+              </>
             )}
 
             <div>

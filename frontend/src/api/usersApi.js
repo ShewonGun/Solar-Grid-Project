@@ -15,6 +15,16 @@ export async function getUsers({ role, status, search } = {}) {
   return data
 }
 
+/*
+ * GET api/users/prosumers/directory - active prosumers' NIC and name, for the
+ * reservation-creation NIC picker. Backoffice and Grid Operator can both call
+ * this even though the full GET api/users list above is Backoffice-only.
+ */
+export async function getProsumerDirectory() {
+  const { data } = await apiClient.get('/users/prosumers/directory')
+  return data
+}
+
 /* GET api/users/pending-activations - prosumer accounts waiting for activation. */
 export async function getPendingActivations() {
   const { data } = await apiClient.get('/users/pending-activations')

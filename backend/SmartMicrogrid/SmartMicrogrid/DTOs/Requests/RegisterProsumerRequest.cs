@@ -2,8 +2,8 @@
  * File: RegisterProsumerRequest.cs
  * Purpose: Request body for POST api/auth/register, used by prosumers to
  *          create an account from the mobile app with their NIC as the key.
- * Author:  <your name>
- * Created: 2026
+ * Author:  Mahen Perera
+ * Created: 2026-09-26
  */
 using System.ComponentModel.DataAnnotations;
 using SmartMicrogrid.Api.Models;

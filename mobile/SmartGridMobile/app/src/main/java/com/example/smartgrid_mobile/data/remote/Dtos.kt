@@ -2,8 +2,6 @@
  * File        : Dtos.kt
  * Purpose     : Data transfer objects exchanged with the SmartGrid Web API
  *               (authentication and prosumer account management endpoints).
- * Author      : SmartGrid Mobile Team
- * Created     : 2026-09-17
  * ==========================================================================*/
 package com.example.smartgrid_mobile.data.remote
 

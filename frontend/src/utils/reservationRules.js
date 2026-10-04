@@ -5,8 +5,8 @@
  *          greying out an action that would be refused and saying why. These
  *          never decide anything: the service re-checks every rule and its
  *          answer is the one that counts.
- * Author:  <your name>
- * Created: 2026
+ * Author:  Aseni Thennakoon
+ * Created: 2026-9-29
  */
 
 /** Reservations must start within this many days (API: MaxDaysAhead). */

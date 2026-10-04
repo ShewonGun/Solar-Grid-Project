@@ -3,8 +3,6 @@
  * Purpose     : Small reusable UI building blocks (fields, banners, cards,
  *               status chips) shared by the authentication and prosumer
  *               screens so the whole app keeps one visual language.
- * Author      : SmartGrid Mobile Team
- * Created     : 2026-09-17
  * ==========================================================================*/
 package com.example.smartgrid_mobile.ui.common
 

@@ -5,8 +5,8 @@
  *          staff approve a pending booking, edit it or cancel it with a reason.
  *          The 12-hour notice rule is explained here before the user acts, but
  *          it is the Web API that enforces it on every request.
- * Author:  <your name>
- * Created: 2026
+ * Author:  Aseni Thennakoon
+ * Created: 2026-9-29
  */
 import { useEffect, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'

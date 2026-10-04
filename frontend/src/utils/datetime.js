@@ -4,8 +4,6 @@
  *          "YYYY-MM-DDTHH:mm" local strings an <input type="datetime-local">
  *          works in. The API stores everything in UTC, so these two functions
  *          are the only place the console crosses between the two.
- * Author:  <your name>
- * Created: 2026
  */
 
 /* Pads a number to two digits, as the input value format requires. */

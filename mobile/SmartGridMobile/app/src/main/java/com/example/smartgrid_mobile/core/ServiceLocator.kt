@@ -3,8 +3,6 @@
  * Purpose     : Minimal manual dependency container. Keeps the app free of any
  *               injection framework while giving every screen one shared
  *               repository, API client and SQLite session store.
- * Author      : SmartGrid Mobile Team
- * Created     : 2026-09-17
  * ==========================================================================*/
 package com.example.smartgrid_mobile.core
 

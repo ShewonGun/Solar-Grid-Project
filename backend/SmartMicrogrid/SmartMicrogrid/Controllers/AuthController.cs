@@ -3,8 +3,8 @@
  * Purpose: Authentication endpoints shared by the web and mobile apps -
  *          login (returns a JWT), prosumer self-registration, and reading the
  *          signed-in user's own details from their token.
- * Author:  <your name>
- * Created: 2026
+ * Author:  Mahen Perera
+ * Created: 2026-09-23
  */
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

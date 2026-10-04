@@ -1,8 +1,8 @@
 /*
  * File: CancelReservationRequest.cs
  * Purpose: Request body for POST api/reservations/{id}/cancel.
- * Author:  <your name>
- * Created: 2026
+ * Author:  Aseni Thennakoon
+ * Created: 2026-09-29
  */
 using System.ComponentModel.DataAnnotations;
 

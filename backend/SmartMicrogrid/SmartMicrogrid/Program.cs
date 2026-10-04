@@ -5,8 +5,8 @@
  *          users only by default), CORS for the web app, consistent error
  *          responses, Swagger and the application services. On startup it
  *          prepares the database, then runs the HTTP pipeline.
- * Author:  <your name>
- * Created: 2026
+ * Author:  Shewon Gunarathne
+ * Created: 2026-09-25
  */
 using System.Text;
 using System.Text.Json.Serialization;

@@ -7,8 +7,8 @@
  *          also cancels the prosumer's open bookings and frees their slots - and
  *          reactivation - reactivation is Backoffice only). Passwords are
  *          stored as salted PBKDF2 hashes.
- * Author:  <your name>
- * Created: 2026
+ * Author:  Mahen Perera
+ * Created: 2026-09-24
  */
 using System.Net.Mail;
 using System.Security.Cryptography;

@@ -4,8 +4,8 @@
  *          PUT api/users/me/password. The current password is verified by the
  *          service, not here; this dialog only checks that the new password is
  *          long enough and was typed the same way twice.
- * Author:  <your name>
- * Created: 2026
+ * Author:  Mahen Perera
+ * Created: 2026-10-04
  */
 import { useState } from 'react'
 

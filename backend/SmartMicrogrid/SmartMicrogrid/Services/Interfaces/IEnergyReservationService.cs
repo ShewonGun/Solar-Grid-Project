@@ -2,8 +2,8 @@
  * File: IEnergyReservationService.cs
  * Purpose: Contract for the energy reservation workflow, QR verification and
  *          booking views. Implemented by EnergyReservationService.
- * Author:  <your name>
- * Created: 2026
+ * Author:  Aseni Thennakoon
+ * Created: 2026-09-29
  */
 using SmartMicrogrid.Api.DTOs.Responses;
 using SmartMicrogrid.Api.Models;

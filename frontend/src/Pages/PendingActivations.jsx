@@ -4,8 +4,8 @@
  *          mobile app and are waiting for a Back-office officer to activate
  *          them. Until an account is activated the Web API refuses its sign-in,
  *          so this screen is what lets a new prosumer start using the system.
- * Author:  <your name>
- * Created: 2026
+ * Author:  Kinara Hemachandra
+ * Created: 2026-09-30
  */
 import { useEffect, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'

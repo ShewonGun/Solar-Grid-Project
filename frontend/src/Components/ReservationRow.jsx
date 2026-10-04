@@ -9,8 +9,8 @@
  *          back to. Both pull from the same reservation object and the same
  *          handlers, so Reservations.jsx renders whichever the viewport calls
  *          for without duplicating any logic.
- * Author:  <your name>
- * Created: 2026
+ * Author:  Aseni Thennakoon
+ * Created: 2026-9-29
  */
 import { Button, RowActions, StatusPill, TD, TR } from './PageControls'
 import { formatDateTime, modificationState } from '../utils/reservationRules'

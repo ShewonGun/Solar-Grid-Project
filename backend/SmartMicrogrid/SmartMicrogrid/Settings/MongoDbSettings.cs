@@ -4,8 +4,6 @@
  *          string and database name. The connection string is a secret and
  *          is supplied through user secrets (development) or environment
  *          variables (IIS), not appsettings.json.
- * Author:  <your name>
- * Created: 2026
  */
 namespace SmartMicrogrid.Api.Settings
 {

@@ -6,8 +6,6 @@
  *               the assignment ("pure native Android with local SQLite, no
  *               frameworks"). The cache never decides anything - every business
  *               rule stays in the service.
- * Author      : SmartGrid Mobile Team
- * Created     : 2026-09-17
  * ==========================================================================*/
 package com.example.smartgrid_mobile.data.local
 

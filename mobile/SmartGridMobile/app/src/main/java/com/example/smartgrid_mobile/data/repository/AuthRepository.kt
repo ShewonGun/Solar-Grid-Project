@@ -3,7 +3,7 @@
  * Purpose     : Single entry point for authentication and prosumer account
  *               management. Calls the FAT Web API (all business rules live
  *               there) and mirrors the resulting session into local SQLite.
- * Author      : SmartGrid Mobile Team
+ * Author      : Kinara Hemachandra
  * Created     : 2026-09-17
  * ==========================================================================*/
 package com.example.smartgrid_mobile.data.repository

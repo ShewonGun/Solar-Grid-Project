@@ -4,7 +4,7 @@
  *               greeting header carrying the account status and the headline
  *               figures, then a quick-action grid for the reservation features,
  *               the profile details and the account actions.
- * Author      : SmartGrid Mobile Team
+ * Author      : Mahen Perera
  * Created     : 2026-09-17
  * ==========================================================================*/
 package com.example.smartgrid_mobile.ui.prosumer

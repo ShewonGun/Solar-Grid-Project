@@ -2,8 +2,8 @@
  * File: UpdateProfileRequest.cs
  * Purpose: Request body for PUT api/users/{nic}. Changes profile details
  *          only; role, status and password have their own endpoints.
- * Author:  <your name>
- * Created: 2026
+ * Author:  Mahen Perera
+ * Created: 2026-09-24
  */
 using System.ComponentModel.DataAnnotations;
 using SmartMicrogrid.Api.Models;

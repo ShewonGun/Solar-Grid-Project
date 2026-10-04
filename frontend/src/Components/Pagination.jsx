@@ -4,8 +4,6 @@
  *          screen out of how many there are, a page-size chooser, and the page
  *          buttons. It is purely presentational: usePagination owns the state
  *          and hands this component everything it needs.
- * Author:  <your name>
- * Created: 2026
  */
 import { IconChevronLeft, IconChevronRight } from './Icons'
 import { PAGE_SIZE_OPTIONS } from '../hooks/usePagination'

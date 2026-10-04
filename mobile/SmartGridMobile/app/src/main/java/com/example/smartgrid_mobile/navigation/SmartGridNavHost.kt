@@ -4,8 +4,6 @@
  *               start destination from the SQLite-cached session, routes a
  *               fresh login to the home screen that matches the user's role,
  *               and drives the prosumer bottom navigation bar.
- * Author      : SmartGrid Mobile Team
- * Created     : 2026-09-17
  * ==========================================================================*/
 package com.example.smartgrid_mobile.navigation
 

@@ -4,8 +4,8 @@
  *          Back-office only except profile editing, and the service enforces
  *          that - notably that a deactivated account can only be brought back
  *          by a Back-office officer.
- * Author:  <your name>
- * Created: 2026
+ * Author:  Mahen Perera
+ * Created: 2026-10-04
  */
 import { apiClient } from './client'
 

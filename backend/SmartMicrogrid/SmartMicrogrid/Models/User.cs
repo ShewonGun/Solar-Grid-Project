@@ -4,8 +4,8 @@
  *          (web and mobile) and Solar Prosumers (mobile). The National Identity
  *          Card (NIC) number is the primary key. Maps to the "Users" collection
  *          ("User's detail" in the marking scheme).
- * Author:  <your name>
- * Created: 2026
+ * Author:  Mahen Perera
+ * Created: 2026-09-24
  */
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;

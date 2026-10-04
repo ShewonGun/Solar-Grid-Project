@@ -4,8 +4,8 @@
  *               and past reservations, and drives the edit and cancel actions.
  *               The 12-hour notice rule is decided by the Web API; this class
  *               only reads the start time to choose what to offer on screen.
- * Author      : SmartGrid Mobile Team
- * Created     : 2026-09-17
+ * Author      : Mahen Perera
+ * Created     : 2026-09-26
  * ==========================================================================*/
 package com.example.smartgrid_mobile.ui.booking
 

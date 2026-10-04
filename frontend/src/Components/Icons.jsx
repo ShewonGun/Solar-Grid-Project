@@ -5,8 +5,6 @@
  *          piecemeal, so a toolbar of mixed icons keeps one stroke weight and
  *          one default size, and swapping an icon is a one-line change that
  *          every screen picks up.
- * Author:  <your name>
- * Created: 2026
  */
 import {
   LuBatteryCharging,

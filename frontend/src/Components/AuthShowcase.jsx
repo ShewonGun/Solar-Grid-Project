@@ -5,8 +5,8 @@
  *          lays a dark scrim over them so the branding stays readable on a
  *          bright sky, and lets the user step between slides. Falls back to a
  *          single still image when the visitor prefers reduced motion.
- * Author:  <your name>
- * Created: 2026
+ * Author:  Mahen Perera
+ * Created: 2026-10-04
  */
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'

@@ -5,8 +5,8 @@
  *          POST api/auth/login, stores the returned JWT, and sends the user to
  *          the home screen for their role. Credentials and account status are
  *          verified by the Web API - this page only presents the result.
- * Author:  <your name>
- * Created: 2026
+ * Author:  Mahen Perera
+ * Created: 2026-10-04
  */
 import { useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'

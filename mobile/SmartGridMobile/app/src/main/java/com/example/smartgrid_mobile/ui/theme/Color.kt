@@ -4,8 +4,6 @@
  *               palette: yellowish-orange brand colours over warm neutrals,
  *               with a cool teal kept aside for informational surfaces and a
  *               separate green reserved for success feedback.
- * Author      : SmartGrid Mobile Team
- * Created     : 2026-09-17
  * ==========================================================================*/
 package com.example.smartgrid_mobile.ui.theme
 

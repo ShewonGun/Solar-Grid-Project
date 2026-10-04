@@ -3,8 +3,6 @@
  * Purpose     : Reads and writes the signed-in user's session (bearer token and
  *               cached profile) in the local SQLite database, and exposes it to
  *               the UI as an observable state flow.
- * Author      : SmartGrid Mobile Team
- * Created     : 2026-09-17
  * ==========================================================================*/
 package com.example.smartgrid_mobile.data.local
 

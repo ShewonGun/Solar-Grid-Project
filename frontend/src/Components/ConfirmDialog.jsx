@@ -6,8 +6,6 @@
  *          Modal with the two-button footer and busy-label swap those actions
  *          all share, so adding one more confirmation is a few props rather
  *          than another hand-built dialog.
- * Author:  <your name>
- * Created: 2026
  */
 import { Button, Modal } from './PageControls'
 

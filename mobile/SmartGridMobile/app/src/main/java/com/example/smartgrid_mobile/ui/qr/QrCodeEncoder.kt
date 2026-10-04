@@ -3,8 +3,8 @@
  * Purpose     : Turns the transaction token issued by the Web API into a QR
  *               bitmap for the screen. Encoding only - the token itself is
  *               minted and verified by the service, never by this app.
- * Author      : SmartGrid Mobile Team
- * Created     : 2026-09-17
+ * Author      : Aseni Thennakoon
+ * Created     : 2026-09-30
  * ==========================================================================*/
 package com.example.smartgrid_mobile.ui.qr
 

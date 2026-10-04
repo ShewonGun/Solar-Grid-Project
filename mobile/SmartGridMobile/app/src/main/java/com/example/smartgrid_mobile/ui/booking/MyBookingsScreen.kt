@@ -3,8 +3,8 @@
  * Purpose     : Shows the prosumer their upcoming and past energy reservations,
  *               and lets them change or cancel one while the Web API still
  *               allows it (at least 12 hours before the slot starts).
- * Author      : SmartGrid Mobile Team
- * Created     : 2026-09-17
+ * Author      : Mahen Perera
+ * Created     : 2026-09-26
  * ==========================================================================*/
 package com.example.smartgrid_mobile.ui.booking
 

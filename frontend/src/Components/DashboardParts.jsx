@@ -5,8 +5,8 @@
  *          the 7-day reservation window. The counts are a handful of headline
  *          numbers, so they are tiles rather than a chart; the week's spread is
  *          a magnitude comparison, so it is a single-hue column chart.
- * Author:  <your name>
- * Created: 2026
+ * Author:  Mahen Perera
+ * Created: 2026-09-25
  */
 import { Link } from 'react-router-dom'
 

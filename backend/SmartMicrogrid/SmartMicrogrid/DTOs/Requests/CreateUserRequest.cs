@@ -2,8 +2,8 @@
  * File: CreateUserRequest.cs
  * Purpose: Request body for POST api/users, used by Backoffice officers to
  *          create Backoffice, Grid Operator or Prosumer accounts.
- * Author:  <your name>
- * Created: 2026
+ * Author:  Mahen Perera
+ * Created: 2026-09-24
  */
 using System.ComponentModel.DataAnnotations;
 using SmartMicrogrid.Api.Models;

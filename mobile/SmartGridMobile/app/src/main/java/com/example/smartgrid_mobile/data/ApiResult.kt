@@ -2,8 +2,6 @@
  * File        : ApiResult.kt
  * Purpose     : Small result wrapper so every screen handles success and failure
  *               from the Web API the same way, without throwing across layers.
- * Author      : SmartGrid Mobile Team
- * Created     : 2026-09-17
  * ==========================================================================*/
 package com.example.smartgrid_mobile.data
 

@@ -7,8 +7,8 @@
  *          takes the full width. Kept generic (title/subtitle/footer as props)
  *          rather than folded into Login itself, in case another public screen
  *          - a password reset, say - ever needs the same shell.
- * Author:  <your name>
- * Created: 2026
+ * Author:  Mahen Perera
+ * Created: 2026-10-04
  */
 import { Link } from 'react-router-dom'
 

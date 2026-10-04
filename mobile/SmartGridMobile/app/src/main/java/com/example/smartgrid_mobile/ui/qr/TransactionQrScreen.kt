@@ -3,8 +3,8 @@
  * Purpose     : Shows the secure transaction QR code for an approved booking so
  *               the grid operator can scan it at the node. The token comes from
  *               the Web API; this screen only renders and explains it.
- * Author      : SmartGrid Mobile Team
- * Created     : 2026-09-17
+ * Author      : Aseni Thennakoon
+ * Created     : 2026-09-30
  * ==========================================================================*/
 package com.example.smartgrid_mobile.ui.qr
 

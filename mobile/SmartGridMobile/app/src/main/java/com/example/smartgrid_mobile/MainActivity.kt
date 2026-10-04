@@ -2,8 +2,8 @@
  * File        : MainActivity.kt
  * Purpose     : Single activity host for the SmartGrid mobile client. Applies
  *               the app theme and hands control to the navigation graph.
- * Author      : SmartGrid Mobile Team
- * Created     : 2026-09-17
+ * Author      : Shewon Gunarathne
+ * Created     : 2026-09-25
  * ==========================================================================*/
 package com.example.smartgrid_mobile
 

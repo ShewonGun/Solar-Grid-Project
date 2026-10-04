@@ -3,8 +3,8 @@
  * Purpose     : Bottom navigation bar shown on the prosumer tab destinations.
  *               Holds the tab list in one place and reports the route the user
  *               picked; the navigation graph owns the actual navigation.
- * Author      : SmartGrid Mobile Team
- * Created     : 2026-09-17
+ * Author      : Mahen Perera
+ * Created     : 2026-10-04
  * ==========================================================================*/
 package com.example.smartgrid_mobile.navigation
 

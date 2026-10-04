@@ -4,8 +4,6 @@
  *               short local-time strings the screens display. Built on
  *               SimpleDateFormat rather than java.time because the app targets
  *               minSdk 24 without core-library desugaring.
- * Author      : SmartGrid Mobile Team
- * Created     : 2026-09-17
  * ==========================================================================*/
 package com.example.smartgrid_mobile.ui.common
 

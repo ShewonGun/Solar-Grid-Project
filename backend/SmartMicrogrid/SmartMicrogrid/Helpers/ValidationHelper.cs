@@ -3,8 +3,6 @@
  * Purpose: Small shared helpers used by the service layer - validating
  *          MongoDB ObjectId strings and normalising DateTime values to UTC
  *          before they are compared or stored.
- * Author:  <your name>
- * Created: 2026
  */
 using MongoDB.Bson;
 

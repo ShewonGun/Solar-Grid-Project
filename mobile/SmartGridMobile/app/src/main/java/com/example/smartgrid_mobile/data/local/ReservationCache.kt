@@ -4,8 +4,8 @@
  *               in SQLite, so the bookings list, the summary and the QR screen
  *               still render without a connection. Read-through cache only: the
  *               service remains the authority on every status and rule.
- * Author      : SmartGrid Mobile Team
- * Created     : 2026-09-17
+ * Author      : Aseni Thennakoon
+ * Created     : 2026-09-30
  * ==========================================================================*/
 package com.example.smartgrid_mobile.data.local
 

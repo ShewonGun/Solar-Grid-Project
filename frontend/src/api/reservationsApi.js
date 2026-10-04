@@ -4,8 +4,8 @@
  *          booking window, the 12-hour notice rule, approval and QR handling
  *          all live in the service - this module only carries the request and
  *          hands back the reply.
- * Author:  <your name>
- * Created: 2026
+ * Author:  Aseni Thennakoon
+ * Created: 2026-9-29
  */
 import { apiClient } from './client'
 

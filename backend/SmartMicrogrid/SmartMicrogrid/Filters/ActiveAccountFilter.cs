@@ -6,8 +6,8 @@
  *          take the NIC straight from the token, so without this filter a
  *          deactivated user could keep reading data until their token expired.
  *          Applied to every action except those marked [AllowAnonymous].
- * Author:  <your name>
- * Created: 2026
+ * Author:  Mahen Perera
+ * Created: 2026-09-25
  */
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Filters;

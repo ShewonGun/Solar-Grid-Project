@@ -2,8 +2,8 @@
  * File: UserResponse.cs
  * Purpose: User details returned to the web and mobile apps. Deliberately
  *          leaves out the password hash stored on the User model.
- * Author:  <your name>
- * Created: 2026
+ * Author:  Mahen Perera
+ * Created: 2026-09-24
  */
 using SmartMicrogrid.Api.Models;
 using SmartMicrogrid.Api.Models.Enums;

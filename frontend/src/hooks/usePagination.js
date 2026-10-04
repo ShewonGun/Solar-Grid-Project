@@ -6,8 +6,6 @@
  *          service already sent. The current page is clamped during render
  *          rather than corrected in an effect, so filtering a list down can
  *          never leave the table stranded on a page that no longer exists.
- * Author:  <your name>
- * Created: 2026
  */
 import { useMemo, useState } from 'react'
 

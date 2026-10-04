@@ -3,8 +3,8 @@
  * Purpose     : Sign-in screen for the SmartGrid mobile client. Accepts a NIC
  *               or an e-mail address, authenticates against the Web API and
  *               reports the role-specific home screen to the navigation layer.
- * Author      : SmartGrid Mobile Team
- * Created     : 2026-09-17
+ * Author      : Kinara Hemachandra
+ * Created     : 2026-10-04
  * ==========================================================================*/
 package com.example.smartgrid_mobile.ui.auth
 

@@ -2,8 +2,8 @@
  * File: ReservationStatus.cs
  * Purpose: Workflow states of an energy reservation - pending approval,
  *          approved (QR issued), completed after the QR scan, or cancelled.
- * Author:  <your name>
- * Created: 2026
+ * Author:  Aseni Thennakoon
+ * Created: 2026-09-29
  */
 namespace SmartMicrogrid.Api.Models.Enums
 {

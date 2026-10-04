@@ -4,8 +4,8 @@
  *          validate login tokens. The signing key is a secret and is supplied
  *          through user secrets (development) or environment variables (IIS),
  *          not appsettings.json.
- * Author:  <your name>
- * Created: 2026
+ * Author:  Mahen Perera
+ * Created: 2026-09-25
  */
 namespace SmartMicrogrid.Api.Settings
 {

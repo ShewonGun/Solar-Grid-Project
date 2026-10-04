@@ -5,8 +5,6 @@
  *          status banner for API messages and a submit button with a busy
  *          state. All of them use the tight corner radius and flat borders
  *          that define the console's minimal look.
- * Author:  <your name>
- * Created: 2026
  */
 import { useId, useState } from 'react'
 

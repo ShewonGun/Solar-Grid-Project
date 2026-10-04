@@ -3,8 +3,8 @@
  * Purpose     : Confirmation shown after a booking is created, changed or
  *               cancelled. Reads the booking back from the Web API and states
  *               what happens next, so every action ends on a summary.
- * Author      : SmartGrid Mobile Team
- * Created     : 2026-09-17
+ * Author      : Aseni Thennakoon
+ * Created     : 2026-09-30
  * ==========================================================================*/
 package com.example.smartgrid_mobile.ui.booking
 

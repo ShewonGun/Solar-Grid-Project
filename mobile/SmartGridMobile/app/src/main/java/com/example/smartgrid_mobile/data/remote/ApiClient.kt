@@ -2,8 +2,6 @@
  * File        : ApiClient.kt
  * Purpose     : Builds the Retrofit/OkHttp stack used to reach the SmartGrid
  *               Web API, attaching the locally stored bearer token to requests.
- * Author      : SmartGrid Mobile Team
- * Created     : 2026-09-17
  * ==========================================================================*/
 package com.example.smartgrid_mobile.data.remote
 

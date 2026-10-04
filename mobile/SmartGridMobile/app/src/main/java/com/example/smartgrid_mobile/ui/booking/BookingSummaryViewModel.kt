@@ -3,8 +3,8 @@
  * Purpose     : Backs the summary shown after a booking is created, changed or
  *               cancelled. Reads the booking back from the Web API so the screen
  *               confirms what the service actually stored, not what was sent.
- * Author      : SmartGrid Mobile Team
- * Created     : 2026-09-17
+ * Author      : Aseni Thennakoon
+ * Created     : 2026-09-30
  * ==========================================================================*/
 package com.example.smartgrid_mobile.ui.booking
 

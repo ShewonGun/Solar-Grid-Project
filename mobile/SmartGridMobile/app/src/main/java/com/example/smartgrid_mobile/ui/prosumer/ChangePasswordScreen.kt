@@ -2,7 +2,7 @@
  * File        : ChangePasswordScreen.kt
  * Purpose     : Lets the signed-in user replace their password through
  *               PUT /users/me/password.
- * Author      : SmartGrid Mobile Team
+ * Author      : Kinara Hemachandra
  * Created     : 2026-09-17
  * ==========================================================================*/
 package com.example.smartgrid_mobile.ui.prosumer

@@ -3,8 +3,6 @@
  * Purpose: Exception thrown by the service layer when a request breaks a
  *          business rule, is not permitted, or refers to missing data.
  *          Carries the HTTP status code the controllers should return.
- * Author:  <your name>
- * Created: 2026
  */
 namespace SmartMicrogrid.Api.Services
 {

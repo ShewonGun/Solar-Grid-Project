@@ -1,8 +1,8 @@
 /*
  * File: ReservationType.cs
  * Purpose: Direction of the energy transfer in a reservation.
- * Author:  <your name>
- * Created: 2026
+ * Author:  Aseni Thennakoon
+ * Created: 2026-09-29
  */
 namespace SmartMicrogrid.Api.Models.Enums
 {

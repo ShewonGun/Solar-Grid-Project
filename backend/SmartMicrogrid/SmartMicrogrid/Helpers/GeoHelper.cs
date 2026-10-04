@@ -2,8 +2,6 @@
  * File: GeoHelper.cs
  * Purpose: Geographic calculations used to find grid nodes near a prosumer's
  *          location for the mobile map.
- * Author:  <your name>
- * Created: 2026
  */
 namespace SmartMicrogrid.Api.Helpers
 {

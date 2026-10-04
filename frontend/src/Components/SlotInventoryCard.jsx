@@ -8,8 +8,8 @@
  *          The three states reuse the exact colours StatusPill already gives
  *          Available/Reserved/Unavailable elsewhere in the console, since this
  *          is the same status, not a new one that needs its own palette.
- * Author:  <your name>
- * Created: 2026
+ * Author:  Mahen Perera
+ * Created: 2026-09-25
  */
 import { useMemo } from 'react'
 

@@ -6,8 +6,8 @@
  *          the others use. Both pull from the same account object and the same
  *          onActivate handler, so PendingActivations.jsx renders whichever the
  *          viewport calls for without duplicating any logic.
- * Author:  <your name>
- * Created: 2026
+ * Author:  Kinara Hemachandra
+ * Created: 2026-09-30
  */
 import { Button, RowActions, StatusPill, TD, TR } from './PageControls'
 

@@ -3,8 +3,6 @@
  * Purpose     : Small reader over a SQLite cursor that returns null for NULL
  *               columns, so the caches can build DTOs without repeating the
  *               same index-and-null-check dance for every field.
- * Author      : SmartGrid Mobile Team
- * Created     : 2026-09-17
  * ==========================================================================*/
 package com.example.smartgrid_mobile.data.local
 

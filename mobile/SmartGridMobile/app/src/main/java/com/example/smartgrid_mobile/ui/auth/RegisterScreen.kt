@@ -2,7 +2,7 @@
  * File        : RegisterScreen.kt
  * Purpose     : Prosumer self-registration screen. NIC is the primary key, so
  *               it is captured first and validated before the request is sent.
- * Author      : SmartGrid Mobile Team
+ * Author      : Kinara Hemachandra
  * Created     : 2026-09-17
  * ==========================================================================*/
 package com.example.smartgrid_mobile.ui.auth

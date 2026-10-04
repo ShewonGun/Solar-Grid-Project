@@ -2,8 +2,6 @@
  * File: MongoDbContext.cs
  * Purpose: Wraps the MongoDB database configured in MongoDbSettings and gives
  *          services access to its collections. Registered as a singleton.
- * Author:  <your name>
- * Created: 2026
  */
 using Microsoft.Extensions.Options;
 using MongoDB.Bson;

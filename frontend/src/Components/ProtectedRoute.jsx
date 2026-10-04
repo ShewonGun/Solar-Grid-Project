@@ -5,8 +5,8 @@
  *          turns away signed-in users whose role does not cover the route. The
  *          Web API enforces the same roles on every endpoint - this guard only
  *          keeps the user out of screens that would fail for them anyway.
- * Author:  <your name>
- * Created: 2026
+ * Author:  Mahen Perera
+ * Created: 2026-10-04
  */
 import { Navigate, Outlet, useLocation } from 'react-router-dom'
 

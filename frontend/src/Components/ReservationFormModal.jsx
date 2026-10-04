@@ -5,8 +5,8 @@
  *          is filled from api/slots/bookable, which the service already limits
  *          to available slots at active nodes inside the 7-day window, so that
  *          rule is honoured by construction rather than re-checked here.
- * Author:  <your name>
- * Created: 2026
+ * Author:  Aseni Thennakoon
+ * Created: 2026-9-29
  */
 import { useEffect, useMemo, useState } from 'react'
 

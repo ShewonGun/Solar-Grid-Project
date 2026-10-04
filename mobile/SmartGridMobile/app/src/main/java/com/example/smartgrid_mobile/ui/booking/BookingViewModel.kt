@@ -5,8 +5,8 @@
  *               booking form, and posts the reservation. Only the shape of the
  *               input is checked here - the 7-day window, slot availability and
  *               account rules are decided by the Web API.
- * Author      : SmartGrid Mobile Team
- * Created     : 2026-09-17
+ * Author      : Aseni Thennakoon
+ * Created     : 2026-09-30
  * ==========================================================================*/
 package com.example.smartgrid_mobile.ui.booking
 

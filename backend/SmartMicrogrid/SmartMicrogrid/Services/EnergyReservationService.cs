@@ -6,8 +6,8 @@
  *          least 12 hours' notice), approval with a secure QR token, QR
  *          verification and completion by Grid Operators, and the booking
  *          views and dashboard counts used by the web and mobile apps.
- * Author:  <your name>
- * Created: 2026
+ * Author:  Aseni Thennakoon
+ * Created: 2026-09-29
  */
 using System.Security.Cryptography;
 using MongoDB.Driver;

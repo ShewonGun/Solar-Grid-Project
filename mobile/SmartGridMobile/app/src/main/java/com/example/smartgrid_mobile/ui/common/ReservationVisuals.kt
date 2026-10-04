@@ -3,8 +3,6 @@
  * Purpose     : Turns the raw reservation status and type strings sent by the
  *               Web API into readable labels and chip colours, so the booking
  *               screens present them the same way everywhere.
- * Author      : SmartGrid Mobile Team
- * Created     : 2026-09-17
  * ==========================================================================*/
 package com.example.smartgrid_mobile.ui.common
 

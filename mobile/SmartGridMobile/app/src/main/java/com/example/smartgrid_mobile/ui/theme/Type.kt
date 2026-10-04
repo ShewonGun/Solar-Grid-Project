@@ -3,8 +3,6 @@
  * Purpose     : Typography for the SmartGrid mobile client. Applies the bundled
  *               Outfit family across the whole Material 3 type scale, so every
  *               screen picks it up from the theme with no local overrides.
- * Author      : SmartGrid Mobile Team
- * Created     : 2026-09-17
  * ==========================================================================*/
 package com.example.smartgrid_mobile.ui.theme
 

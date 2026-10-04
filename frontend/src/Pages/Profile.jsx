@@ -5,8 +5,8 @@
  *          change the password. Any user of the console can reach this screen,
  *          because the API lets everyone edit their own profile whatever their
  *          role.
- * Author:  <your name>
- * Created: 2026
+ * Author:  Mahen Perera
+ * Created: 2026-10-04
  */
 import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'

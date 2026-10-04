@@ -2,8 +2,8 @@
  * File        : LoginViewModel.kt
  * Purpose     : Holds the login form state and drives POST /auth/login, then
  *               reports which role-specific home screen should be opened.
- * Author      : SmartGrid Mobile Team
- * Created     : 2026-09-17
+ * Author      : Kinara Hemachandra
+ * Created     : 2026-10-04
  * ==========================================================================*/
 package com.example.smartgrid_mobile.ui.auth
 

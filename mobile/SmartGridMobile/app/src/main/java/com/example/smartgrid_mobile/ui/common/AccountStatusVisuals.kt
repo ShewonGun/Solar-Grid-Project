@@ -2,8 +2,6 @@
  * File        : AccountStatusVisuals.kt
  * Purpose     : Turns the raw account status string sent by the Web API into a
  *               readable label and a colour pair for the status chip.
- * Author      : SmartGrid Mobile Team
- * Created     : 2026-09-17
  * ==========================================================================*/
 package com.example.smartgrid_mobile.ui.common
 

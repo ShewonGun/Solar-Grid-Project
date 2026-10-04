@@ -2,8 +2,8 @@
  * File: AccountStatus.cs
  * Purpose: Lifecycle states of a user account, from registration through
  *          activation, deactivation requests and deactivation.
- * Author:  <your name>
- * Created: 2026
+ * Author:  Mahen Perera
+ * Created: 2026-09-24
  */
 namespace SmartMicrogrid.Api.Models.Enums
 {

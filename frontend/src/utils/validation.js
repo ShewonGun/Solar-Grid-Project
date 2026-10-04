@@ -5,8 +5,6 @@
  *          ValidateProfile and ValidatePassword) purely so the user gets
  *          instant feedback - the service remains the authority and re-checks
  *          everything it is sent.
- * Author:  <your name>
- * Created: 2026
  */
 
 /* Sri Lankan NIC: nine digits followed by V or X, or twelve digits. */

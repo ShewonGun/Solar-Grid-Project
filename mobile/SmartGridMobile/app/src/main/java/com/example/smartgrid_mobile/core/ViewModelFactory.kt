@@ -2,8 +2,6 @@
  * File        : ViewModelFactory.kt
  * Purpose     : Builds the view models by hand from the service locator, so the
  *               project stays free of any dependency-injection framework.
- * Author      : SmartGrid Mobile Team
- * Created     : 2026-09-17
  * ==========================================================================*/
 package com.example.smartgrid_mobile.core
 

@@ -3,8 +3,8 @@
  * Purpose: Energy reservation details returned to the web and mobile apps.
  *          The QR token is only included for the prosumer who owns the
  *          reservation, so it cannot be copied from staff listings.
- * Author:  <your name>
- * Created: 2026
+ * Author:  Aseni Thennakoon
+ * Created: 2026-09-29
  */
 using SmartMicrogrid.Api.Models;
 using SmartMicrogrid.Api.Models.Enums;

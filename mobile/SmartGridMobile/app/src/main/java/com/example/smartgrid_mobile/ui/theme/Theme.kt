@@ -3,8 +3,6 @@
  * Purpose     : Material 3 theme for the SmartGrid mobile client. Dynamic
  *               colour is deliberately disabled so the app keeps a consistent
  *               identity across devices and in screenshots for the report.
- * Author      : SmartGrid Mobile Team
- * Created     : 2026-09-17
  * ==========================================================================*/
 package com.example.smartgrid_mobile.ui.theme
 

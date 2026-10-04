@@ -5,8 +5,6 @@
  *          banners and dialogs. Every screen is assembled from these, which is
  *          what keeps spacing, density and type consistent across the console
  *          instead of each page inventing its own.
- * Author:  <your name>
- * Created: 2026
  */
 import { useEffect } from 'react'
 import { Link } from 'react-router-dom'

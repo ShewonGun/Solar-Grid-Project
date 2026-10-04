@@ -5,8 +5,6 @@
  *          JWT to each request, and clears the session when the service reports
  *          the token is no longer accepted. The web app is a UI layer only, so
  *          all data and business logic is reached through here.
- * Author:  <your name>
- * Created: 2026
  */
 import axios from 'axios'
 

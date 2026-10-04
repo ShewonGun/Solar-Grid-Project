@@ -2,8 +2,8 @@
  * File: DatabaseController.cs
  * Purpose: Health-check endpoint used to confirm the API can reach MongoDB,
  *          e.g. after deploying to IIS.
- * Author:  <your name>
- * Created: 2026
+ * Author:  Mahen Perera
+ * Created: 2026-10-04
  */
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

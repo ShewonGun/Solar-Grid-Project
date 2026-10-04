@@ -4,8 +4,6 @@
  *          keeps it in step with the rest of the app. It re-reads storage when
  *          the axios interceptor reports that the Web API rejected the token,
  *          and when the user signs out in another browser tab.
- * Author:  <your name>
- * Created: 2026
  */
 import { useCallback, useEffect, useState } from 'react'
 

@@ -9,8 +9,8 @@
  *          second colour, since this console reserves amber for status and
  *          brand accents elsewhere and a plain lightness split needs no
  *          colour-blindness check to stay readable.
- * Author:  <your name>
- * Created: 2026
+ * Author:  Mahen Perera
+ * Created: 2026-09-25
  */
 import { useMemo } from 'react'
 

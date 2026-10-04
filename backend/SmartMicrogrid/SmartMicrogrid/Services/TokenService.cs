@@ -4,8 +4,8 @@
  *          NIC, name and role. Clients send the token in the Authorization
  *          header, and controllers read the NIC from it instead of trusting
  *          the request body.
- * Author:  <your name>
- * Created: 2026
+ * Author:  Mahen Perera
+ * Created: 2026-09-25
  */
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;

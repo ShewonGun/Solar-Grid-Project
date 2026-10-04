@@ -4,8 +4,8 @@
  *          energy drop-off or charging. Tracks approval, the secure QR token
  *          scanned by Grid Operators, and completion/cancellation. Maps to the
  *          "EnergyReservation" collection named in the marking scheme.
- * Author:  <your name>
- * Created: 2026
+ * Author:  Aseni Thennakoon
+ * Created: 2026-09-29
  */
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;

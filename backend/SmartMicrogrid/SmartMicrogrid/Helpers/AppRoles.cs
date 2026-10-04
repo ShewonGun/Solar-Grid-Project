@@ -2,8 +2,8 @@
  * File: AppRoles.cs
  * Purpose: Role names for [Authorize(Roles = ...)] attributes, derived from
  *          the UserRole enum so they cannot drift out of sync with it.
- * Author:  <your name>
- * Created: 2026
+ * Author:  Mahen Perera
+ * Created: 2026-09-25
  */
 using SmartMicrogrid.Api.Models.Enums;
 

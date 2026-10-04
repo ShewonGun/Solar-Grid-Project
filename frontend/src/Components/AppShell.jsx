@@ -9,8 +9,6 @@
  *          under <main> does - which is the standard fixed-shell layout of an
  *          enterprise console (the sidebar and header never leave view no
  *          matter how long a table gets).
- * Author:  <your name>
- * Created: 2026
  */
 import { useEffect, useRef, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'

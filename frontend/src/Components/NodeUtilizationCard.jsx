@@ -7,8 +7,8 @@
  *          of opened windows, not of a node's physical battery count - a node
  *          with plenty of physical slots but few windows opened this week can
  *          still show as fully booked.
- * Author:  <your name>
- * Created: 2026
+ * Author:  Mahen Perera
+ * Created: 2026-09-25
  */
 import { useMemo } from 'react'
 

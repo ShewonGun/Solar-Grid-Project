@@ -2,8 +2,8 @@
  * File: LoginRequest.cs
  * Purpose: Request body for POST api/auth/login. Users sign in with their
  *          NIC or email address and password.
- * Author:  <your name>
- * Created: 2026
+ * Author:  Mahen Perera
+ * Created: 2026-09-25
  */
 using System.ComponentModel.DataAnnotations;
 

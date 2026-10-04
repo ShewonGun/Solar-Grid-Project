@@ -2,8 +2,6 @@
  * File        : SmartGridApp.kt
  * Purpose     : Application entry point. Bootstraps the service locator so the
  *               SQLite session store is ready before the first screen loads.
- * Author      : SmartGrid Mobile Team
- * Created     : 2026-09-17
  * ==========================================================================*/
 package com.example.smartgrid_mobile
 

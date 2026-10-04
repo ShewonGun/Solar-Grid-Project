@@ -3,7 +3,7 @@
  * Purpose     : Holds the prosumer self-registration form state and drives
  *               POST /auth/register. The new account is created server-side in
  *               PendingActivation state, so no session is issued here.
- * Author      : SmartGrid Mobile Team
+ * Author      : Kinara Hemachandra
  * Created     : 2026-09-17
  * ==========================================================================*/
 package com.example.smartgrid_mobile.ui.auth

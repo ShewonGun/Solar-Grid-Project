@@ -3,8 +3,8 @@
  * Purpose: Reads the signed-in user's identity from a validated JWT, so
  *          controllers pass the NIC from the token - never from the request
  *          body - to the service layer.
- * Author:  <your name>
- * Created: 2026
+ * Author:  Mahen Perera
+ * Created: 2026-09-25
  */
 using System.Security.Claims;
 using SmartMicrogrid.Api.Services;

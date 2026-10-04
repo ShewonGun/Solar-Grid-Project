@@ -2,7 +2,7 @@
  * File        : EditProfileScreen.kt
  * Purpose     : Lets a prosumer edit their own profile. The form is seeded from
  *               the SQLite-cached profile and saved through PUT /users/{nic}.
- * Author      : SmartGrid Mobile Team
+ * Author      : Kinara Hemachandra
  * Created     : 2026-09-17
  * ==========================================================================*/
 package com.example.smartgrid_mobile.ui.prosumer

@@ -4,8 +4,6 @@
  *          user profile returned by the Web API) in localStorage, so a page
  *          refresh does not sign the user out. Only the token and profile are
  *          kept here - no business data is cached in the browser.
- * Author:  <your name>
- * Created: 2026
  */
 const STORAGE_KEY = 'smartmicrogrid.session'
 

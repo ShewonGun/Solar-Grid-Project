@@ -1,8 +1,8 @@
 /*
  * File: ChangePasswordRequest.cs
  * Purpose: Request body for PUT api/users/me/password.
- * Author:  <your name>
- * Created: 2026
+ * Author:  Mahen Perera
+ * Created: 2026-09-24
  */
 using System.ComponentModel.DataAnnotations;
 

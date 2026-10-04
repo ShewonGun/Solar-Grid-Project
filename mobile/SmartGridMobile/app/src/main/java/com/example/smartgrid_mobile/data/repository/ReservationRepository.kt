@@ -4,8 +4,8 @@
  *               the slots a prosumer may still book, and creating a booking.
  *               Every rule (7-day window, slot availability, account status)
  *               is enforced by the Web API, not here.
- * Author      : SmartGrid Mobile Team
- * Created     : 2026-09-17
+ * Author      : Aseni Thennakoon
+ * Created     : 2026-09-30
  * ==========================================================================*/
 package com.example.smartgrid_mobile.data.repository
 

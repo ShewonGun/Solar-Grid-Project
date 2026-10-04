@@ -4,8 +4,8 @@
  *          Backoffice account created on startup when none exists. The
  *          password is a secret and is supplied through user secrets
  *          (development) or environment variables (IIS).
- * Author:  <your name>
- * Created: 2026
+ * Author:  Mahen Perera
+ * Created: 2026-09-25
  */
 namespace SmartMicrogrid.Api.Settings
 {

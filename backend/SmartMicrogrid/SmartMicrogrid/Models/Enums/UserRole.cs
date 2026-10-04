@@ -3,8 +3,8 @@
  * Purpose: The three kinds of users in the system. Backoffice officers
  *          administer the system, Grid Operators run day-to-day operations,
  *          and Prosumers book energy slots from the mobile app.
- * Author:  <your name>
- * Created: 2026
+ * Author:  Mahen Perera
+ * Created: 2026-09-24
  */
 namespace SmartMicrogrid.Api.Models.Enums
 {

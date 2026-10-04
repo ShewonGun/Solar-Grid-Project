@@ -3,8 +3,6 @@
  * Purpose: Central error handling for the API. Turns a ServiceException into
  *          its HTTP status code with a JSON message, and any other exception
  *          into a 500 that is logged but does not expose internal details.
- * Author:  <your name>
- * Created: 2026
  */
 using Microsoft.AspNetCore.Diagnostics;
 using SmartMicrogrid.Api.DTOs.Responses;

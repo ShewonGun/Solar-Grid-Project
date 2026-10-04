@@ -3,7 +3,7 @@
  * Purpose     : Light client-side field checks. These only keep obviously bad
  *               input from reaching the network; the authoritative validation
  *               and every business rule stay in the FAT Web API.
- * Author      : SmartGrid Mobile Team
+ * Author      : Kinara Hemachandra
  * Created     : 2026-09-17
  * ==========================================================================*/
 package com.example.smartgrid_mobile.ui.auth

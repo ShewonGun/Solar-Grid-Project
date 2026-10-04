@@ -5,8 +5,8 @@
  *          list and the week's bookings live from the Web API, and shows the
  *          accounts waiting for activation to Back-office officers. Nothing on
  *          this screen is hard-coded - every figure comes from the service.
- * Author:  <your name>
- * Created: 2026
+ * Author:  Mahen Perera
+ * Created: 2026-09-25
  */
 import { useEffect, useState } from 'react'
 

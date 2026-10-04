@@ -4,8 +4,8 @@
  *          identity - the sidebar, the mobile header and the auth screens. The
  *          source artwork has a transparent background, so it drops straight
  *          onto any surface, light or dark, with no backing tile needed.
- * Author:  <your name>
- * Created: 2026
+ * Author:  Mahen Perera
+ * Created: 2026-10-04
  */
 import voltshareMark from '../assets/voltshare-mark.png'
 

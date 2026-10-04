@@ -2,8 +2,8 @@
  * File: IUserService.cs
  * Purpose: Contract for user registration, login, profile management and the
  *          account status workflow. Implemented by UserService.
- * Author:  <your name>
- * Created: 2026
+ * Author:  Mahen Perera
+ * Created: 2026-09-24
  */
 using SmartMicrogrid.Api.Models;
 using SmartMicrogrid.Api.Models.Enums;

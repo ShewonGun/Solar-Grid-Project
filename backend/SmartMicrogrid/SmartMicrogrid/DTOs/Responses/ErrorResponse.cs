@@ -3,8 +3,6 @@
  * Purpose: JSON body returned for every handled error, so the web and mobile
  *          apps can show the message to the user. Validation failures also
  *          list the invalid fields.
- * Author:  <your name>
- * Created: 2026
  */
 using System.Text.Json.Serialization;
 

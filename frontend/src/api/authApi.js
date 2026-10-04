@@ -5,8 +5,8 @@
  *          (POST api/auth/register) has no wrapper here: prosumers register
  *          from the mobile app, and the web console has no prosumer screens to
  *          call it from.
- * Author:  <your name>
- * Created: 2026
+ * Author:  Mahen Perera
+ * Created: 2026-10-04
  */
 import { apiClient } from './client'
 

@@ -3,8 +3,6 @@
  * Purpose     : One shared way of running a Retrofit call and turning the
  *               outcome into an ApiResult, so every repository reports network
  *               and API failures to the UI with the same wording.
- * Author      : SmartGrid Mobile Team
- * Created     : 2026-09-17
  * ==========================================================================*/
 package com.example.smartgrid_mobile.data.repository
 

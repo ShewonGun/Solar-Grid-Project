@@ -4,8 +4,6 @@
  *          its lists for its own purposes - stations and users by name, slots
  *          by start time - so the console reorders them here to put the most
  *          recently created record at the top of every table.
- * Author:  <your name>
- * Created: 2026
  */
 
 /*

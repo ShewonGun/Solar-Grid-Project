@@ -3,8 +3,8 @@
  * Purpose     : Backs the transaction QR screen. Loads the prosumer's upcoming
  *               bookings, keeps only the approved ones the Web API has issued a
  *               QR token for, and tracks which of them is on screen.
- * Author      : SmartGrid Mobile Team
- * Created     : 2026-09-17
+ * Author      : Aseni Thennakoon
+ * Created     : 2026-09-30
  * ==========================================================================*/
 package com.example.smartgrid_mobile.ui.qr
 

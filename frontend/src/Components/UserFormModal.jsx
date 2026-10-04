@@ -5,8 +5,8 @@
  *          active immediately by the service, unlike a prosumer who signs up
  *          for themselves and waits for activation. Role, NIC and password are
  *          set only on creation; the update endpoint carries profile details.
- * Author:  <your name>
- * Created: 2026
+ * Author:  Mahen Perera
+ * Created: 2026-09-25
  */
 import { useEffect, useState } from 'react'
 

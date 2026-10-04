@@ -3,8 +3,8 @@
  * Purpose: Names of the claims written into login tokens by TokenService and
  *          read back when validating requests, kept in one place so issuing
  *          and reading always agree.
- * Author:  <your name>
- * Created: 2026
+ * Author:  Mahen Perera
+ * Created: 2026-09-25
  */
 namespace SmartMicrogrid.Api.Helpers
 {

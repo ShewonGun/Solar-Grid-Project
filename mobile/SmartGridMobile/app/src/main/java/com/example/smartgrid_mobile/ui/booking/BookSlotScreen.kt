@@ -4,8 +4,8 @@
  *               filter them by grid node, and reserve one as a drop-off or a
  *               charging session. The Web API decides whether the booking is
  *               allowed; this screen only collects and displays.
- * Author      : SmartGrid Mobile Team
- * Created     : 2026-09-17
+ * Author      : Aseni Thennakoon
+ * Created     : 2026-09-30
  * ==========================================================================*/
 package com.example.smartgrid_mobile.ui.booking
 

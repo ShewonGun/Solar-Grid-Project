@@ -5,8 +5,8 @@
  *          operators, and booking views and dashboard counts. Prosumers are
  *          always limited to their own reservations. Business rules live in
  *          EnergyReservationService.
- * Author:  <your name>
- * Created: 2026
+ * Author:  Aseni Thennakoon
+ * Created: 2026-09-29
  */
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

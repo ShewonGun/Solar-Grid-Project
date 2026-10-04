@@ -3,8 +3,8 @@
  * Purpose: Request body for POST api/reservations. Prosumers always book for
  *          themselves; Backoffice and Grid Operators must give the prosumer's
  *          NIC to book on their behalf.
- * Author:  <your name>
- * Created: 2026
+ * Author:  Aseni Thennakoon
+ * Created: 2026-09-29
  */
 using System.ComponentModel.DataAnnotations;
 using SmartMicrogrid.Api.Models.Enums;

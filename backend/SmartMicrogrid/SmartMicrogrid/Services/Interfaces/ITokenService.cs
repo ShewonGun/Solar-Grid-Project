@@ -1,8 +1,8 @@
 /*
  * File: ITokenService.cs
  * Purpose: Contract for issuing JWT login tokens. Implemented by TokenService.
- * Author:  <your name>
- * Created: 2026
+ * Author:  Mahen Perera
+ * Created: 2026-09-25
  */
 using SmartMicrogrid.Api.DTOs.Responses;
 using SmartMicrogrid.Api.Models;

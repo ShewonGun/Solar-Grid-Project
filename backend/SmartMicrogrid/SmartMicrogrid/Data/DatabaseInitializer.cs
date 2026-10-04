@@ -4,8 +4,6 @@
  *          enforce uniqueness (email, QR token) and speed up common queries,
  *          and seeds the first Backoffice user so the system can be
  *          administered. Safe to run on every startup.
- * Author:  <your name>
- * Created: 2026
  */
 using Microsoft.Extensions.Options;
 using MongoDB.Bson;
